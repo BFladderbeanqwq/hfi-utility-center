@@ -64,7 +64,7 @@
 
   .wizard-count {
     flex: 0 0 auto;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
   }
 
@@ -85,7 +85,7 @@
   .stepper-item {
     min-width: max-content;
     gap: 6px;
-    font-size: 12px;
+    font-size: 14px;
     white-space: nowrap;
   }
 
@@ -93,14 +93,7 @@
     width: 24px;
     height: 24px;
     flex: 0 0 24px;
-    font-size: 11px;
-  }
-
-  .stepper-divider {
-    width: 20px;
-    min-width: 20px;
-    flex: 0 0 20px;
-    margin-inline: 8px;
+    font-size: 14px;
   }
 
   .wizard-step-body {
@@ -213,11 +206,6 @@
     padding-inline: 8px !important;
   }
 
-  .booking-calendar__day-button {
-    width: 29px;
-    height: 29px;
-  }
-
   .neo-time-grid {
     gap: 5px;
   }
@@ -225,7 +213,7 @@
   .neo-time-cell {
     min-width: 0 !important;
     padding-inline: 3px !important;
-    font-size: 10px !important;
+    font-size: 14px !important;
   }
 
   .time-grid-wrap {
@@ -386,7 +374,7 @@
 
   .rules-modal__body p {
     align-items: flex-start;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .rules-modal__footer {
@@ -418,7 +406,7 @@
   }
 
   .success-card__description {
-    font-size: 13px;
+    font-size: 14px;
     overflow-wrap: anywhere;
   }
 
@@ -593,41 +581,6 @@
 }
 
 @media (max-width: 480px) {
-  .booking-stepper {
-    display: grid;
-    gap: 0;
-    overflow: visible;
-  }
-
-  .stepper-item-wrap,
-  .stepper-item-wrap:last-child {
-    display: flex;
-    width: 100%;
-    flex: none;
-    align-items: center;
-  }
-
-  .stepper-item {
-    min-width: 0;
-    gap: 8px;
-    white-space: normal;
-    text-align: left;
-  }
-
-  .stepper-item__label {
-    display: inline;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
-
-  .stepper-divider {
-    width: 1px;
-    min-width: 1px;
-    height: 13px;
-    flex: 0 0 1px;
-    margin: 0 0 0 12px;
-  }
-
   .profile-purpose-options {
     grid-template-columns: minmax(0, 1fr);
   }

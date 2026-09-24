@@ -5,7 +5,10 @@ import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 
 import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Button, Input, Spinner, Textarea } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
+import { Textarea } from "@/components/ui/textarea"
 import { MarkdownContent } from "@/components/markdown-content"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import {
@@ -28,7 +31,7 @@ export default function AdminAnnouncementPage() {
     initialData: emptyAnnouncement,
   })
   return (
-    <main className="admin-page space-y-6">
+    <main id="main-content" className="admin-page space-y-6">
       <AdminPageHeader
         title={t("announcementTitle")}
         description={t("announcementDescription")}
@@ -134,10 +137,10 @@ function AnnouncementForm({
           <div className="admin-announcement-actions">
             <Button
               type="submit"
-              icon={working ? <Spinner /> : <Save />}
               className="admin-action-button admin-announcement-save"
               disabled={working || (enabled && !content.trim())}
             >
+              working ? <Spinner /> : <Save />
               {t("saveAnnouncement")}
             </Button>
             <span>

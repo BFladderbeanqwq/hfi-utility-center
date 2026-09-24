@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/astryx"
+} from "@/components/ui/alert-dialog"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 
 import styles from "./facility.module.css"

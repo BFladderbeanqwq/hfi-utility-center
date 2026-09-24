@@ -12,7 +12,7 @@ import {
 import { useTranslations } from "next-intl"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 
-import { Spinner } from "@/components/astryx"
+import { Spinner } from "@/components/ui/spinner"
 import { getAdminSession, type AdminSession } from "@/lib/api/auth"
 import { getCatalog } from "@/lib/api/catalog"
 import {
@@ -70,6 +70,13 @@ export function ReservationForm({
     (step) => step.id === currentStepId
   )
   const currentStep = bookingSteps[currentStepIndex]
+  const stepTitles = {
+    class: t("classTitle"),
+    location: t("locationTitle"),
+    dateTime: t("dateTimeTitle"),
+    profile: t("profileTitle"),
+    review: t("reviewTitle"),
+  }
   const selectedClassId = useWatch({ control: form.control, name: "classId" })
   const selectedClass = catalog?.classes.find(
     (item) => item.id === selectedClassId
@@ -154,6 +161,9 @@ export function ReservationForm({
       setIsWorking(true)
       try {
         if (!(await selectedTimeIsStillAvailable(form.getValues()))) return
+      } catch (error) {
+        setFlowError(error instanceof Error ? error.message : common("unknown"))
+        return
       } finally {
         setIsWorking(false)
       }
@@ -201,6 +211,8 @@ export function ReservationForm({
             needsMultimedia: values.needsMultimedia,
           })
       setResult(response)
+    } catch (error) {
+      setFlowError(error instanceof Error ? error.message : common("unknown"))
     } finally {
       setIsWorking(false)
     }
@@ -247,10 +259,9 @@ export function ReservationForm({
     return (
       <div className="app-page app-page--light">
         <NeoHeader />
-        <main className="neo-load-state">
+        <main id="main-content" className="neo-load-state">
           <Spinner className="size-8" />
           <strong>正在载入预约资源</strong>
-          <span>通常会在一秒内完成</span>
         </main>
       </div>
     )
@@ -322,6 +333,7 @@ export function ReservationForm({
       {!isForce ? <NeoHeader /> : null}
       <FormProvider {...form}>
         <form
+          id="main-content"
           noValidate
           onSubmit={handleFormSubmit}
           className="internal-main wizard-page"
@@ -345,6 +357,11 @@ export function ReservationForm({
                 <div className="stepper-item-wrap" key={step.id}>
                   <button
                     type="button"
+                    disabled={index > currentStepIndex || isWorking}
+                    aria-label={stepTitles[step.id]}
+                    aria-current={
+                      index === currentStepIndex ? "step" : undefined
+                    }
                     className={`stepper-item ${index < currentStepIndex ? "stepper-item--complete" : ""} ${index === currentStepIndex ? "stepper-item--active" : ""}`}
                     onClick={() =>
                       index <= currentStepIndex && setCurrentStepId(step.id)
@@ -358,22 +375,9 @@ export function ReservationForm({
                       )}
                     </span>
                     <span className="stepper-item__label">
-                      {
-                        [
-                          t("classTitle"),
-                          t("locationTitle"),
-                          t("dateTimeTitle"),
-                          t("profileTitle"),
-                          t("reviewTitle"),
-                        ][index]
-                      }
+                      {stepTitles[step.id]}
                     </span>
                   </button>
-                  {index < bookingSteps.length - 1 ? (
-                    <span
-                      className={`stepper-divider ${index < currentStepIndex ? "stepper-divider--complete" : ""}`}
-                    />
-                  ) : null}
                 </div>
               ))}
             </div>
@@ -383,7 +387,7 @@ export function ReservationForm({
             <div className="wizard-actions">
               <div className="flex items-center gap-3">
                 {flowError ? (
-                  <p className="hidden max-w-md text-right text-xs text-destructive sm:block">
+                  <p className="hidden max-w-md text-right text-sm text-destructive sm:block">
                     {flowError}
                   </p>
                 ) : null}
@@ -431,7 +435,7 @@ export function ReservationForm({
               </div>
             </div>
             {flowError ? (
-              <p className="pb-3 text-xs text-destructive sm:hidden">
+              <p className="pb-3 text-sm text-destructive sm:hidden">
                 {flowError}
               </p>
             ) : null}

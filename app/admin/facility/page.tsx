@@ -4,7 +4,7 @@ import { Building2, GraduationCap, RefreshCw, School } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Spinner } from "@/components/astryx"
+import { Spinner } from "@/components/ui/spinner"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getCampuses, getClasses, getRooms } from "@/lib/api/catalog"
 import type { Campus, Room, SchoolClass } from "@/lib/api/types"
@@ -50,7 +50,7 @@ export default function AdminFacilitiesPage() {
   const loadingSections = [t("rooms"), t("campuses"), t("classes")]
 
   return (
-    <main className={`admin-page ${styles.page}`}>
+    <main id="main-content" className={`admin-page ${styles.page}`}>
       <AdminPageHeader
         title={t("facilitiesTitle")}
         description={t("facilitiesDescription")}

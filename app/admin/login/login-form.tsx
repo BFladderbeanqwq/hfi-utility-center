@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 
 import { Turnstile } from "@/components/turnstile"
-import { Button } from "@/components/astryx"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/astryx"
-import { Field, FieldError, FieldLabel } from "@/components/astryx"
-import { Input } from "@/components/astryx"
-import { Spinner } from "@/components/astryx"
+import { useAppLocale } from "@/app/providers"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Spinner } from "@/components/ui/spinner"
 import {
   checkLogin,
   loginWithPassword,
@@ -28,6 +29,7 @@ export function AdminLoginForm({
   redirectTo: string
 }) {
   const t = useTranslations("admin")
+  const { locale } = useAppLocale()
   const router = useRouter()
   const form = useForm<LoginFields>({
     defaultValues: { email: "", password: "" },
@@ -96,7 +98,7 @@ export function AdminLoginForm({
 
   if (checkingSession) {
     return (
-      <main className="admin-login-loading">
+      <main id="main-content" className="admin-login-loading">
         <Spinner className="size-8" />
         <span>{t("loginLoading")}</span>
       </main>
@@ -105,7 +107,28 @@ export function AdminLoginForm({
 
   return (
     <main className="admin-login-page">
-      <section className="admin-login-brand" aria-label="HFI Campus" />
+      <section className="admin-login-brand" aria-label="HFI Campus">
+        <h1>
+          {locale === "zh-CN" ? (
+            <>
+              管理场地，
+              <br />
+              协调校园。
+            </>
+          ) : (
+            <>
+              Spaces,
+              <br />
+              in good hands.
+            </>
+          )}
+        </h1>
+        <p>
+          {locale === "zh-CN"
+            ? "审核预约，维护场地与使用规则。"
+            : "Review bookings and manage campus spaces."}
+        </p>
+      </section>
 
       <section className="admin-login-form-panel">
         <Card className="admin-login-card">

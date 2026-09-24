@@ -14,16 +14,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Field,
-  FieldLabel,
-  Input,
+} from "@/components/ui/dialog"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/astryx"
+} from "@/components/ui/table"
 import { createClass, deleteClass, editClass } from "@/lib/api/catalog"
 import type { Campus, SchoolClass } from "@/lib/api/types"
 

@@ -6,9 +6,9 @@ import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
 import { AdminSection } from "@/app/admin/admin-shell"
-import { Button } from "@/components/astryx"
-import { Field, FieldError, FieldLabel } from "@/components/astryx"
-import { Input } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { createAdmin } from "@/lib/api/admins"
 
@@ -111,8 +111,8 @@ export function CreateAdminForm({
         <Button
           className={styles.createAction}
           disabled={working || form.formState.isSubmitting}
-          icon={<Plus />}
         >
+          <Plus />
           {t("addAccount")}
         </Button>
         {actionError ? (
