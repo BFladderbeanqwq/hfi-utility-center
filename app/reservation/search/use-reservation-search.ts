@@ -16,26 +16,38 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
   const [catalog, setCatalog] = useState<CatalogData>()
   const [result, setResult] = useState<ReservationPage>(emptyResult)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string>()
+  const [catalogError, setCatalogError] = useState<string>()
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let active = true
 
     async function loadCatalog() {
-      const nextCatalog = await getCatalog()
-      if (active) setCatalog(nextCatalog)
+      setCatalogError(undefined)
+      try {
+        const nextCatalog = await getCatalog()
+        if (active) setCatalog(nextCatalog)
+      } catch (error) {
+        if (active)
+          setCatalogError(
+            error instanceof Error ? error.message : "Request failed"
+          )
+      }
     }
 
     loadCatalog()
     return () => {
       active = false
     }
-  }, [])
+  }, [reloadKey])
 
   useEffect(() => {
     const currentRequest = ++requestId.current
 
     async function loadReservations() {
       setLoading(true)
+      setError(undefined)
 
       try {
         const nextResult = await getReservations(
@@ -43,6 +55,10 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
         )
         if (requestId.current === currentRequest) {
           setResult(nextResult)
+        }
+      } catch (error) {
+        if (requestId.current === currentRequest) {
+          setError(error instanceof Error ? error.message : "Request failed")
         }
       } finally {
         if (requestId.current === currentRequest) setLoading(false)
@@ -54,7 +70,14 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
     return () => {
       requestId.current += 1
     }
-  }, [filters])
+  }, [filters, reloadKey])
 
-  return { catalog, result, loading }
+  return {
+    catalog,
+    result,
+    loading,
+    error,
+    catalogError,
+    retry: () => setReloadKey((key) => key + 1),
+  }
 }

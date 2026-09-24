@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext, useWatch } from "react-hook-form"
 
-import { Checkbox } from "@/components/astryx"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Field,
   FieldContent,
@@ -9,9 +9,9 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/astryx"
-import { Input } from "@/components/astryx"
-import { Textarea } from "@/components/astryx"
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"

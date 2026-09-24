@@ -5,8 +5,8 @@ import { AlertCircle, RefreshCw } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Button } from "@/components/astryx"
-import { Spinner } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getAdmins } from "@/lib/api/admins"
 import type { Admin } from "@/lib/api/types"
@@ -38,18 +38,18 @@ export default function AdminUsersPage() {
   })
 
   return (
-    <main className={`admin-page ${styles.pageGrid}`}>
+    <main id="main-content" className={`admin-page ${styles.pageGrid}`}>
       <AdminPageHeader
         title={t("usersTitle")}
         description={t("usersDescription")}
         actions={
           <Button
             variant="outline"
-            icon={<RefreshCw />}
             className="admin-action-button"
             onClick={() => void adminResource.reload().catch(() => undefined)}
             disabled={adminResource.loading}
           >
+            <RefreshCw />
             {common("refresh")}
           </Button>
         }
@@ -68,9 +68,9 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               className={styles.retryButton}
-              icon={<RefreshCw />}
               onClick={() => void adminResource.reload().catch(() => undefined)}
             >
+              <RefreshCw />
               {common("refresh")}
             </Button>
           </div>

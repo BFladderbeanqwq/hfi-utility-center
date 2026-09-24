@@ -14,8 +14,8 @@ import {
 } from "react-hook-form"
 import type { DateRange } from "react-day-picker"
 
-import { Calendar } from "@/components/astryx"
-import { Field, FieldLabel } from "@/components/astryx"
+import { Calendar } from "@/components/ui/calendar"
+import { Field, FieldLabel } from "@/components/ui/field"
 import type { CatalogData } from "@/lib/api/types"
 import { inputValueToDate } from "@/lib/date-time"
 

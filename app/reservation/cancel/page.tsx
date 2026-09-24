@@ -24,7 +24,9 @@ import { useLocale, useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 
-import { Button, Calendar, Spinner } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Spinner } from "@/components/ui/spinner"
 import {
   ActionButton,
   NeoFooter,
@@ -365,14 +367,13 @@ export default function CancelReservationPage() {
 
   return (
     <NeoPage>
-      <main className="internal-main management-page">
+      <main id="main-content" className="internal-main management-page">
         <div className="management-shell">
           <header className="management-hero">
             <div className="management-hero__icon">
               <ShieldCheck size={28} />
             </div>
             <div>
-              <span className="page-overline">HFI Utility Center</span>
               <h1>{t("title")}</h1>
               <p>{t("description")}</p>
             </div>
@@ -560,9 +561,6 @@ export default function CancelReservationPage() {
                       <div className="management-booking-step">
                         <div className="management-section-heading">
                           <div>
-                            <span className="page-overline">
-                              {t("stepOne")}
-                            </span>
                             <h3>{t("selectLocation")}</h3>
                           </div>
                           <span>{t("locationHint")}</span>
@@ -592,9 +590,6 @@ export default function CancelReservationPage() {
                         </div>
                         <div className="resource-heading management-resource-heading">
                           <div>
-                            <span className="page-overline">
-                              Room resources
-                            </span>
                             <h2>{bookingT("rooms")}</h2>
                           </div>
                           <span className="resource-count">
@@ -659,9 +654,6 @@ export default function CancelReservationPage() {
                       <div className="management-booking-step">
                         <div className="management-section-heading">
                           <div>
-                            <span className="page-overline">
-                              {t("stepTwo")}
-                            </span>
                             <h3>{t("selectDateTime")}</h3>
                           </div>
                           <span>{selectedRoom?.name}</span>
@@ -675,7 +667,6 @@ export default function CancelReservationPage() {
                         <div className="datetime-card management-datetime-card">
                           <div className="datetime-card__calendar">
                             <div className="panel-heading">
-                              <span className="panel-heading__accent" />
                               <div>
                                 <strong>{bookingT("dateTitle")}</strong>
                                 <span>{bookingT("dateDescription")}</span>
@@ -683,25 +674,6 @@ export default function CancelReservationPage() {
                             </div>
                             <Calendar
                               className="booking-calendar"
-                              classNames={{
-                                month: "booking-calendar__month",
-                                month_caption: "booking-calendar__caption",
-                                caption_label:
-                                  "booking-calendar__caption-label",
-                                nav: "booking-calendar__nav",
-                                button_previous: "booking-calendar__previous",
-                                button_next: "booking-calendar__next",
-                                month_grid: "booking-calendar__grid",
-                                weekdays: "booking-calendar__weekdays",
-                                weekday: "booking-calendar__weekday",
-                                week: "booking-calendar__week",
-                                day: "booking-calendar__day",
-                                day_button: "booking-calendar__day-button",
-                                selected: "booking-calendar__selected",
-                                outside: "booking-calendar__outside",
-                                disabled: "booking-calendar__disabled",
-                                today: "booking-calendar__today",
-                              }}
                               mode="single"
                               showOutsideDays
                               locale={locale === "zh-CN" ? zhCN : enUS}
@@ -718,10 +690,9 @@ export default function CancelReservationPage() {
                               }}
                             />
                           </div>
-                          <div className="datetime-card__divider" />
+
                           <div className="datetime-card__time">
                             <div className="panel-heading datetime-panel-heading">
-                              <span className="panel-heading__accent" />
                               <div>
                                 <strong>{bookingT("timeRange")}</strong>
                                 <span>

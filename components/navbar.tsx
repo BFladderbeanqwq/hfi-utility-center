@@ -7,7 +7,15 @@ import { NeoHeader } from "@/components/neo/shared"
 export function Navbar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
-  if (!pathname.startsWith("/admin") || pathname === "/admin/login") {
+  if (pathname === "/admin/login")
+    return (
+      <>
+        <NeoHeader />
+        {children}
+      </>
+    )
+
+  if (!pathname.startsWith("/admin")) {
     return <>{children}</>
   }
 

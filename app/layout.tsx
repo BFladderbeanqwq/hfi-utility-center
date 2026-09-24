@@ -1,34 +1,16 @@
+import "@fontsource-variable/archivo"
+import "@fontsource-variable/noto-sans-sc"
+import "@fontsource-variable/noto-serif-sc"
 import "./globals.css"
-import { Geist_Mono, Inter, Outfit } from "next/font/google"
 
 import { Providers } from "@/app/providers"
 import { Navbar } from "@/components/navbar"
-import { cn } from "@/lib/utils"
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="zh-CN"
-      suppressHydrationWarning
-      className={cn(
-        "antialiased",
-        fontMono.variable,
-        "font-sans",
-        inter.variable,
-        outfit.variable
-      )}
-    >
+    <html lang="zh-CN" suppressHydrationWarning>
       <body>
         <Providers>
           <Navbar>{children}</Navbar>
@@ -39,8 +21,11 @@ export default function RootLayout({
 }
 
 export const metadata = {
-  title: "HFI Utility Center",
-  description: "HFI campus space reservation and administration platform",
+  title: {
+    default: "HFI Utility Center · 校园场地服务",
+    template: "%s · HFI Utility Center",
+  },
+  description: "预约校园场地、查询预约进度、查看场地使用情况。",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: "/favicon.svg",

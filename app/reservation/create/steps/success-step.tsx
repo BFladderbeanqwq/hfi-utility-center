@@ -20,7 +20,7 @@ export function SuccessStep({
         <span className="success-card__icon" aria-hidden="true">
           <Check size={30} strokeWidth={2.5} />
         </span>
-        <span className="page-overline">HFI Utility Center</span>
+
         <h2>{adminForce ? adminT("forceSuccessTitle") : t("success")}</h2>
         <p className="success-card__description">
           {adminForce && reservationId

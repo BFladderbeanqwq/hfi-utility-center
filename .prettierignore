@@ -5,3 +5,7 @@ node_modules/
 coverage/
 pnpm-lock.yaml
 .pnpm-store/
+output/
+.agents/
+.omo/
+.playwright-cli/

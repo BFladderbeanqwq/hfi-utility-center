@@ -9,16 +9,16 @@ import {
   useWatch,
 } from "react-hook-form"
 
-import { Button } from "@/components/astryx"
-import { Calendar } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   FieldDescription,
   FieldError,
   FieldGroup,
   FieldLegend,
   FieldSet,
-} from "@/components/astryx"
-import { Spinner } from "@/components/astryx"
+} from "@/components/ui/field"
+import { Spinner } from "@/components/ui/spinner"
 import { dateToInputValue, inputValueToDate } from "@/lib/date-time"
 import type { Room } from "@/lib/api/types"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
@@ -189,7 +189,6 @@ export function DateTimeStep({
             render={({ field, fieldState }) => (
               <FieldSet className="gap-4" data-invalid={fieldState.invalid}>
                 <div className="panel-heading">
-                  <span className="panel-heading__accent" />
                   <div>
                     <FieldLegend variant="label">{t("dateTitle")}</FieldLegend>
                     <FieldDescription>{t("dateDescription")}</FieldDescription>
@@ -198,24 +197,6 @@ export function DateTimeStep({
                 <FieldGroup>
                   <Calendar
                     className="booking-calendar"
-                    classNames={{
-                      month: "booking-calendar__month",
-                      month_caption: "booking-calendar__caption",
-                      caption_label: "booking-calendar__caption-label",
-                      nav: "booking-calendar__nav",
-                      button_previous: "booking-calendar__previous",
-                      button_next: "booking-calendar__next",
-                      month_grid: "booking-calendar__grid",
-                      weekdays: "booking-calendar__weekdays",
-                      weekday: "booking-calendar__weekday",
-                      week: "booking-calendar__week",
-                      day: "booking-calendar__day",
-                      day_button: "booking-calendar__day-button",
-                      selected: "booking-calendar__selected",
-                      outside: "booking-calendar__outside",
-                      disabled: "booking-calendar__disabled",
-                      today: "booking-calendar__today",
-                    }}
                     mode="single"
                     showOutsideDays
                     locale={locale === "zh-CN" ? zhCN : enUS}
@@ -236,15 +217,12 @@ export function DateTimeStep({
           />
         </div>
 
-        <div className="datetime-card__divider" />
-
         {date ? (
           <FieldSet
             className="datetime-card__time min-w-0 gap-4"
             data-invalid={startTimeState.invalid || endTimeState.invalid}
           >
             <div className="panel-heading datetime-panel-heading">
-              <span className="panel-heading__accent" />
               <div>
                 <FieldLegend variant="label">{t("timeRange")}</FieldLegend>
                 <FieldDescription>{selectedRangeLabel()}</FieldDescription>

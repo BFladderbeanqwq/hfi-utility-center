@@ -1,6 +1,7 @@
 import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  agentRules: false,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
   images: {
     remotePatterns: [
@@ -15,4 +16,4 @@ const nextConfig: NextConfig = {
 
 export default nextConfig
 
-import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
+import("@opennextjs/cloudflare").then((m) => m.initOpenNextCloudflareForDev())

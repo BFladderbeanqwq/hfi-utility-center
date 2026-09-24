@@ -13,15 +13,15 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
-import { Button } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/astryx"
-import { Spinner } from "@/components/astryx"
+} from "@/components/ui/card"
+import { Spinner } from "@/components/ui/spinner"
 import { useAdminSession } from "@/lib/api/admin-hooks"
 import { logout } from "@/lib/api/auth"
 import { cn } from "@/lib/utils"
@@ -88,7 +88,10 @@ function AuthenticatedAdminShell({
             </CardHeader>
           </Card>
         </aside>
-        <main className="admin-content flex items-start gap-2 text-sm text-muted-foreground">
+        <main
+          id="main-content"
+          className="admin-content flex items-start gap-2 text-sm text-muted-foreground"
+        >
           <Spinner />
           {t("checking")}
         </main>

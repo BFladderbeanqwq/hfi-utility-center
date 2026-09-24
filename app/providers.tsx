@@ -10,7 +10,6 @@ import {
 import { NextIntlClientProvider } from "next-intl"
 import { ThemeProvider } from "next-themes"
 
-import { Toaster } from "@/components/astryx"
 import enMessages from "@/messages/en-US.json"
 import zhMessages from "@/messages/zh-CN.json"
 
@@ -68,7 +67,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
-          <Toaster />
         </ThemeProvider>
       </NextIntlClientProvider>
     </LocaleContext.Provider>

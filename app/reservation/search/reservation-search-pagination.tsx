@@ -2,13 +2,13 @@ import type { ComponentProps } from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
 
-import { buttonVariants } from "@/components/astryx"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
   PaginationItem,
-} from "@/components/astryx"
+} from "@/components/ui/pagination"
 import { cn } from "@/lib/utils"
 
 import {

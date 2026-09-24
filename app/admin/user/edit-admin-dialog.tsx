@@ -5,7 +5,7 @@ import { Check, Pencil, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
-import { Button } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -15,9 +15,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/astryx"
-import { Field, FieldError, FieldLabel } from "@/components/astryx"
-import { Input } from "@/components/astryx"
+} from "@/components/ui/dialog"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { editAdmin } from "@/lib/api/admins"
 import type { Admin } from "@/lib/api/types"
@@ -76,8 +76,8 @@ export function EditAdminDialog({
           variant="outline"
           className={styles.actionButton}
           disabled={working}
-          icon={<Pencil />}
         >
+          <Pencil />
           {common("edit")}
         </Button>
       </DialogTrigger>
@@ -149,18 +149,18 @@ export function EditAdminDialog({
                 type="button"
                 variant="outline"
                 className={`${styles.dialogButton} admin-action-button`}
-                icon={<X />}
                 disabled={form.formState.isSubmitting}
               >
+                <X />
                 {common("cancel")}
               </Button>
             </DialogClose>
             <Button
               type="submit"
               className={`${styles.dialogButton} admin-action-button`}
-              icon={<Check />}
               disabled={form.formState.isSubmitting || working}
             >
+              <Check />
               {common("save")}
             </Button>
           </DialogFooter>

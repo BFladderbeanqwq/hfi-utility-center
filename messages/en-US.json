@@ -41,7 +41,8 @@
   "status": {
     "pending": "Pending",
     "approved": "Approved",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
   },
   "booking": {
     "createTitle": "Create reservation",
@@ -406,7 +407,7 @@
     "announcementPreviewFallbackContent": "The announcement body will appear here as you type.",
     "announcementPreviewConfirm": "Got it",
     "policyWeekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
-    "turnstileMissing": "Cloudflare Turnstile is not configured. Email login links remain available.",
+    "turnstileMissing": "Password login is unavailable. Please use an email login link.",
     "searchLoading": "Loading reservation search…",
     "loginLoading": "Preparing login…"
   },
@@ -464,7 +465,11 @@
       "time": "Time",
       "reservedBy": "Reserved by",
       "purpose": "Purpose",
-      "purposeOptions": { "personal": "Personal", "class": "Class", "club": "Club" },
+      "purposeOptions": {
+        "personal": "Personal",
+        "class": "Class",
+        "club": "Club"
+      },
       "multimedia": "Multimedia equipment",
       "required": "Required",
       "notRequired": "Not required",

@@ -1,8 +1,11 @@
 "use client"
 
 import { useTranslations } from "next-intl"
+import { useAppLocale } from "@/app/providers"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 
-import { Spinner } from "@/components/astryx"
+import { Spinner } from "@/components/ui/spinner"
 import { NeoFooter, NeoPage } from "@/components/neo/shared"
 import type { Reservation } from "@/lib/api/types"
 
@@ -21,17 +24,32 @@ export function ReservationSearch({
   filters: ReservationSearchFilters
 }) {
   const t = useTranslations("searchPage")
-  const { catalog, result, loading } = useReservationSearch(filters)
+  const { locale } = useAppLocale()
+  const zh = locale === "zh-CN"
+  const { catalog, result, loading, error, catalogError, retry } =
+    useReservationSearch(filters)
 
   return (
     <NeoPage>
-      <main className="internal-main booking-list-page">
+      <main id="main-content" className="internal-main booking-list-page">
         <div className="list-layout">
           <aside className="booking-sidebar">
             <div className="booking-sidebar__intro">
               <strong>{t("filtersTitle")}</strong>
               <span>{t("filtersDescription")}</span>
             </div>
+            {catalogError && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  {zh
+                    ? "场地筛选暂时无法加载，仍可按关键词查询。"
+                    : "Room filters are unavailable. Keyword search still works."}
+                </AlertDescription>
+                <Button variant="outline" onClick={retry}>
+                  {zh ? "重新加载" : "Retry"}
+                </Button>
+              </Alert>
+            )}
             <ReservationSearchFilterForm
               key={reservationSearchHref(filters, filters.page)}
               catalog={catalog}
@@ -41,16 +59,27 @@ export function ReservationSearch({
           <section className="booking-list-content">
             <div className="page-title-row">
               <div>
-                <span className="page-overline">HFI Utility Center</span>
                 <h1>{t("title")}</h1>
               </div>
             </div>
-            <SearchContent
-              loading={loading}
-              reservations={result.reservations}
-              sort={filters.sort}
-            />
-            {!loading ? (
+            {error ? (
+              <Alert variant="destructive">
+                <AlertTitle>
+                  {zh ? "预约暂时无法加载" : "Bookings could not be loaded"}
+                </AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+                <Button variant="outline" onClick={retry}>
+                  {zh ? "重试" : "Retry"}
+                </Button>
+              </Alert>
+            ) : (
+              <SearchContent
+                loading={loading}
+                reservations={result.reservations}
+                sort={filters.sort}
+              />
+            )}
+            {!loading && !error ? (
               <div className="list-pagination">
                 <div className="list-pagination__summary">
                   <span>{t("total", { count: result.total })}</span>
