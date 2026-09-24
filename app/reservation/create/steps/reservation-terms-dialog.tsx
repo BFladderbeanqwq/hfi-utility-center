@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl"
 
-import { Button } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/astryx"
+} from "@/components/ui/dialog"
 
 export function ReservationTermsDialog() {
   const t = useTranslations("booking")

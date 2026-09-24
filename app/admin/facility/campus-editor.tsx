@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/astryx"
+} from "@/components/ui/table"
 import { createCampus, deleteCampus, editCampus } from "@/lib/api/catalog"
 import type { Campus } from "@/lib/api/types"
 

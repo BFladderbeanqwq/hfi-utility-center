@@ -5,8 +5,8 @@ import { Bell, BellOff, KeyRound, Trash2, TriangleAlert, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { TextActionDialog } from "@/app/admin/text-action-dialog"
+import { Button } from "@/components/ui/button"
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/astryx"
+} from "@/components/ui/dialog"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import {
   changeAdminPassword,
@@ -88,7 +88,6 @@ export function AdminList({
               <Button
                 size="sm"
                 variant="outline"
-                icon={receivesNotifications ? <Bell /> : <BellOff />}
                 className={`${styles.actionButton} ${styles.notificationToggle}`}
                 disabled={working}
                 onClick={async () => {
@@ -104,6 +103,7 @@ export function AdminList({
                   }
                 }}
               >
+                {receivesNotifications ? <Bell /> : <BellOff />}
                 {receivesNotifications
                   ? t("notificationDisable")
                   : t("notificationEnable")}
@@ -137,10 +137,10 @@ export function AdminList({
                 <Button
                   size="sm"
                   variant="outline"
-                  icon={<KeyRound />}
                   className={styles.actionButton}
                   disabled={working}
                 >
+                  <KeyRound />
                   {t("changePassword")}
                 </Button>
               </TextActionDialog>
@@ -202,10 +202,10 @@ function DeleteAdminDialog({
         <Button
           size="sm"
           variant="outline"
-          icon={<Trash2 />}
           className={`${styles.actionButton} ${styles.dangerButton}`}
           disabled={working}
         >
+          <Trash2 />
           {common("delete")}
         </Button>
       </DialogTrigger>
@@ -235,21 +235,21 @@ function DeleteAdminDialog({
           <Button
             type="button"
             variant="outline"
-            icon={<X />}
             className={`${styles.dialogButton} admin-action-button`}
             disabled={deleting}
             onClick={() => setOpen(false)}
           >
+            <X />
             {common("cancel")}
           </Button>
           <Button
             type="button"
             variant="destructive"
-            icon={<Trash2 />}
             className={`${styles.dialogButton} admin-action-button`}
             disabled={deleting}
             onClick={confirmDelete}
           >
+            <Trash2 />
             {common("delete")}
           </Button>
         </DialogFooter>

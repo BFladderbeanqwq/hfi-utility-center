@@ -13,7 +13,9 @@ import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 
 import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Badge, Button, Spinner } from "@/components/astryx"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { getAdmins } from "@/lib/api/admins"
 import { getAnalyticsOverview, getWeeklyAnalytics } from "@/lib/api/analytics"
 import { getCampuses, getRooms } from "@/lib/api/catalog"
@@ -117,7 +119,7 @@ export default function AdminPage() {
   ]
 
   return (
-    <main className="admin-page space-y-6">
+    <main id="main-content" className="admin-page space-y-6">
       <AdminPageHeader
         title={t("overviewTitle")}
         description={t("overviewDescription")}

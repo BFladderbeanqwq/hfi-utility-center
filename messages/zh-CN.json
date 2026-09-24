@@ -1,8 +1,8 @@
 {
   "nav": {
     "home": "首页",
-    "book": "预约教室",
-    "reservations": "预约列表",
+    "book": "预约场地",
+    "reservations": "查询预约",
     "admin": "管理平台",
     "menu": "菜单",
     "menuDescription": "浏览功能并更改界面设置。",
@@ -38,7 +38,12 @@
     "enabled": "启用",
     "disabled": "停用"
   },
-  "status": { "pending": "待审批", "approved": "已通过", "rejected": "已拒绝" },
+  "status": {
+    "pending": "待审批",
+    "approved": "已通过",
+    "rejected": "已拒绝",
+    "cancelled": "已取消"
+  },
   "booking": {
     "createTitle": "创建预约",
     "progress": "预约进度",
@@ -398,7 +403,7 @@
     "announcementPreviewFallbackContent": "公告正文会在这里实时显示。",
     "announcementPreviewConfirm": "我知道了",
     "policyWeekdays": "周日,周一,周二,周三,周四,周五,周六",
-    "turnstileMissing": "尚未配置 Cloudflare Turnstile 站点密钥。邮件登录链接仍可正常使用。",
+    "turnstileMissing": "密码登录暂不可用，请使用邮件登录链接。",
     "searchLoading": "正在加载查询工具…",
     "loginLoading": "正在准备登录…"
   },
@@ -416,8 +421,8 @@
     },
     "home": {
       "subtitle": "在 @hfiuc.org 预约教室",
-      "book": "预约教室",
-      "reservations": "预约列表",
+      "book": "预约场地",
+      "reservations": "查询预约",
       "openCampuses": "开放校区",
       "bookableRooms": "可预约教室",
       "reservationTotal": "预约总数",

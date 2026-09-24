@@ -19,27 +19,6 @@
   border-radius: 28px !important;
   text-align: center;
 }
-.success-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 5px;
-  background: linear-gradient(90deg, var(--success), #5fd8c1);
-}
-.success-card::after {
-  content: "";
-  position: absolute;
-  top: -110px;
-  right: -80px;
-  width: 250px;
-  height: 250px;
-  pointer-events: none;
-  background: radial-gradient(
-    circle,
-    rgba(16, 185, 129, 0.11),
-    transparent 68%
-  );
-}
 .success-card__icon {
   position: relative;
   z-index: 1;
@@ -53,12 +32,12 @@
   background: var(--success-bg);
   border: 1px solid color-mix(in srgb, var(--success), transparent 65%);
   border-radius: 22px;
-  box-shadow: 0 12px 26px rgba(16, 185, 129, 0.13);
+  box-shadow: none;
 }
 .success-card h2 {
   margin: 4px 0 0;
   color: var(--ink);
-  font-family: "Outfit", sans-serif;
+  font-family: var(--font-ui);
   font-size: 34px;
   font-weight: 800;
   letter-spacing: -0.035em;
@@ -83,14 +62,14 @@
   border-radius: 16px;
 }
 .success-card__number span {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 .success-card__number strong {
   color: var(--primary);
-  font-family: "Outfit", sans-serif;
+  font-family: var(--font-ui);
   font-size: 28px;
 }
 .success-card__actions {
@@ -105,4 +84,3 @@
   height: 48px !important;
   border-radius: 14px !important;
 }
-

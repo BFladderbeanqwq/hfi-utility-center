@@ -1,5 +1,5 @@
 import { AlertCircle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/astryx"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export function StepLayout({
   title,
@@ -18,7 +18,6 @@ export function StepLayout({
     <section aria-labelledby="step-title" className="wizard-step-full">
       {hideHeader ? null : (
         <header className="panel-heading">
-          <span className="panel-heading__accent" />
           <div>
             <h2 id="step-title">{title}</h2>
             {description ? <p>{description}</p> : null}

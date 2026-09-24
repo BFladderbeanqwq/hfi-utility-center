@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "80161e6836b3b40f4e83730a290deb40ac14d877d38c97ad5f6d71be37ce74c3"
+    },
+    "clean-refactor": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "clean-refactor/SKILL.md",
+      "computedHash": "b0804c392c528b7227d73b3c09de48e80cec20c0741c5c991b30794006baf2eb"
+    },
+    "cleanup-useeffect": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "cleanup-useeffect/SKILL.md",
+      "computedHash": "8da4a252f0152d09e0dd90cf4b7c318eca51684047d701b306644c48ee019844"
+    },
+    "commit": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "commit/SKILL.md",
+      "computedHash": "16fce354960456bf0740bd02eb561b3103e74e1e67b4857f0f750305cc95be18"
+    },
+    "developing-agents": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "developing-agents/SKILL.md",
+      "computedHash": "5ed28b04cc02048866f0166366dc2c6dd79ee76039c9289d77529d0a4b8aeb8c"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
+    },
+    "frontend-debugging": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "frontend-debugging/SKILL.md",
+      "computedHash": "7f4a5876c4039af5af24e5e97bf641fafec2804a3127b7ac029df32f502402af"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "106acf230014cbb43ca34e6410371321b56ca742f9ee0442e8ec05bf02eb0384"
+    },
+    "git-branch-linearizing": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "git-branch-linearizing/SKILL.md",
+      "computedHash": "69b99bdf683d1c83ad4c53af946a1cd01a9ce92074ddff57d231b596fcfd4dd8"
+    },
+    "migrate-radix-to-base": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/migrate-radix-to-base/SKILL.md",
+      "computedHash": "4fdc31bf287f674ba6bf91a648120f7b34cd7ef370f998f2cc116fed067789c5"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "d04e43ec01e921558b93bb8046c14a42a22556689a2827243df900825a4e1604"
+    },
+    "skill-compression": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "skill-compression/SKILL.md",
+      "computedHash": "c5d3e5b8f9ca80706afcd48b79393c0355db3c7aa9d289f1056b92989753e469"
+    },
+    "slop-design": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "slop-design/SKILL.md",
+      "computedHash": "d85539748b26ca9f457c6237a9ec263c6690292e80676f4612c83270d488287a"
+    },
+    "slop-tests": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "slop-tests/SKILL.md",
+      "computedHash": "af9b6d8921b9a0f8d6293808548487f664429abfeda0086e5af7ca0ae059a835"
+    },
+    "ui-style-consistency": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "ui-style-consistency/SKILL.md",
+      "computedHash": "c403856883539e377482a30f40e49285623db365964509d3ee82f192ed2f1b0b"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "f3bc47f890f42a44db1007ab390709ec368e4b8c089baee6b0007182236ac474"
+    },
+    "writing-adrs": {
+      "source": "Arcadi4/skills",
+      "sourceType": "github",
+      "skillPath": "writing-adrs/SKILL.md",
+      "computedHash": "5c30d06c8e5555193bbc8f55b23b875c8912ec252301bdadd8c1aca6051d8792"
+    }
+  }
+}

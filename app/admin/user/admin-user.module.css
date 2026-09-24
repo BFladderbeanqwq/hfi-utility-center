@@ -41,7 +41,7 @@
   margin: 0;
   padding: 10px 12px;
   color: #9f2d24;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   background: #fff3f1;
   border: 1px solid #f3c7c1;
@@ -60,10 +60,10 @@
   gap: 20px;
   padding: 20px;
   color: #172033;
-  background: #fff;
+  background: var(--card);
   border: 1px solid #e1e7ef;
   border-radius: 16px;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
+  box-shadow: none;
 }
 
 .accountHeader {
@@ -79,12 +79,12 @@
   height: 44px;
   flex: 0 0 auto;
   place-items: center;
-  color: #fff;
+  color: var(--card);
   font-size: 16px;
   font-weight: 750;
-  background: linear-gradient(145deg, #ff6845, #ff3e18);
+  background: var(--secondary);
   border-radius: 13px;
-  box-shadow: 0 8px 18px rgba(255, 68, 26, 0.2);
+  box-shadow: none;
 }
 
 .identity {
@@ -107,7 +107,7 @@
   overflow: hidden;
   margin-top: 4px;
   color: #69758a;
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -144,7 +144,7 @@
   flex: 0 0 auto;
   place-items: center;
   color: #68758a;
-  background: #fff;
+  background: var(--card);
   border: 1px solid #dde4ed;
   border-radius: 10px;
 }
@@ -161,13 +161,13 @@
 
 .notificationLabel strong {
   color: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 680;
 }
 
 .notificationLabel span {
   color: #7a8799;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .notificationToggle {
@@ -191,7 +191,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 9px;
   padding-top: 16px;
-  border-top: 1px solid #e8edf3;
+  border-top: 0;
 }
 
 .actionButton {
@@ -235,9 +235,9 @@
 
 .dialogSurface {
   color: #172033 !important;
-  background: #fff !important;
+  background: var(--card) !important;
   border: 1px solid #dfe5ed !important;
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22) !important;
+  box-shadow: none !important;
 }
 
 .dialogHeader {
@@ -283,14 +283,14 @@
   height: 46px !important;
   padding-inline: 14px !important;
   color: #172033 !important;
-  background: #fff !important;
+  background: var(--card) !important;
   border: 1px solid #cfd7e3 !important;
   border-radius: 12px !important;
 }
 
 .dialogInput:focus {
   border-color: #ff5a36 !important;
-  box-shadow: 0 0 0 3px rgba(255, 90, 54, 0.13) !important;
+  box-shadow: none !important;
 }
 
 .dialogFooter {
@@ -321,8 +321,8 @@
 :global(.dark) .dialogSurface {
   color: #edf2f8 !important;
   background: #151e2d !important;
-  border-color: #334155 !important;
-  box-shadow: 0 22px 65px rgba(0, 0, 0, 0.38) !important;
+  border-color: var(--muted-foreground) !important;
+  box-shadow: none !important;
 }
 
 :global(.dark) .identity a,

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import { Input } from "@/components/ui/input"
 import { Check } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext } from "react-hook-form"
@@ -8,7 +9,7 @@ import {
   FieldGroup,
   FieldLegend,
   FieldSet,
-} from "@/components/astryx"
+} from "@/components/ui/field"
 import type { CatalogData } from "@/lib/api/types"
 
 import type { ReservationFormValues } from "../form"
@@ -93,14 +94,17 @@ export function ClassStep({
               <FieldLegend variant="label">
                 {campus?.name ?? t("classTitle")}
               </FieldLegend>
-              <label className="list-search neo-class-search">
-                <input
+              <div>
+                <Input
                   id="class-search"
+                  aria-label={t("classSearch")}
+                  name="class-search"
+                  autoComplete="off"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder={t("classSearch")}
                 />
-              </label>
+              </div>
               <div
                 className="class-grid"
                 role="radiogroup"

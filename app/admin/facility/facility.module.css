@@ -20,7 +20,7 @@
   border-radius: 1rem;
   background: var(--card);
   color: var(--foreground);
-  box-shadow: 0 2px 8px rgb(15 23 42 / 5%);
+  box-shadow: none;
 }
 
 .metricIcon {
@@ -121,28 +121,28 @@
 .primaryButton {
   border: 1px solid var(--primary);
   background: var(--primary);
-  color: #fff;
-  box-shadow: 0 3px 8px color-mix(in srgb, var(--primary) 24%, transparent);
+  color: var(--card);
+  box-shadow: none;
 }
 
 .dangerButton {
   border: 1px solid var(--destructive);
   background: var(--destructive);
-  color: #fff;
+  color: var(--card);
 }
 
 .secondaryButton {
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--foreground);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
+  box-shadow: none;
 }
 
 .primaryButton:not(:disabled):hover,
 .dangerButton:not(:disabled):hover,
 .secondaryButton:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgb(15 23 42 / 12%);
+  box-shadow: none;
 }
 
 .secondaryButton:not(:disabled):hover {
@@ -171,9 +171,7 @@
   border: 1px solid var(--border);
   background: var(--popover) !important;
   color: var(--popover-foreground);
-  box-shadow:
-    0 24px 80px rgb(8 15 30 / 30%),
-    0 2px 8px rgb(8 15 30 / 12%);
+  box-shadow: none;
   backdrop-filter: none;
 }
 
@@ -183,7 +181,7 @@
 
 .dialogHeader {
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 0;
 }
 
 .dialogHeader h2 {
@@ -403,7 +401,7 @@
 :global(.dark) .dialog {
   border-color: var(--border);
   background: var(--popover) !important;
-  box-shadow: 0 28px 90px rgb(0 0 0 / 58%);
+  box-shadow: none;
 }
 
 @media (max-width: 900px) {

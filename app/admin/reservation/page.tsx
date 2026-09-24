@@ -5,7 +5,7 @@ import { Check, Download, RefreshCw, Search, X } from "lucide-react"
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Button } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -14,15 +14,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/astryx"
-import { Field, FieldError, FieldLabel } from "@/components/astryx"
+} from "@/components/ui/dialog"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/astryx"
-import { Spinner } from "@/components/astryx"
-import { Textarea } from "@/components/astryx"
+} from "@/components/ui/input-group"
+import { Spinner } from "@/components/ui/spinner"
+import { Textarea } from "@/components/ui/textarea"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import {
   getFutureReservations,
@@ -120,7 +120,7 @@ export default function AdminReservationsPage() {
   }
 
   return (
-    <main className="admin-page space-y-6">
+    <main id="main-content" className="admin-page space-y-6">
       <AdminPageHeader
         title={t("reservationsTitle")}
         description={t("reservationsDescription")}
@@ -128,13 +128,13 @@ export default function AdminReservationsPage() {
           <>
             <Button
               variant="outline"
-              icon={<RefreshCw />}
               className="admin-action-button"
               onClick={() =>
                 void reservationResource.reload().catch(() => undefined)
               }
               disabled={reservationResource.loading}
             >
+              <RefreshCw />
               {common("refresh")}
             </Button>
             <Button asChild variant="outline">
@@ -242,7 +242,7 @@ export default function AdminReservationsPage() {
                 </ReservationGroup>
                 <ReservationGroup
                   title={t("reservationDetails")}
-                  className="border-t pt-5"
+                  className="pt-5"
                 >
                   <ReservationField label={t("room")}>
                     {item.roomName || "—"}
@@ -360,7 +360,7 @@ function ReservationField({
 }) {
   return (
     <div className={wide ? "col-span-2" : undefined}>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd className="mt-1 font-medium">{children}</dd>
     </div>
   )

@@ -1,6 +1,6 @@
 import type { Ref } from "react"
 import { Check } from "lucide-react"
-import { Button } from "@/components/astryx"
+import { Button } from "@/components/ui/button"
 
 export function ChoiceGrid<T extends number | string>({
   items,
@@ -24,9 +24,7 @@ export function ChoiceGrid<T extends number | string>({
   ref?: Ref<HTMLDivElement>
 }) {
   if (!items.length)
-    return (
-      <p className="border-y py-8 text-sm text-muted-foreground">{emptyText}</p>
-    )
+    return <p className="py-8 text-sm text-muted-foreground">{emptyText}</p>
   return (
     <div
       ref={ref}

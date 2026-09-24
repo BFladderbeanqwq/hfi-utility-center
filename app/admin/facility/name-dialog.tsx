@@ -13,10 +13,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Field,
-  FieldLabel,
-  Input,
-} from "@/components/astryx"
+} from "@/components/ui/dialog"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 
 import styles from "./facility.module.css"
 

@@ -2,7 +2,7 @@ import { Check, DoorOpen } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext, useWatch } from "react-hook-form"
 
-import { FieldError, FieldSet } from "@/components/astryx"
+import { FieldError, FieldSet } from "@/components/ui/field"
 import type { CatalogData } from "@/lib/api/types"
 
 import type { ReservationFormValues } from "../form"
@@ -59,7 +59,6 @@ export function LocationStep({ catalog }: { catalog: CatalogData }) {
             <FieldSet className="mt-6 gap-3" data-invalid={fieldState.invalid}>
               <div className="resource-heading">
                 <div>
-                  <span className="page-overline">Room resources</span>
                   <h2>{t("rooms")}</h2>
                 </div>
                 <span className="resource-count">
