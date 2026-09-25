@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
 import { SectionCard } from "@/components/layout/section-card"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
@@ -22,6 +23,7 @@ export function CreateAdminForm({ mutate, working }: { mutate: AdminMutation; wo
   const form = useForm<CreateAdminFields>({
     defaultValues: { name: "", email: "", password: "" },
   })
+  const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
   const requiredText = {
     validate: (value: string) => Boolean(value.trim()) || t("fieldRequired"),
   }
@@ -41,7 +43,11 @@ export function CreateAdminForm({ mutate, working }: { mutate: AdminMutation; wo
 
   return (
     <SectionCard title={t("addAdmin")} contentClassName="flex flex-col gap-4">
-      <form className="flex min-w-0 flex-col gap-4" onSubmit={form.handleSubmit(createAccount)}>
+      <form
+        ref={formRef}
+        className="flex min-w-0 flex-col gap-4"
+        onSubmit={form.handleSubmit(createAccount, shake)}
+      >
         <Controller
           control={form.control}
           name="name"

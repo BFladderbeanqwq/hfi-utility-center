@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import { getAdminSession, type AdminSession } from "@/lib/api/auth"
 import { getCatalog } from "@/lib/api/catalog"
 import { createReservation, forceReservation, getAvailability } from "@/lib/api/reservations"
@@ -64,6 +65,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   const [catalogReloadKey, setCatalogReloadKey] = useState(0)
   const [stepDirection, setStepDirection] = useState<"forward" | "back">("forward")
   const [hasSlid, setHasSlid] = useState(false)
+  const { ref: stepRef, shake: shakeStep } = useErrorShake<HTMLDivElement>()
   const currentStepIndex = bookingSteps.findIndex((step) => step.id === currentStepId)
   const currentStep = bookingSteps[currentStepIndex]
 
@@ -154,6 +156,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
       shouldFocus: true,
     })
     if (!valid) {
+      shakeStep()
       return
     }
 
@@ -407,6 +410,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
           {stepper}
           <div
             key={currentStep.id}
+            ref={stepRef}
             data-direction={stepDirection}
             data-animate={hasSlid ? "" : undefined}
             className="t-page-slide min-w-0"
@@ -433,6 +437,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
           {stepper}
           <div
             key={currentStep.id}
+            ref={stepRef}
             data-direction={stepDirection}
             data-animate={hasSlid ? "" : undefined}
             className="t-page-slide min-w-0"

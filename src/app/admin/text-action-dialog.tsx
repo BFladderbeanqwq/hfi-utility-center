@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -44,6 +45,7 @@ export function TextActionDialog({
   const common = useTranslations("common")
   const inputId = useId()
   const form = useForm({ defaultValues: { value: initialValue } })
+  const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen && form.formState.isSubmitting) return
@@ -75,7 +77,11 @@ export function TextActionDialog({
           </DialogTitle>
           <DialogDescription>{label}</DialogDescription>
         </DialogHeader>
-        <form className="flex min-w-0 flex-col gap-4" onSubmit={form.handleSubmit(saveValue)}>
+        <form
+          ref={formRef}
+          className="flex min-w-0 flex-col gap-4"
+          onSubmit={form.handleSubmit(saveValue, shake)}
+        >
           <Controller
             control={form.control}
             name="value"
