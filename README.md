@@ -61,3 +61,17 @@ pnpm build
 ```
 
 Use `pnpm format` to format TypeScript and JavaScript configuration files.
+
+## Deployment
+
+The app deploys to Cloudflare Workers through OpenNext.
+
+```bash
+pnpm build:cf   # opennextjs-cloudflare build
+pnpm preview    # build:cf, then opennextjs-cloudflare preview
+pnpm upload     # build:cf, then opennextjs-cloudflare upload
+pnpm deploy     # build:cf, then opennextjs-cloudflare deploy
+```
+
+`pnpm cf-typegen` regenerates `cloudflare-env.d.ts` from the Wrangler
+configuration after the bindings change.

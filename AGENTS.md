@@ -42,11 +42,15 @@ pnpm typecheck    # tsc --noEmit
 pnpm lint         # vp lint (oxlint)
 pnpm format       # vp fmt
 pnpm build        # next build
+pnpm build:cf     # opennextjs-cloudflare build (Cloudflare worker bundle)
+pnpm deploy       # build:cf + opennextjs-cloudflare deploy
 ```
 
 ## Conventions
 
 - `pnpm <script>` for app scripts, `vp <cmd>` for Vite+ built-ins. They differ.
+- `preview`, `deploy`, and `upload` all chain `build:cf` first. Change that
+  shared build step, never re-inline `opennextjs-cloudflare build`.
 - Imports use `@/*` → `./src/*`.
 - Pages orchestrate data; interactive views live in a named feature component
   next to the route.
