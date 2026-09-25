@@ -1,12 +1,12 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { enUS, zhCN } from "date-fns/locale"
 import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
   CalendarDays,
-  Check,
   CheckCircle2,
   Clock3,
   DoorOpen,
@@ -16,18 +16,35 @@ import {
   Pencil,
   RefreshCw,
   Save,
-  ShieldCheck,
   UserRound,
   XCircle,
 } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 
+import { AppShell } from "@/components/layout/app-shell"
+import { EmptyState, LoadingState } from "@/components/layout/data-state"
+import { PageHeader } from "@/components/layout/page-header"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
+import { FieldDescription, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Spinner } from "@/components/ui/spinner"
-import { ActionButton, NeoFooter, NeoPage, StatusBadge, Surface } from "@/components/neo/shared"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { getCatalog } from "@/lib/api/catalog"
 import {
   cancelReservation,
@@ -47,6 +64,20 @@ import {
   timeShouldBeVisible,
   type TimeOption,
 } from "../create/steps/time-options"
+
+// Label/value pairs share one template so the label column never drifts.
+const DETAIL =
+  "grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-3 py-2.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]"
+
+const TILE_GROUP =
+  "[&>[data-state=on]]:border-primary [&>[data-state=on]]:bg-primary/10 [&>[data-state=on]]:text-primary"
+
+const STATUS_DOT = {
+  approved: "bg-success",
+  pending: "bg-warning",
+  rejected: "bg-danger",
+  cancelled: "bg-muted-foreground/40",
+} as const
 
 type EditDraft = {
   campus: number
@@ -79,11 +110,21 @@ function addDays(date: Date, days: number) {
   return result
 }
 
+function DetailRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className={DETAIL}>
+      <dt className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-sm break-words">{children}</dd>
+    </div>
+  )
+}
+
 export default function CancelReservationPage() {
   const params = useSearchParams()
   const token = params.get("token") || ""
   const locale = useLocale()
   const t = useTranslations("neo.management")
+  const statusT = useTranslations("status")
   const bookingT = useTranslations("booking")
   const [preview, setPreview] = useState<CancellationPreview>()
   const [catalog, setCatalog] = useState<CatalogData>()
@@ -92,83 +133,29 @@ export default function CancelReservationPage() {
   const [availabilityError, setAvailabilityError] = useState<string>()
   const [loadingAvailability, setLoadingAvailability] = useState(false)
   const [availabilityReload, setAvailabilityReload] = useState(0)
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const [loading, setLoading] = useState(Boolean(token))
   const [working, setWorking] = useState(false)
-  const [mode, setMode] = useState<"details" | "edit" | "cancel">("details")
+  const [mode, setMode] = useState<"details" | "edit">("details")
   const [editStep, setEditStep] = useState<"location" | "time">("location")
+  // The details ⇄ edit block is keyed on mode + editStep, so each move
+  // remounts it and the slide plays on that mount. `hasSlid` is the first-paint
+  // guard: the block a user lands on has no previous screen to slide from.
+  const [slideDirection, setSlideDirection] = useState<"forward" | "back">("forward")
+  const [hasSlid, setHasSlid] = useState(false)
+  const slideKey = mode === "edit" ? `edit-${editStep}` : "details"
+
+  function navigate(direction: "forward" | "back") {
+    setSlideDirection(direction)
+    setHasSlid(true)
+  }
+
   const [result, setResult] = useState<"modified" | "cancelled">()
   const [error, setError] = useState<string>()
 
   useEffect(() => {
     if (!token) return
     let active = true
-    if (process.env.NODE_ENV === "development" && token === "design-preview") {
-      Promise.resolve().then(() => {
-        if (!active) return
-        const reservation: CancellationPreview = {
-          reservationId: 0,
-          roomId: 2,
-          status: "approved",
-          roomName: "iStudy Meeting Room 2",
-          studentName: "许恩澄",
-          reason: "社团项目讨论与设备测试",
-          startTime: "2026-09-18T15:30:00",
-          endTime: "2026-09-18T17:00:00",
-          purposeType: "club",
-          needsMultimedia: true,
-          editCount: 0,
-          remainingEdits: 2,
-        }
-        const demoCatalog: CatalogData = {
-          campuses: [
-            { id: 1, name: "石牌校区", isPrivileged: false },
-            { id: 2, name: "知识城校区", isPrivileged: false },
-          ],
-          classes: [],
-          rooms: [
-            {
-              id: 2,
-              name: "iStudy Meeting Room 2",
-              campus: 1,
-              enabled: true,
-              policies: [
-                {
-                  id: 1,
-                  roomId: 2,
-                  days: [0, 1, 2, 3, 4, 5, 6],
-                  startTime: [8, 0],
-                  endTime: [21, 30],
-                  enabled: true,
-                },
-              ],
-            },
-            {
-              id: 3,
-              name: "Innovation Lab",
-              campus: 2,
-              enabled: true,
-              policies: [
-                {
-                  id: 2,
-                  roomId: 3,
-                  days: [1, 2, 3, 4, 5],
-                  startTime: [9, 0],
-                  endTime: [18, 0],
-                  enabled: true,
-                },
-              ],
-            },
-          ],
-        }
-        setPreview(reservation)
-        setCatalog(demoCatalog)
-        setDraft(initialDraft(reservation, demoCatalog.rooms))
-        setLoading(false)
-      })
-      return () => {
-        active = false
-      }
-    }
     Promise.all([previewCancellation(token), getCatalog()])
       .then(([reservation, nextCatalog]) => {
         if (!active) return
@@ -229,6 +216,16 @@ export default function CancelReservationPage() {
 
   const today = useMemo(() => startOfToday(), [])
   const maximumDate = useMemo(() => addDays(today, 30), [today])
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      }),
+    [locale],
+  )
   const timeFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
@@ -296,6 +293,7 @@ export default function CancelReservationPage() {
       setPreview(refreshed)
       setDraft(initialDraft(refreshed, catalog?.rooms || []))
       setResult("modified")
+      navigate("back")
       setMode("details")
       setEditStep("location")
     } catch (reason) {
@@ -311,6 +309,7 @@ export default function CancelReservationPage() {
     try {
       await cancelReservation(token)
       setResult("cancelled")
+      navigate("back")
       setMode("details")
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : t("cancelFailed"))
@@ -323,441 +322,514 @@ export default function CancelReservationPage() {
   const formatTime = (value: number) => timeFormatter.format(new Date(value * 1000))
 
   return (
-    <NeoPage>
-      <main id="main-content" className="internal-main management-page">
-        <div className="mx-auto w-[min(980px,100%)]">
-          <header className="management-hero">
-            <div className="management-hero__icon">
-              <ShieldCheck size={28} />
-            </div>
-            <div>
-              <h1>{t("title")}</h1>
-              <p>{t("description")}</p>
-            </div>
-          </header>
+    <AppShell width="narrow">
+      <PageHeader title={t("title")} />
 
-          <Surface className="management-card">
-            {loading ? (
-              <div className="neo-load-state management-loading">
-                <Spinner />
-                <strong>{t("loading")}</strong>
-                <span>{t("loadingDescription")}</span>
+      <div className="flex min-w-0 flex-col gap-4">
+        {!token ? (
+          <EmptyState
+            icon={XCircle}
+            title={t("unavailable")}
+            description={t("invalidLink")}
+            action={
+              <Button asChild variant="outline" className="min-h-11 sm:min-h-8">
+                <Link href="/">{t("home")}</Link>
+              </Button>
+            }
+          />
+        ) : null}
+
+        {loading ? (
+          <div className="flex min-w-0 flex-col gap-3">
+            <LoadingState label={t("loading")} rows={3} />
+            <p className="text-sm text-muted-foreground">{t("loadingDescription")}</p>
+          </div>
+        ) : null}
+
+        {!loading && token && !preview ? (
+          <EmptyState
+            icon={XCircle}
+            title={t("unavailable")}
+            description={error ?? t("invalidLink")}
+            action={
+              <Button asChild variant="outline" className="min-h-11 sm:min-h-8">
+                <Link href="/">{t("home")}</Link>
+              </Button>
+            }
+          />
+        ) : null}
+
+        {result === "cancelled" ? (
+          <EmptyState
+            icon={
+              <span className="flex size-11 items-center justify-center rounded-full bg-success-soft text-success-soft-foreground">
+                <CheckCircle2 className="size-5" aria-hidden />
+              </span>
+            }
+            title={t("cancelledTitle")}
+            description={t("cancelledDescription")}
+            action={
+              <>
+                <Button asChild className="min-h-11 sm:min-h-8">
+                  <Link href="/reservation/create">{t("bookAgain")}</Link>
+                </Button>
+                <Button asChild variant="outline" className="min-h-11 sm:min-h-8">
+                  <Link href="/">{t("home")}</Link>
+                </Button>
+              </>
+            }
+          />
+        ) : null}
+
+        {preview && catalog && draft && result !== "cancelled" ? (
+          <div className="t-reveal">
+            <section className="flex min-w-0 flex-col gap-4">
+              <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <h2 className="flex min-w-0 items-center gap-2 text-base font-medium break-words">
+                  <MapPin aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+                  {preview.roomName}
+                </h2>
+                <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                  <span
+                    aria-hidden
+                    className={`size-1.5 rounded-full ${STATUS_DOT[preview.status]}`}
+                  />
+                  {statusT(preview.status)}
+                </span>
               </div>
-            ) : null}
+              <p className="text-xs text-muted-foreground tabular-nums">
+                {t("remainingEdits", { count: preview.remainingEdits })}
+              </p>
 
-            {!loading && (error || !token) && !preview ? (
-              <div className="management-empty-state">
-                <div className="management-empty-state__icon">
-                  <XCircle size={28} />
-                </div>
-                <h2>{t("unavailable")}</h2>
-                <p>{error || t("invalidLink")}</p>
-                <ActionButton variant="secondary" href="/">
-                  {t("home")}
-                </ActionButton>
-              </div>
-            ) : null}
+              {result === "modified" ? (
+                <Alert>
+                  <CheckCircle2 aria-hidden />
+                  <AlertTitle className="break-words">{t("modifiedTitle")}</AlertTitle>
+                  <AlertDescription className="break-words">
+                    {t("modifiedDescription")}
+                  </AlertDescription>
+                </Alert>
+              ) : null}
+              {error ? (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle aria-hidden />
+                  <AlertDescription className="break-words">{error}</AlertDescription>
+                </Alert>
+              ) : null}
 
-            {result === "cancelled" ? (
-              <div className="management-empty-state management-empty-state--success">
-                <div className="management-empty-state__icon">
-                  <CheckCircle2 size={30} />
-                </div>
-                <h2>{t("cancelledTitle")}</h2>
-                <p>{t("cancelledDescription")}</p>
-                <div className="management-empty-state__actions">
-                  <ActionButton href="/reservation/create">{t("bookAgain")}</ActionButton>
-                  <ActionButton variant="secondary" href="/">
-                    {t("home")}
-                  </ActionButton>
-                </div>
-              </div>
-            ) : null}
-
-            {preview && catalog && draft && result !== "cancelled" ? (
-              <div className="management-content">
-                <div className="management-summary">
-                  <div className="management-summary__room">
-                    <span className="management-summary__glyph">
-                      <MapPin size={22} />
-                    </span>
-                    <div>
-                      <span>{t("location")}</span>
-                      <h2>{preview.roomName}</h2>
-                    </div>
-                  </div>
-                  <div className="management-summary__meta">
-                    <StatusBadge tone={preview.status === "approved" ? "success" : "warning"}>
-                      {preview.status === "approved" ? t("approved") : t("pending")}
-                    </StatusBadge>
-                    <span>{t("remainingEdits", { count: preview.remainingEdits })}</span>
-                  </div>
-                </div>
-
-                {result === "modified" ? (
-                  <div className="management-notice management-notice--success">
-                    <CheckCircle2 size={19} />
-                    <div>
-                      <strong>{t("modifiedTitle")}</strong>
-                      <span>{t("modifiedDescription")}</span>
-                    </div>
-                  </div>
-                ) : null}
-                {error ? (
-                  <div className="management-notice management-notice--error">
-                    <AlertTriangle size={19} />
-                    <span>{error}</span>
-                  </div>
-                ) : null}
-
+              <div
+                key={slideKey}
+                data-compact=""
+                data-direction={slideDirection}
+                data-animate={hasSlid ? "" : undefined}
+                className="t-page-slide flex min-w-0 flex-col gap-4"
+              >
                 {mode === "details" ? (
                   <>
-                    <div className="management-detail-grid">
-                      <article>
-                        <CalendarDays size={19} />
-                        <span>{t("date")}</span>
-                        <strong>{preview.startTime.slice(0, 10)}</strong>
-                      </article>
-                      <article>
-                        <Clock3 size={19} />
-                        <span>{t("time")}</span>
-                        <strong>
+                    <dl className="flex min-w-0 flex-col divide-y divide-border">
+                      <DetailRow label={t("date")}>
+                        <span className="font-mono text-xs">
+                          {dateFormatter.format(new Date(preview.startTime))}
+                        </span>
+                      </DetailRow>
+                      <DetailRow label={t("time")}>
+                        <span className="flex items-center gap-1.5 font-mono text-xs tabular-nums">
+                          <Clock3 aria-hidden className="size-3.5 text-muted-foreground" />
                           {preview.startTime.slice(11, 16)} – {preview.endTime.slice(11, 16)}
-                        </strong>
-                      </article>
-                      <article>
-                        <UserRound size={19} />
-                        <span>{t("reservedBy")}</span>
-                        <strong>{preview.studentName}</strong>
-                      </article>
-                      <article>
-                        <FileText size={19} />
-                        <span>{t("purpose")}</span>
-                        <strong>{t(`purposeOptions.${purposeKey}`)}</strong>
-                      </article>
-                      <article className="management-detail-grid__wide">
-                        <Monitor size={19} />
-                        <span>{t("multimedia")}</span>
-                        <strong>
+                        </span>
+                      </DetailRow>
+                      <DetailRow label={t("reservedBy")}>
+                        <span className="flex items-center gap-1.5">
+                          <UserRound aria-hidden className="size-3.5 text-muted-foreground" />
+                          {preview.studentName}
+                        </span>
+                      </DetailRow>
+                      <DetailRow label={t("purpose")}>
+                        <span className="flex items-center gap-1.5">
+                          <FileText aria-hidden className="size-3.5 text-muted-foreground" />
+                          {t(`purposeOptions.${purposeKey}`)}
+                        </span>
+                      </DetailRow>
+                      <DetailRow label={t("multimedia")}>
+                        <span className="flex items-center gap-1.5">
+                          <Monitor aria-hidden className="size-3.5 text-muted-foreground" />
                           {preview.needsMultimedia ? t("required") : t("notRequired")}
-                        </strong>
-                      </article>
-                      <article className="management-detail-grid__wide">
-                        <FileText size={19} />
-                        <span>{t("reason")}</span>
-                        <strong>{preview.reason}</strong>
-                      </article>
-                    </div>
-                    <div className="management-actions">
-                      <ActionButton
-                        icon={<Pencil size={17} />}
+                        </span>
+                      </DetailRow>
+                      <DetailRow label={t("reason")}>
+                        <span className="flex items-start gap-1.5">
+                          <FileText
+                            aria-hidden
+                            className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+                          />
+                          {preview.reason}
+                        </span>
+                      </DetailRow>
+                    </dl>
+
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                      <Button
+                        type="button"
                         disabled={preview.remainingEdits <= 0}
                         onClick={() => {
                           setError(undefined)
                           setResult(undefined)
+                          navigate("forward")
                           setEditStep("location")
                           setMode("edit")
                         }}
+                        className="min-h-11 sm:min-h-8"
                       >
+                        <Pencil aria-hidden />
                         {t("modify")}
-                      </ActionButton>
-                      <ActionButton
-                        icon={<XCircle size={17} />}
-                        variant="destructive"
-                        onClick={() => {
-                          setError(undefined)
-                          setMode("cancel")
-                        }}
-                      >
-                        {t("cancelReservation")}
-                      </ActionButton>
-                      <ActionButton variant="secondary" href="/">
-                        {t("home")}
-                      </ActionButton>
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            className="min-h-11 sm:min-h-8"
+                          >
+                            <XCircle aria-hidden />
+                            {t("cancelReservation")}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t("cancelConfirmTitle")}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t("cancelConfirmDescription", {
+                                date: preview.startTime.slice(0, 10),
+                              })}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="min-h-11 sm:min-h-8">
+                              {t("keepReservation")}
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => void confirmCancellation()}
+                              disabled={working}
+                              className="min-h-11 sm:min-h-8"
+                            >
+                              {working ? <Spinner /> : null}
+                              {t("confirmCancel")}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <Button asChild variant="ghost" className="min-h-11 sm:min-h-8">
+                        <Link href="/">{t("home")}</Link>
+                      </Button>
                     </div>
                   </>
                 ) : null}
 
                 {mode === "edit" ? (
-                  <div className="management-editor">
-                    <div className="management-edit-progress" aria-label={t("modifyProgress")}>
-                      <div className={editStep === "location" ? "is-active" : "is-complete"}>
-                        <span>{editStep === "time" ? <Check size={15} /> : "1"}</span>
-                        <strong>{t("selectLocation")}</strong>
-                      </div>
-                      <i />
-                      <div className={editStep === "time" ? "is-active" : ""}>
-                        <span>2</span>
-                        <strong>{t("selectDateTime")}</strong>
-                      </div>
-                    </div>
+                  <div className="flex min-w-0 flex-col gap-4">
+                    <ol className="flex items-center gap-2 text-xs">
+                      {(["location", "time"] as const).map((step, index) => {
+                        const active = editStep === step
+                        return (
+                          <li key={step} className="flex items-center gap-2">
+                            <span
+                              aria-current={active ? "step" : undefined}
+                              className={
+                                active
+                                  ? "flex size-6 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground"
+                                  : "flex size-6 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground"
+                              }
+                            >
+                              {index + 1}
+                            </span>
+                            <span className={active ? "font-medium" : "text-muted-foreground"}>
+                              {step === "location" ? t("selectLocation") : t("selectDateTime")}
+                            </span>
+                            {index === 0 ? (
+                              <ArrowRight aria-hidden className="text-muted-foreground" />
+                            ) : null}
+                          </li>
+                        )
+                      })}
+                    </ol>
 
                     {editStep === "location" ? (
-                      <div className="management-booking-step">
-                        <div className="management-section-heading">
-                          <div>
-                            <h3>{t("selectLocation")}</h3>
-                          </div>
-                          <span>{t("locationHint")}</span>
-                        </div>
-                        <div className="campus-tabs">
-                          {catalog.campuses
-                            .filter((campus) => !campus.isPrivileged)
-                            .map((campus) => (
-                              <button
-                                type="button"
-                                key={campus.id}
-                                className={`campus-tab ${draft.campus === campus.id ? "campus-tab--active" : ""}`}
-                                onClick={() => {
-                                  setDraft({
-                                    ...draft,
-                                    campus: campus.id,
-                                    room: 0,
-                                    startTime: 0,
-                                    endTime: 0,
-                                  })
-                                  setAvailability(undefined)
-                                }}
+                      <div className="flex min-w-0 flex-col gap-4">
+                        <FieldSet className="min-w-0 gap-3">
+                          <FieldLegend variant="label">{t("selectLocation")}</FieldLegend>
+                          <FieldDescription>{t("locationHint")}</FieldDescription>
+                          <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            value={String(draft.campus)}
+                            onValueChange={(value) => {
+                              if (!value) return
+                              setDraft({
+                                ...draft,
+                                campus: Number(value),
+                                room: 0,
+                                startTime: 0,
+                                endTime: 0,
+                              })
+                              setAvailability(undefined)
+                            }}
+                            className={`flex w-full flex-wrap items-stretch gap-2 ${TILE_GROUP}`}
+                          >
+                            {catalog.campuses
+                              .filter((campus) => !campus.isPrivileged)
+                              .map((campus) => (
+                                <ToggleGroupItem
+                                  key={campus.id}
+                                  value={String(campus.id)}
+                                  className="min-h-11 flex-1 sm:min-h-8"
+                                >
+                                  {campus.name}
+                                </ToggleGroupItem>
+                              ))}
+                          </ToggleGroup>
+                        </FieldSet>
+
+                        <FieldSet className="min-w-0 gap-3">
+                          <FieldLegend variant="label">
+                            {bookingT("rooms")} ·{" "}
+                            {t("availableSpaces", { count: roomsForCampus.length })}
+                          </FieldLegend>
+                          <ToggleGroup
+                            type="single"
+                            variant="outline"
+                            value={String(draft.room)}
+                            onValueChange={(value) => {
+                              if (!value) return
+                              setDraft({
+                                ...draft,
+                                room: Number(value),
+                                startTime: 0,
+                                endTime: 0,
+                              })
+                              setAvailability(undefined)
+                            }}
+                            aria-label={bookingT("rooms")}
+                            className={`grid w-full grid-cols-1 gap-2 sm:grid-cols-2 ${TILE_GROUP}`}
+                          >
+                            {roomsForCampus.map((room) => (
+                              <ToggleGroupItem
+                                key={room.id}
+                                value={String(room.id)}
+                                className="min-h-11 min-w-0 justify-start gap-2 px-3 sm:min-h-12"
                               >
-                                {campus.name}
-                              </button>
+                                <DoorOpen aria-hidden className="size-4 shrink-0 opacity-70" />
+                                <span className="truncate">{room.name}</span>
+                              </ToggleGroupItem>
                             ))}
-                        </div>
-                        <div className="resource-heading management-resource-heading">
-                          <div>
-                            <h2>{bookingT("rooms")}</h2>
-                          </div>
-                          <span className="resource-count">
-                            {t("availableSpaces", {
-                              count: roomsForCampus.length,
-                            })}
-                          </span>
-                        </div>
-                        <div className="room-grid">
-                          {roomsForCampus.map((room) => (
-                            <button
-                              type="button"
-                              key={room.id}
-                              className={`room-card ${draft.room === room.id ? "room-card--selected" : ""}`}
-                              onClick={() => {
-                                setDraft({
-                                  ...draft,
-                                  room: room.id,
-                                  startTime: 0,
-                                  endTime: 0,
-                                })
-                                setAvailability(undefined)
-                              }}
-                            >
-                              <span className="room-card__icon">
-                                <DoorOpen size={18} />
-                              </span>
-                              <strong>{room.name}</strong>
-                              {draft.room === room.id ? (
-                                <span className="room-card__check">
-                                  <Check size={13} />
-                                </span>
-                              ) : null}
-                            </button>
-                          ))}
-                        </div>
-                        <div className="management-actions">
-                          <ActionButton
-                            variant="secondary"
+                          </ToggleGroup>
+                        </FieldSet>
+
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Button
+                            type="button"
+                            variant="outline"
                             onClick={() => {
                               setDraft(initialDraft(preview, catalog.rooms))
+                              navigate("back")
                               setMode("details")
                             }}
+                            className="min-h-11 sm:min-h-8"
                           >
                             {t("exitModify")}
-                          </ActionButton>
-                          <ActionButton
-                            endContent={<ArrowRight size={17} />}
+                          </Button>
+                          <Button
+                            type="button"
                             disabled={!draft.room}
                             onClick={() => {
-                              if (!draft.room) return
+                              navigate("forward")
                               setEditStep("time")
                             }}
+                            className="min-h-11 sm:min-h-8"
                           >
                             {t("next")}
-                          </ActionButton>
+                            <ArrowRight aria-hidden />
+                          </Button>
                         </div>
                       </div>
                     ) : null}
 
                     {editStep === "time" ? (
-                      <div className="management-booking-step">
-                        <div className="management-section-heading">
-                          <div>
-                            <h3>{t("selectDateTime")}</h3>
-                          </div>
-                          <span>{selectedRoom?.name}</span>
-                        </div>
+                      <div className="flex min-w-0 flex-col gap-4">
                         {availabilityError ? (
-                          <div className="management-notice management-notice--error">
-                            <AlertTriangle size={19} />
-                            <span>{availabilityError}</span>
-                          </div>
+                          <Alert variant="destructive">
+                            <AlertTriangle aria-hidden />
+                            <AlertDescription className="break-words">
+                              {availabilityError}
+                            </AlertDescription>
+                          </Alert>
                         ) : null}
-                        <div className="datetime-card management-datetime-card">
-                          <div className="datetime-card__calendar">
-                            <div className="panel-heading">
-                              <div>
-                                <strong>{bookingT("dateTitle")}</strong>
-                                <span>{bookingT("dateDescription")}</span>
-                              </div>
+
+                        <FieldSet className="min-w-0 gap-3">
+                          <FieldLegend variant="label">{t("selectDateTime")}</FieldLegend>
+                          <FieldLabel htmlFor="cancel-date">{bookingT("dateTitle")}</FieldLabel>
+                          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                id="cancel-date"
+                                type="button"
+                                variant="outline"
+                                className="min-h-11 w-full justify-start font-normal sm:min-h-8"
+                              >
+                                <CalendarDays aria-hidden />
+                                <span className="min-w-0 truncate">
+                                  {draft.date
+                                    ? dateFormatter.format(
+                                        inputValueToDate(draft.date) ?? new Date(),
+                                      )
+                                    : bookingT("dateTitle")}
+                                </span>
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                showOutsideDays
+                                locale={locale === "zh-CN" ? zhCN : enUS}
+                                selected={inputValueToDate(draft.date)}
+                                defaultMonth={inputValueToDate(draft.date) || today}
+                                startMonth={today}
+                                endMonth={maximumDate}
+                                disabled={{ before: today, after: maximumDate }}
+                                onSelect={(selected) => {
+                                  if (!selected) return
+                                  resetTimes(dateToInputValue(selected))
+                                  setCalendarOpen(false)
+                                }}
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FieldDescription>
+                            {selectedRoom ? `${t("room")}: ${selectedRoom.name}` : ""}
+                          </FieldDescription>
+                        </FieldSet>
+
+                        <FieldSet className="min-w-0 gap-3">
+                          <div className="flex min-w-0 items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <FieldLegend variant="label">{bookingT("timeRange")}</FieldLegend>
+                              <FieldDescription>
+                                {draft.startTime && draft.endTime
+                                  ? bookingT("selectedRange", {
+                                      start: formatTime(draft.startTime),
+                                      end: formatTime(draft.endTime),
+                                    })
+                                  : draft.startTime
+                                    ? bookingT("selectEndHint")
+                                    : bookingT("selectStartHint")}
+                              </FieldDescription>
                             </div>
-                            <Calendar
-                              className="booking-calendar"
-                              mode="single"
-                              showOutsideDays
-                              locale={locale === "zh-CN" ? zhCN : enUS}
-                              selected={inputValueToDate(draft.date)}
-                              defaultMonth={inputValueToDate(draft.date) || today}
-                              startMonth={today}
-                              endMonth={maximumDate}
-                              disabled={{ before: today, after: maximumDate }}
-                              onSelect={(selected) => {
-                                if (selected) resetTimes(dateToInputValue(selected))
-                              }}
-                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={bookingT("refresh")}
+                              disabled={loadingAvailability}
+                              onClick={() => setAvailabilityReload((value) => value + 1)}
+                              className="size-11 shrink-0 sm:size-8"
+                            >
+                              {loadingAvailability ? <Spinner /> : <RefreshCw aria-hidden />}
+                            </Button>
                           </div>
 
-                          <div className="datetime-card__time">
-                            <div className="panel-heading datetime-panel-heading">
-                              <div>
-                                <strong>{bookingT("timeRange")}</strong>
-                                <span>
-                                  {draft.startTime && draft.endTime
-                                    ? bookingT("selectedRange", {
-                                        start: formatTime(draft.startTime),
-                                        end: formatTime(draft.endTime),
-                                      })
-                                    : draft.startTime
-                                      ? bookingT("selectEndHint")
-                                      : bookingT("selectStartHint")}
+                          {loadingAvailability ? (
+                            <div
+                              className="flex min-h-20 items-center gap-2 text-sm text-muted-foreground"
+                              aria-live="polite"
+                            >
+                              <Spinner />
+                              {bookingT("checking")}
+                            </div>
+                          ) : null}
+
+                          {availability && !loadingAvailability ? (
+                            <>
+                              <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1.5">
+                                  <span aria-hidden className="size-2 rounded-full bg-success" />
+                                  {bookingT("available")}
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <span
+                                    aria-hidden
+                                    className="size-2 rounded-full bg-muted-foreground/40"
+                                  />
+                                  {bookingT("occupied")}
                                 </span>
                               </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="availability-refresh-button"
-                                aria-label={bookingT("refresh")}
-                                disabled={loadingAvailability}
-                                onClick={() => setAvailabilityReload((value) => value + 1)}
-                              >
-                                {loadingAvailability ? <Spinner /> : <RefreshCw size={15} />}
-                              </Button>
-                            </div>
-                            {loadingAvailability ? (
-                              <div className="flex min-h-[70px] items-center gap-2 text-sm text-muted-foreground">
-                                <Spinner />
-                                {bookingT("checking")}
+                              <div className="grid min-w-0 grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+                                {visibleTimeOptions.map((option) => {
+                                  const selected = timeIsSelected(
+                                    option.timestamp,
+                                    draft.startTime,
+                                    draft.endTime,
+                                  )
+                                  const selectable = timeCanBeSelected({
+                                    option,
+                                    slots: availability.slots,
+                                    startTime: draft.startTime,
+                                    endTime: draft.endTime,
+                                  })
+                                  const occupied = option.status === "occupied" && !selectable
+                                  return (
+                                    <Button
+                                      type="button"
+                                      key={option.timestamp}
+                                      disabled={!selectable && !selected}
+                                      aria-pressed={selected}
+                                      variant={
+                                        selected ? "default" : occupied ? "ghost" : "outline"
+                                      }
+                                      className={
+                                        occupied
+                                          ? "min-h-11 text-muted-foreground line-through sm:min-h-8"
+                                          : "min-h-11 font-mono text-xs tabular-nums sm:min-h-8"
+                                      }
+                                      onClick={() => selectTime(option)}
+                                    >
+                                      {formatTime(option.timestamp)}
+                                    </Button>
+                                  )
+                                })}
                               </div>
-                            ) : null}
-                            {availability && !loadingAvailability ? (
-                              <>
-                                <div className="neo-time-legend" aria-hidden="true">
-                                  <span>
-                                    <i className="neo-time-legend__available" />
-                                    {bookingT("available")}
-                                  </span>
-                                  <span>
-                                    <i className="neo-time-legend__occupied" />
-                                    {bookingT("occupied")}
-                                  </span>
-                                </div>
-                                <div className="neo-time-grid">
-                                  {visibleTimeOptions.map((option) => {
-                                    const selected = timeIsSelected(
-                                      option.timestamp,
-                                      draft.startTime,
-                                      draft.endTime,
-                                    )
-                                    const selectable = timeCanBeSelected({
-                                      option,
-                                      slots: availability.slots,
-                                      startTime: draft.startTime,
-                                      endTime: draft.endTime,
-                                    })
-                                    return (
-                                      <Button
-                                        type="button"
-                                        key={option.timestamp}
-                                        disabled={!selectable && !selected}
-                                        aria-pressed={selected}
-                                        variant={selected ? "default" : "outline"}
-                                        className={`neo-time-cell ${option.status === "occupied" && !selectable ? "neo-time-cell--occupied" : ""} ${selected ? "neo-time-cell--selected" : ""}`}
-                                        onClick={() => selectTime(option)}
-                                      >
-                                        {formatTime(option.timestamp)}
-                                      </Button>
-                                    )
-                                  })}
-                                </div>
-                              </>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div className="management-actions">
-                          <ActionButton
-                            icon={<ArrowLeft size={17} />}
-                            variant="secondary"
+                            </>
+                          ) : null}
+                        </FieldSet>
+
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Button
+                            type="button"
+                            variant="outline"
                             disabled={working}
                             onClick={() => setEditStep("location")}
+                            className="min-h-11 sm:min-h-8"
                           >
+                            <ArrowLeft aria-hidden />
                             {t("previous")}
-                          </ActionButton>
-                          <ActionButton
-                            icon={working ? <Spinner /> : <Save size={17} />}
+                          </Button>
+                          <Button
+                            type="button"
                             disabled={working || !draft.startTime || !draft.endTime}
-                            onClick={saveChanges}
+                            onClick={() => void saveChanges()}
+                            className="min-h-11 sm:min-h-8"
                           >
+                            {working ? <Spinner /> : <Save aria-hidden />}
                             {t("save")}
-                          </ActionButton>
+                          </Button>
                         </div>
                       </div>
                     ) : null}
                   </div>
                 ) : null}
-
-                {mode === "cancel" ? (
-                  <div className="management-confirm">
-                    <div className="management-confirm__icon">
-                      <AlertTriangle size={26} />
-                    </div>
-                    <h3>{t("cancelConfirmTitle")}</h3>
-                    <p>
-                      {t("cancelConfirmDescription", {
-                        date: preview.startTime.slice(0, 10),
-                      })}
-                    </p>
-                    <div className="management-actions">
-                      <ActionButton
-                        icon={working ? <Spinner /> : <XCircle size={17} />}
-                        variant="destructive"
-                        disabled={working}
-                        onClick={confirmCancellation}
-                      >
-                        {t("confirmCancel")}
-                      </ActionButton>
-                      <ActionButton
-                        variant="secondary"
-                        disabled={working}
-                        onClick={() => setMode("details")}
-                      >
-                        {t("keepReservation")}
-                      </ActionButton>
-                    </div>
-                  </div>
-                ) : null}
               </div>
-            ) : null}
-          </Surface>
-        </div>
-      </main>
-      <NeoFooter />
-    </NeoPage>
+            </section>
+          </div>
+        ) : null}
+      </div>
+    </AppShell>
   )
 }

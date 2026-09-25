@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { CalendarDays, FileText, Mail, MapPin, Monitor, UserRound } from "lucide-react"
+import { Clock3, Mail, MapPin, Monitor, ShieldCheck, UserRound } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useFormContext } from "react-hook-form"
 
@@ -8,22 +8,16 @@ import type { CatalogData } from "@/lib/api/types"
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
 
-function ConfirmValue({
-  label,
-  children,
-  icon,
-}: {
-  label: string
-  children: ReactNode
-  icon: ReactNode
-}) {
+// One shared template for every label/value pair, so the label column keeps the
+// same width down the whole summary.
+const DETAIL =
+  "grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-3 py-2.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]"
+
+function ConfirmRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="confirm-card">
-      <div className="confirm-card__label">
-        <span>{icon}</span>
-        <strong>{label}</strong>
-      </div>
-      <div className="confirm-card__value">{children}</div>
+    <div className={DETAIL}>
+      <dt className="text-sm break-words text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-sm break-words">{children}</dd>
     </div>
   )
 }
@@ -51,70 +45,68 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
   const duration = Math.max(0, Math.round((values.endTime - values.startTime) / 60))
 
   return (
-    <StepLayout title={t("reviewTitle")} description={t("reviewDescription")} hideHeader>
-      <div className="confirm-step">
-        <div className="confirm-banner">
-          <span className="confirm-banner__icon">
-            <CalendarDays size={22} />
-          </span>
-          <div>
-            <h2>{t("reviewTitle")}</h2>
-            <p>{t("reviewDescription")}</p>
-          </div>
-        </div>
-        <div className="confirm-grid">
-          <ConfirmValue label={t("location")} icon={<MapPin size={20} />}>
-            <strong>{roomName}</strong>
-            <span className="self-start rounded-[12px] bg-secondary px-2.5 py-1 text-sm text-primary">
+    <StepLayout title={t("reviewTitle")}>
+      <dl className="flex min-w-0 flex-col divide-y divide-border">
+        <ConfirmRow label={t("location")}>
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
+            <MapPin aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="font-medium break-words">{roomName}</span>
+            <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
               {campusName}
             </span>
-          </ConfirmValue>
-          <ConfirmValue label={t("dateTimeTitle")} icon={<CalendarDays size={20} />}>
-            <span className="confirm-date">
+          </span>
+        </ConfirmRow>
+        <ConfirmRow label={t("dateTimeTitle")}>
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
+            <Clock3 aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="break-words">
               {dateFormatter.format(new Date(values.startTime * 1000))}
             </span>
-            <strong className="confirm-time">
-              {timeFormatter.format(new Date(values.startTime * 1000))} -{" "}
+            <span className="font-mono text-xs tabular-nums">
+              {timeFormatter.format(new Date(values.startTime * 1000))} –{" "}
               {timeFormatter.format(new Date(values.endTime * 1000))}
-            </strong>
-            <span className="duration-strip">{duration} 分钟</span>
-          </ConfirmValue>
-          <ConfirmValue label={t("profileTitle")} icon={<UserRound size={20} />}>
-            <dl>
-              <div>
-                <dt>{t("class")}</dt>
-                <dd>{className}</dd>
-              </div>
-              <div>
-                <dt>{t("name")}</dt>
-                <dd>{values.studentName}</dd>
-              </div>
-              {!values.isPrivileged ? (
-                <div>
-                  <dt>{t("studentId")}</dt>
-                  <dd>{values.studentId}</dd>
-                </div>
-              ) : null}
-              <div>
-                <dt>{t("email")}</dt>
-                <dd>{values.email}</dd>
-              </div>
-            </dl>
-          </ConfirmValue>
-          <ConfirmValue label={t("reason")} icon={<FileText size={20} />}>
-            <span className="reason-quote">{values.reason}</span>
-            <span className="confirm-note">
-              <Mail size={16} /> 提交后将收到邮件确认及取消入口
             </span>
-          </ConfirmValue>
-          <ConfirmValue label={t("purpose")} icon={<Monitor size={20} />}>
-            <strong>{t(`purposeOptions.${values.purposeType}`)}</strong>
-            <span>
-              {values.needsMultimedia ? t("multimedia") : t("no") + " · " + t("multimedia")}
+            <span className="text-xs text-muted-foreground">
+              {t("minutes", { count: duration })}
             </span>
-          </ConfirmValue>
-        </div>
-      </div>
+          </span>
+        </ConfirmRow>
+        <ConfirmRow label={t("profileTitle")}>
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="flex min-w-0 items-center gap-1.5">
+              <UserRound aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+              <span className="break-words">{values.studentName}</span>
+            </span>
+            <span className="break-words text-muted-foreground">{className}</span>
+            {!values.isPrivileged ? (
+              <span className="font-mono text-xs break-words text-muted-foreground">
+                {values.studentId}
+              </span>
+            ) : null}
+            <span className="break-words text-muted-foreground">{values.email}</span>
+          </span>
+        </ConfirmRow>
+        <ConfirmRow label={t("reason")}>
+          <span className="break-words">{values.reason}</span>
+        </ConfirmRow>
+        <ConfirmRow label={t("purpose")}>
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
+            <Monitor aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="font-medium">{t(`purposeOptions.${values.purposeType}`)}</span>
+            <span className="text-xs text-muted-foreground">
+              {values.needsMultimedia ? t("multimedia") : t("noMultimedia")}
+            </span>
+          </span>
+        </ConfirmRow>
+      </dl>
+      <p className="mt-4 flex items-start gap-2 text-xs break-words text-muted-foreground">
+        <Mail aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+        {t("reviewEmailNote")}
+      </p>
+      <p className="mt-2 flex items-start gap-2 text-xs break-words text-muted-foreground">
+        <ShieldCheck aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+        {t("reviewValidationNote")}
+      </p>
     </StepLayout>
   )
 }

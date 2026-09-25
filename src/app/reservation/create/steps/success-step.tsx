@@ -1,7 +1,8 @@
-import { ArrowLeft, CalendarPlus, Check, ListChecks } from "lucide-react"
+import { ArrowLeft, CalendarPlus, CheckCircle2, ListChecks } from "lucide-react"
+import Link from "next/link"
 import { useTranslations } from "next-intl"
 
-import { ActionButton, Surface } from "@/components/neo/shared"
+import { Button } from "@/components/ui/button"
 
 export function SuccessStep({
   reservationId,
@@ -15,44 +16,52 @@ export function SuccessStep({
   const t = useTranslations("booking")
   const adminT = useTranslations("admin")
   return (
-    <section className="success-page">
-      <Surface className="success-card">
-        <span className="success-card__icon" aria-hidden="true">
-          <Check size={30} strokeWidth={2.5} />
-        </span>
-
-        <h2>{adminForce ? adminT("forceSuccessTitle") : t("success")}</h2>
-        <p className="success-card__description">
-          {adminForce && reservationId
-            ? adminT("forceSuccessDescription", { id: reservationId })
-            : t("successDescription")}
+    <section className="mx-auto flex w-full max-w-xl min-w-0 flex-col items-center gap-3 py-6 text-center">
+      <span
+        aria-hidden
+        className="t-success-check flex size-14 items-center justify-center rounded-full bg-success-soft text-success-soft-foreground"
+      >
+        <CheckCircle2 className="size-7" />
+      </span>
+      <h2 className="text-xl font-semibold break-words">
+        {adminForce ? adminT("forceSuccessTitle") : t("success")}
+      </h2>
+      <p className="max-w-md text-sm break-words text-muted-foreground">
+        {adminForce && reservationId
+          ? adminT("forceSuccessDescription", { id: reservationId })
+          : t("successDescription")}
+      </p>
+      {adminForce ? (
+        <p className="max-w-md text-sm break-words text-muted-foreground">
+          {adminT("forceConflictHandled")}
         </p>
-        {adminForce ? (
-          <p className="success-card__description">{adminT("forceConflictHandled")}</p>
-        ) : null}
-        {reservationId ? (
-          <div className="success-card__number">
-            <span>{t("reservationNumberLabel")}</span>
-            <strong>#{reservationId}</strong>
-          </div>
-        ) : null}
-        <div className="success-card__actions">
-          <ActionButton
-            href={adminForce ? "/admin/reservation" : "/reservation/search"}
-            icon={<ListChecks size={17} />}
-          >
+      ) : null}
+      {reservationId ? (
+        <p className="flex flex-col items-center gap-0.5">
+          <span className="text-xs text-muted-foreground">{t("reservationNumberLabel")}</span>
+          <strong className="font-mono text-lg tabular-nums">#{reservationId}</strong>
+        </p>
+      ) : null}
+      <div className="mt-2 flex w-full flex-wrap items-center justify-center gap-2">
+        <Button asChild className="min-h-11 sm:min-h-8">
+          <Link href={adminForce ? "/admin/reservation" : "/reservation/search"}>
+            <ListChecks aria-hidden />
             {t("viewReservations")}
-          </ActionButton>
-          <ActionButton variant="secondary" icon={<CalendarPlus size={17} />} onClick={onReset}>
-            {adminForce ? adminT("forceCreateAnother") : t("bookAgain")}
-          </ActionButton>
-          {!adminForce ? (
-            <ActionButton href="/" variant="secondary" icon={<ArrowLeft size={17} />}>
+          </Link>
+        </Button>
+        <Button type="button" variant="outline" onClick={onReset} className="min-h-11 sm:min-h-8">
+          <CalendarPlus aria-hidden />
+          {adminForce ? adminT("forceCreateAnother") : t("bookAgain")}
+        </Button>
+        {!adminForce ? (
+          <Button asChild variant="ghost" className="min-h-11 sm:min-h-8">
+            <Link href="/">
+              <ArrowLeft aria-hidden />
               {t("home")}
-            </ActionButton>
-          ) : null}
-        </div>
-      </Surface>
+            </Link>
+          </Button>
+        ) : null}
+      </div>
     </section>
   )
 }

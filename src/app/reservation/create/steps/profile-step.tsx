@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext, useWatch } from "react-hook-form"
 
+import { SectionCard } from "@/components/layout/section-card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Field,
@@ -9,13 +10,18 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
 
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
 import { ReservationTermsDialog } from "./reservation-terms-dialog"
+
+const PURPOSES = ["personal", "class", "club"] as const
 
 export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
   const t = useTranslations("booking")
@@ -24,12 +30,9 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
 
   return (
     <StepLayout title={t("profileTitle")}>
-      <div className="surface form-card profile-card">
-        <div className="form-card__header">
-          <p>{t("profileDescription")}</p>
-        </div>
-        <FieldGroup className="profile-form">
-          <div className="form-grid profile-identity-grid">
+      <SectionCard>
+        <FieldGroup className="min-w-0">
+          <div className="grid min-w-0 gap-5 sm:grid-cols-2">
             <Controller
               control={control}
               name="studentName"
@@ -41,9 +44,9 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                     id={field.name}
                     autoComplete="name"
                     readOnly={adminMode}
+                    className="min-h-11 sm:min-h-8"
                     aria-invalid={fieldState.invalid}
                   />
-                  <FieldDescription>{t("nameDescription")}</FieldDescription>
                   <FieldError errors={[fieldState.error]} />
                 </Field>
               )}
@@ -62,6 +65,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                       autoComplete="off"
                       autoCapitalize="characters"
                       placeholder="GJ00000000"
+                      className="min-h-11 font-mono sm:min-h-8"
                       aria-invalid={fieldState.invalid}
                     />
                     <FieldDescription>{t("studentIdDescription")}</FieldDescription>
@@ -83,6 +87,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                     type="email"
                     autoComplete="email"
                     readOnly={adminMode}
+                    className="min-h-11 sm:min-h-8"
                     aria-invalid={fieldState.invalid}
                   />
                   <FieldDescription>{t("emailDescription")}</FieldDescription>
@@ -90,43 +95,49 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                 </Field>
               )}
             />
-
-            <Controller
-              control={control}
-              name="reason"
-              render={({ field, fieldState }) => (
-                <Field className="profile-reason-field" data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>{t("reason")}</FieldLabel>
-                  <Textarea {...field} id={field.name} rows={4} aria-invalid={fieldState.invalid} />
-                  <FieldDescription>{t("reasonDescription")}</FieldDescription>
-                  <FieldError errors={[fieldState.error]} />
-                </Field>
-              )}
-            />
           </div>
 
-          <div className="profile-options-grid">
+          <Controller
+            control={control}
+            name="reason"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>{t("reason")}</FieldLabel>
+                <Textarea
+                  {...field}
+                  id={field.name}
+                  rows={4}
+                  className="min-h-24"
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldError errors={[fieldState.error]} />
+              </Field>
+            )}
+          />
+
+          <div className="grid min-w-0 gap-5 sm:grid-cols-2">
             <Controller
               control={control}
               name="purposeType"
               render={({ field, fieldState }) => (
-                <Field className="profile-option-panel" data-invalid={fieldState.invalid}>
-                  <FieldLabel>{t("purpose")}</FieldLabel>
-                  <div className="profile-purpose-options">
-                    {(["personal", "class", "club"] as const).map((purpose) => (
-                      <button
-                        key={purpose}
-                        type="button"
-                        aria-pressed={field.value === purpose}
-                        onClick={() => field.onChange(purpose)}
-                        className={`purpose-option ${field.value === purpose ? "purpose-option--selected" : ""}`}
-                      >
-                        <span className="font-medium">{t(`purposeOptions.${purpose}`)}</span>
-                      </button>
+                <FieldSet data-invalid={fieldState.invalid}>
+                  <FieldLegend variant="label">{t("purpose")}</FieldLegend>
+                  <RadioGroup
+                    value={field.value}
+                    onValueChange={(value) => field.onChange(value)}
+                    className="gap-1.5"
+                  >
+                    {PURPOSES.map((purpose) => (
+                      <Field key={purpose} orientation="horizontal" className="min-h-11 sm:min-h-8">
+                        <RadioGroupItem value={purpose} id={`purpose-${purpose}`} />
+                        <FieldLabel htmlFor={`purpose-${purpose}`} className="font-normal">
+                          {t(`purposeOptions.${purpose}`)}
+                        </FieldLabel>
+                      </Field>
                     ))}
-                  </div>
+                  </RadioGroup>
                   <FieldError errors={[fieldState.error]} />
-                </Field>
+                </FieldSet>
               )}
             />
 
@@ -134,7 +145,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
               control={control}
               name="needsMultimedia"
               render={({ field }) => (
-                <Field className="multimedia-option profile-option-panel">
+                <Field orientation="horizontal" className="min-h-11 self-start sm:min-h-0">
                   <Checkbox
                     id="needsMultimedia"
                     name="needsMultimedia"
@@ -157,8 +168,8 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
               name="isAgreed"
               render={({ field, fieldState }) => (
                 <Field
-                  className="profile-agreement text-sm"
                   orientation="horizontal"
+                  className="min-h-11 items-start border-t border-border pt-4 sm:min-h-0"
                   data-invalid={fieldState.invalid}
                 >
                   <Checkbox
@@ -180,7 +191,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
             />
           ) : null}
         </FieldGroup>
-      </div>
+      </SectionCard>
     </StepLayout>
   )
 }
