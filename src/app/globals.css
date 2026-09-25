@@ -398,10 +398,6 @@
   padding-bottom: 70px;
   font-family: var(--font-ui);
 }
-.management-shell {
-  width: min(980px, 100%);
-  margin: 0 auto;
-}
 .management-hero {
   display: flex;
   align-items: center;
@@ -656,14 +652,6 @@
   display: block;
   color: var(--ink);
   font-size: 15px;
-}
-.management-availability-loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 70px;
-  color: var(--uc2-muted-dark);
-  font-size: 14px;
 }
 .management-section-heading {
   display: flex;
@@ -1216,14 +1204,6 @@
   font-family: var(--font-ui);
   font-size: 17px !important;
 }
-.room-pill {
-  align-self: flex-start;
-  padding: 4px 10px;
-  color: var(--primary);
-  background: var(--primary-50);
-  border-radius: 12px;
-  font-size: 14px;
-}
 .duration-strip {
   display: inline-flex;
   align-items: center;
@@ -1435,10 +1415,6 @@
 .live-room-events li > [data-slot="badge"] {
   grid-column: 2;
 }
-.live-room-empty {
-  color: var(--muted-foreground);
-  margin-top: 28px;
-}
 .live-board--portrait .live-board-rooms {
   grid-template-columns: 1fr;
 }
@@ -1557,9 +1533,6 @@
   min-height: 100svh;
   background: var(--canvas);
 }
-.admin-app-shell__content {
-  min-height: calc(100svh - 94px);
-}
 .admin-stat-card {
   display: flex;
   min-height: 116px;
@@ -1643,11 +1616,6 @@
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.55fr);
   gap: 16px;
 }
-.admin-pending-list,
-.admin-snapshot-list {
-  display: grid;
-  gap: 9px;
-}
 .admin-pending-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
@@ -1666,12 +1634,6 @@
 .admin-pending-item:hover {
   border-color: var(--primary-100);
   transform: translateY(-1px);
-}
-.admin-pending-item__number {
-  color: var(--primary);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  font-weight: 800;
 }
 .admin-pending-item__body {
   display: grid;
@@ -1727,12 +1689,6 @@
   font-family: var(--font-ui);
   font-size: 17px;
   font-weight: 800;
-}
-.admin-empty-copy {
-  padding: 30px 10px;
-  color: var(--uc2-muted-dark);
-  font-size: 14px;
-  text-align: center;
 }
 
 .admin-workspace {
@@ -2271,18 +2227,6 @@
   line-height: 1.75;
   overflow-wrap: anywhere;
   overflow-y: auto;
-}
-.admin-announcement-preview-button {
-  display: inline-flex;
-  min-height: 40px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 20px;
-  color: var(--primary-foreground);
-  background: var(--primary);
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 800;
 }
 
 .admin-announcement-preview-content::-webkit-scrollbar {

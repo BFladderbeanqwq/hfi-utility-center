@@ -154,7 +154,9 @@ export function FacilityDashboard({ portrait = false }: { portrait?: boolean }) 
                     ))}
                   </ol>
                 ) : (
-                  <p className="live-room-empty">{zh ? "今日暂无预约" : "No bookings today"}</p>
+                  <p className="mt-7 text-muted-foreground">
+                    {zh ? "今日暂无预约" : "No bookings today"}
+                  </p>
                 )}
               </section>
             )
