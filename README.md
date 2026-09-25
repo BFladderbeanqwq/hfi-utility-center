@@ -8,8 +8,8 @@ application. It uses Next.js App Router, React, TypeScript, shadcn/ui (Radix pri
 ## Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 The development server uses `http://localhost:3000` by default.
@@ -27,16 +27,25 @@ backend or Turnstile widget is required.
 
 ## Architecture
 
-- `app/` contains routes and feature-specific UI. Route pages coordinate data;
-  large interactive views are split into named feature components.
-- `app/styles/` contains ordered global style layers grouped by feature. Small,
-  route-specific styles continue to use colocated CSS modules.
-- `lib/api/` contains the backend transport, endpoint functions, API types, and
-  focused administrator resource/mutation hooks.
-- `lib/reservations/` contains pure reservation availability rules.
-- `components/ui/` contains the shadcn/ui components used by
+- `src/app/` contains routes and feature-specific UI. Route pages coordinate
+  data; large interactive views are split into named feature components.
+- `src/app/globals.css` holds all global CSS: theme tokens, base element styles,
+  and the feature sections inlined in the order they used to be imported. Prefer
+  Tailwind utilities at the usage site; keep a rule here for state selectors,
+  pseudo-elements, and media queries. Colocated CSS modules remain for
+  route-specific styles.
+- `src/lib/api/` contains the backend transport, endpoint functions, API types,
+  and focused administrator resource/mutation hooks.
+- `src/lib/locale.tsx` holds the shared locale context, imported by both routes
+  and components.
+- `src/lib/reservations/` contains pure reservation availability rules.
+- `src/components/ui/` contains the shadcn/ui components used by
   public and administrator views.
-- `messages/` contains the English and Simplified Chinese translation catalogs.
+- `src/messages/` contains the English and Simplified Chinese translation
+  catalogs.
+
+All application source lives under `src/`. Imports use the `@/*` alias, which
+maps to `./src/*`.
 
 The browser calls the configured backend directly. The API client targets
 the existing response and payload contracts, including the occupied-interval
@@ -45,14 +54,10 @@ availability response.
 ## Quality Checks
 
 ```bash
-npm run format:check
-npm run typecheck
-npm run lint
-npm run build
+pnpm format:check
+pnpm typecheck
+pnpm lint
+pnpm build
 ```
 
-Use `npm run format` to format TypeScript and JavaScript configuration files.
-
-## Design
-
-See [design references and typography](docs/frontend-design.md) for the ten researched websites, recognition sources, visual decisions, and project skills.
+Use `pnpm format` to format TypeScript and JavaScript configuration files.
