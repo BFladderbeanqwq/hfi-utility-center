@@ -91,7 +91,11 @@
     "reason": "预约原因",
     "reasonDescription": "请简要说明使用房间的目的。",
     "purpose": "预约用途",
-    "purposeOptions": { "personal": "个人", "class": "班级", "club": "社团" },
+    "purposeOptions": {
+      "personal": "个人",
+      "class": "班级",
+      "club": "社团"
+    },
     "multimedia": "需要多媒体设备",
     "multimediaDescription": "如果需要投影、音频或其他多媒体设备，请勾选。",
     "yes": "是",
@@ -461,7 +465,11 @@
       "time": "时间",
       "reservedBy": "预约人",
       "purpose": "用途",
-      "purposeOptions": { "personal": "个人", "class": "班级", "club": "社团" },
+      "purposeOptions": {
+        "personal": "个人",
+        "class": "班级",
+        "club": "社团"
+      },
       "multimedia": "多媒体设备",
       "required": "需要使用",
       "notRequired": "不需要",
@@ -507,5 +515,21 @@
       "privacy": "隐私政策",
       "support": "技术支持"
     }
+  },
+  "layout": {
+    "brand": "校园服务台",
+    "skipToContent": "跳到主要内容",
+    "mainNav": "主导航",
+    "mobileNav": "菜单",
+    "openMenu": "打开导航",
+    "liveSchedule": "场地看板",
+    "moreCampusTools": "更多校园工具"
+  },
+  "states": {
+    "loading": "加载中…",
+    "errorTitle": "出了点问题",
+    "errorDescription": "数据没能加载出来，请重试一次。",
+    "retry": "重试",
+    "emptyTitle": "暂无内容"
   }
 }

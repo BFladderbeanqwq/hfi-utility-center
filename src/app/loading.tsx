@@ -1,9 +1,10 @@
-import { Spinner } from "@/components/ui/spinner"
+import { AppFrame } from "@/components/layout/app-shell"
+import { LoadingState } from "@/components/layout/data-state"
 
 export default function Loading() {
   return (
-    <main id="main-content" className="flex flex-1 items-center justify-center">
-      <Spinner className="size-8" />
-    </main>
+    <AppFrame>
+      <LoadingState rows={4} />
+    </AppFrame>
   )
 }

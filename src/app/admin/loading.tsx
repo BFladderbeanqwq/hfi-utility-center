@@ -1,9 +1,11 @@
-import { Spinner } from "@/components/ui/spinner"
+"use client"
+
+import { LoadingState } from "@/components/layout/data-state"
 
 export default function Loading() {
   return (
-    <main id="main-content" className="flex min-h-64 items-center justify-center">
-      <Spinner className="size-8" />
-    </main>
+    <div className="flex min-w-0 flex-col">
+      <LoadingState rows={4} />
+    </div>
   )
 }
