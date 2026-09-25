@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useId, useMemo, useState } from "react"
 import { GraduationCap, Pencil, Plus } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
@@ -55,10 +55,15 @@ export function ClassEditor({
 }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
+  const locale = useLocale()
   const campusNames = new Map(campuses.map((campus) => [campus.id, campus.name]))
-  const dateFormatter = new Intl.DateTimeFormat(useLocale(), {
-    dateStyle: "medium",
-  })
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+      }),
+    [locale],
+  )
   const [createOpen, setCreateOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const editing = classes.find((schoolClass) => schoolClass.id === editingId)

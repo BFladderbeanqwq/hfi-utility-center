@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Pencil, Plus, School } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
@@ -34,9 +34,14 @@ export function CampusEditor({
 }: FacilityEditorActions & { campuses: Campus[] }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
-  const dateFormatter = new Intl.DateTimeFormat(useLocale(), {
-    dateStyle: "medium",
-  })
+  const locale = useLocale()
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+      }),
+    [locale],
+  )
   const [createOpen, setCreateOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const editing = campuses.find((campus) => campus.id === editingId)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useState } from "react"
+import { useId, useMemo, useState } from "react"
 import { DoorOpen, Pencil, Plus } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
@@ -60,9 +60,14 @@ export function RoomEditor({
   const t = useTranslations("admin")
   const common = useTranslations("common")
   const campusNames = new Map(campuses.map((campus) => [campus.id, campus.name]))
-  const dateFormatter = new Intl.DateTimeFormat(useLocale(), {
-    dateStyle: "medium",
-  })
+  const locale = useLocale()
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+      }),
+    [locale],
+  )
   const [createOpen, setCreateOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const editing = rooms.find((room) => room.id === editingId)
