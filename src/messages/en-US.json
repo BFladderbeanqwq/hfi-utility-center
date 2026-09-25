@@ -4,12 +4,8 @@
     "book": "Book",
     "reservations": "Reservations",
     "admin": "Admin",
-    "menu": "Menu",
-    "menuDescription": "Navigate the utility center and change your preferences.",
     "theme": "Toggle theme",
-    "language": "Language",
-    "switchLanguage": "Switch to Chinese",
-    "languageShort": "中文"
+    "language": "Language"
   },
   "home": {
     "announcementFallbackTitle": "Announcement",
@@ -29,14 +25,10 @@
     "validationDescription": "Re-run on submit"
   },
   "common": {
-    "loading": "Loading…",
     "retry": "Retry",
     "back": "Back",
     "next": "Next",
-    "submit": "Submit",
     "search": "Search",
-    "copy": "Copy",
-    "copied": "Copied",
     "cancel": "Cancel",
     "save": "Save",
     "unknown": "Something went wrong. Please try again.",
@@ -347,54 +339,13 @@
     "columnAccount": "Account"
   },
   "neo": {
-    "nav": {
-      "returnHome": "Return home",
-      "homeDescription": "Back to the homepage",
-      "bookDescription": "Create a reservation",
-      "reservationsDescription": "View reservation activity",
-      "adminDescription": "Approvals and facilities",
-      "openMenu": "Open navigation",
-      "closeMenu": "Close navigation",
-      "current": "Current",
-      "hfiDescription": "All-in-one services"
-    },
-    "home": {
-      "subtitle": "Reserve your classroom @hfiuc.org",
-      "book": "Book a room",
-      "reservations": "Reservations",
-      "openCampuses": "Open campuses",
-      "bookableRooms": "Bookable rooms",
-      "reservationTotal": "Total reservations",
-      "connected": "Connected",
-      "open": "Open",
-      "cumulative": "All time",
-      "recent": "Recent reservations",
-      "applicant": "Applicant",
-      "reason": "Purpose",
-      "reasonFallback": "No reason provided",
-      "classFallback": "HFI",
-      "roomFallback": "Room",
-      "empty": "No public reservations",
-      "emptyDescription": "New reservation activity will appear here",
-      "announcementLabel": "HFI UTILITY CENTER NOTICE",
-      "announcementFallbackTitle": "Announcement",
-      "announcementConfirm": "Got it",
-      "announcementClose": "Close announcement",
-      "approved": "Approved",
-      "pending": "Pending",
-      "rejected": "Rejected",
-      "cancelled": "Cancelled"
-    },
     "management": {
       "title": "Manage reservation",
-      "description": "Review the reservation and change its location or time before it begins.",
       "loading": "Loading reservation",
       "loadingDescription": "Verifying the secure link from your email",
       "unavailable": "Reservation unavailable",
       "invalidLink": "This management link is invalid or expired. Please reopen it from your email.",
-      "location": "Location",
-      "approved": "Approved",
-      "pending": "Pending",
+      "room": "Room",
       "remainingEdits": "{count} edits remaining",
       "date": "Date",
       "time": "Time",
@@ -417,11 +368,8 @@
       "cancelledTitle": "Reservation cancelled",
       "cancelledDescription": "The time is available again. No further action is required.",
       "bookAgain": "Book again",
-      "modifyProgress": "Modification progress",
       "selectLocation": "Select a location",
       "selectDateTime": "Select date and time",
-      "stepOne": "Step 1 of 2",
-      "stepTwo": "Step 2 of 2",
       "locationHint": "Only the location and time will change",
       "availableSpaces": "{count} available spaces",
       "exitModify": "Exit editing",
@@ -438,17 +386,11 @@
     "reservations": {
       "location": "Location",
       "roomFallback": "Room",
-      "reason": "Reservation reason",
       "reasonFallback": "No reason provided",
       "purposePersonal": "Personal",
       "purposeClass": "Class",
       "purposeClub": "Club",
       "multimedia": "Multimedia equipment"
-    },
-    "footer": {
-      "terms": "Terms",
-      "privacy": "Privacy",
-      "support": "Support"
     }
   },
   "dashboard": {
