@@ -1,8 +1,8 @@
 {
   "name": "hfi-utility-center",
   "version": "0.0.1",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -50,16 +50,16 @@
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "wrangler": "^4.137.0",
-    "vite-plus": "0.3.3"
+    "vite-plus": "0.3.3",
+    "wrangler": "^4.137.0"
   },
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.3"
   },
   "devEngines": {
     "packageManager": {
-      "name": "npm",
-      "version": "12.1.0",
+      "name": "pnpm",
+      "version": "^12.6.0",
       "onFail": "download"
     }
   }
