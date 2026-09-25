@@ -2,7 +2,6 @@ import { geist, geistMono, notoSansSC } from "@/app/fonts"
 import "./globals.css"
 
 import { Providers } from "@/app/providers"
-import { Navbar } from "@/components/navbar"
 
 const fontVariables = `${geist.variable} ${geistMono.variable} ${notoSansSC.variable}`
 
@@ -10,9 +9,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-CN" className={fontVariables} suppressHydrationWarning>
       <body>
-        <Providers>
-          <Navbar>{children}</Navbar>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
