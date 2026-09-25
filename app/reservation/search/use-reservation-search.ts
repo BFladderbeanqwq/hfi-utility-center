@@ -4,10 +4,7 @@ import { getCatalog } from "@/lib/api/catalog"
 import { getReservations } from "@/lib/api/reservations"
 import type { CatalogData, ReservationPage } from "@/lib/api/types"
 
-import {
-  reservationSearchRequest,
-  type ReservationSearchFilters,
-} from "./search-query"
+import { reservationSearchRequest, type ReservationSearchFilters } from "./search-query"
 
 const emptyResult: ReservationPage = { reservations: [], total: 0 }
 
@@ -29,10 +26,7 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
         const nextCatalog = await getCatalog()
         if (active) setCatalog(nextCatalog)
       } catch (error) {
-        if (active)
-          setCatalogError(
-            error instanceof Error ? error.message : "Request failed"
-          )
+        if (active) setCatalogError(error instanceof Error ? error.message : "Request failed")
       }
     }
 
@@ -50,9 +44,7 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
       setError(undefined)
 
       try {
-        const nextResult = await getReservations(
-          reservationSearchRequest(filters)
-        )
+        const nextResult = await getReservations(reservationSearchRequest(filters))
         if (requestId.current === currentRequest) {
           setResult(nextResult)
         }

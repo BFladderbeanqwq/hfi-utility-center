@@ -11,8 +11,7 @@ declare module "axios" {
   }
 }
 
-const backendUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.hfiuc.org"
+const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.hfiuc.org"
 
 export const api = axios.create({
   baseURL: backendUrl,
@@ -31,8 +30,7 @@ class RequestError extends Error {
 
 function requestFailedMessage() {
   const isEnglish =
-    typeof document !== "undefined" &&
-    document.cookie.split("; ").includes("locale=en-US")
+    typeof document !== "undefined" && document.cookie.split("; ").includes("locale=en-US")
   return isEnglish ? enMessages.common.unknown : zhMessages.common.unknown
 }
 
@@ -40,10 +38,9 @@ function normalizeRequestError(error: unknown) {
   if (error instanceof RequestError) return error
 
   if (axios.isAxiosError<ApiResponse>(error)) {
-    return new RequestError(
-      error.response?.data?.message || requestFailedMessage(),
-      { cause: error }
-    )
+    return new RequestError(error.response?.data?.message || requestFailedMessage(), {
+      cause: error,
+    })
   }
 
   return new RequestError(requestFailedMessage(), { cause: error })
@@ -52,11 +49,7 @@ function normalizeRequestError(error: unknown) {
 function rejectRequest(error: unknown, config?: AxiosRequestConfig) {
   const requestError = normalizeRequestError(error)
 
-  if (
-    typeof window !== "undefined" &&
-    !config?.suppressErrorToast &&
-    !requestError.notified
-  ) {
+  if (typeof window !== "undefined" && !config?.suppressErrorToast && !requestError.notified) {
     console.error("HFI Utility Center request failed:", requestError.message)
     requestError.notified = true
   }
@@ -70,8 +63,7 @@ api.interceptors.request.use(async (config) => {
     const csrfResponse = await api.get<ApiResponse<string>>("/_csrf", {
       suppressErrorToast: true,
     })
-    const csrfToken =
-      csrfResponse.headers["x-csrf-token"] || csrfResponse.data.data
+    const csrfToken = csrfResponse.headers["x-csrf-token"] || csrfResponse.data.data
     if (csrfToken) config.headers.set("x-csrf-token", csrfToken)
   }
   return config
@@ -84,7 +76,7 @@ api.interceptors.response.use(
       if (response.config.suppressErrorToast) return response
       return rejectRequest(
         new RequestError(payload?.message || requestFailedMessage()),
-        response.config
+        response.config,
       )
     }
     return response
@@ -92,12 +84,11 @@ api.interceptors.response.use(
   (error: unknown) => {
     const config = axios.isAxiosError(error) ? error.config : undefined
     return rejectRequest(error, config)
-  }
+  },
 )
 
 export function backendHref(path: string) {
-  if (/^https?:\/\//.test(backendUrl))
-    return new URL(path, backendUrl).toString()
+  if (/^https?:\/\//.test(backendUrl)) return new URL(path, backendUrl).toString()
   const normalized = `${backendUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`
   return typeof window === "undefined"
     ? normalized

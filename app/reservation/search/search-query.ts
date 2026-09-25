@@ -35,9 +35,7 @@ function parseDate(value: string | undefined) {
   return value && inputValueToTimestamp(value) !== undefined ? value : ""
 }
 
-export function parseReservationSearchFilters(
-  params: SearchParams
-): ReservationSearchFilters {
+export function parseReservationSearchFilters(params: SearchParams): ReservationSearchFilters {
   const startDate = parseDate(firstValue(params, "start"))
   const parsedEndDate = parseDate(firstValue(params, "end"))
   const endDate = startDate && parsedEndDate < startDate ? "" : parsedEndDate
@@ -54,10 +52,7 @@ export function parseReservationSearchFilters(
   }
 }
 
-export function reservationSearchRequest(
-  filters: ReservationSearchFilters,
-  now = new Date()
-) {
+export function reservationSearchRequest(filters: ReservationSearchFilters, now = new Date()) {
   const selectedStartTime = inputValueToTimestamp(filters.startDate)
   const startTime =
     filters.sort === "time"
@@ -83,24 +78,13 @@ function shanghaiDayStart(now: Date) {
     month: "2-digit",
     day: "2-digit",
   }).formatToParts(now)
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value])
-  )
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
   return (
-    Date.UTC(
-      Number(values.year),
-      Number(values.month) - 1,
-      Number(values.day)
-    ) /
-      1000 -
-    8 * 60 * 60
+    Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day)) / 1000 - 8 * 60 * 60
   )
 }
 
-export function reservationSearchHref(
-  filters: ReservationSearchFilters,
-  page: number
-) {
+export function reservationSearchHref(filters: ReservationSearchFilters, page: number) {
   const query = new URLSearchParams()
   if (filters.keyword) query.set("keyword", filters.keyword)
   if (filters.campusId) query.set("campus", String(filters.campusId))
@@ -116,13 +100,7 @@ export function reservationSearchHref(
 }
 
 export function visiblePageNumbers(currentPage: number, totalPages: number) {
-  const candidates = new Set([
-    0,
-    totalPages - 1,
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-  ])
+  const candidates = new Set([0, totalPages - 1, currentPage - 1, currentPage, currentPage + 1])
 
   return [...candidates]
     .filter((page) => page >= 0 && page < totalPages)

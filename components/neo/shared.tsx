@@ -1,11 +1,6 @@
 "use client"
 
-import {
-  useState,
-  useSyncExternalStore,
-  type MouseEventHandler,
-  type ReactNode,
-} from "react"
+import { useState, useSyncExternalStore, type MouseEventHandler, type ReactNode } from "react"
 import { ArrowUpRight, Menu, Moon, Sun } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -15,13 +10,7 @@ import { useAppLocale } from "@/app/providers"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
 export type Tone = "success" | "warning" | "info" | "danger" | "neutral"
@@ -91,28 +80,13 @@ export function ActionButton({
   )
 }
 
-export function Surface({
-  children,
-  className,
-}: {
-  children: ReactNode
-  className?: string
-}) {
+export function Surface({ children, className }: { children: ReactNode; className?: string }) {
   return <Card className={cn("surface", className)}>{children}</Card>
 }
 
-export function StatusBadge({
-  tone,
-  children,
-}: {
-  tone: Tone
-  children: ReactNode
-}) {
+export function StatusBadge({ tone, children }: { tone: Tone; children: ReactNode }) {
   return (
-    <Badge
-      variant="secondary"
-      className={cn("status-badge", `status-badge--${tone}`)}
-    >
+    <Badge variant="secondary" className={cn("status-badge", `status-badge--${tone}`)}>
       {children}
     </Badge>
   )
@@ -129,7 +103,7 @@ export function NeoHeader({ home = false }: { home?: boolean }) {
   const mounted = useSyncExternalStore(
     subscribe,
     () => true,
-    () => false
+    () => false,
   )
   const [open, setOpen] = useState(false)
   const zh = locale === "zh-CN"
@@ -181,21 +155,13 @@ export function NeoHeader({ home = false }: { home?: boolean }) {
           Center
         </span>
       </Link>
-      <nav
-        className="utility-nav"
-        aria-label={zh ? "主导航" : "Main navigation"}
-      >
+      <nav className="utility-nav" aria-label={zh ? "主导航" : "Main navigation"}>
         {links}
       </nav>
       <div className="utility-preferences">{preferences}</div>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="utility-menu"
-            aria-label={neo("openMenu")}
-          >
+          <Button variant="ghost" size="icon" className="utility-menu" aria-label={neo("openMenu")}>
             <Menu />
           </Button>
         </SheetTrigger>

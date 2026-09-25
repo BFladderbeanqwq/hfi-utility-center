@@ -43,10 +43,7 @@ export function timeShouldBeVisible({
   if (startTime && !endTime) {
     if (option.timestamp <= startTime) return false
 
-    return (
-      rangeIsAvailable(slots, startTime, option.timestamp) ||
-      option.status === "occupied"
-    )
+    return rangeIsAvailable(slots, startTime, option.timestamp) || option.status === "occupied"
   }
 
   return option.status === "available" || option.status === "occupied"
@@ -74,11 +71,7 @@ export function timeCanBeSelected({
   return option.status === "available" && option.canStartRange
 }
 
-export function timeIsSelected(
-  timestamp: number,
-  startTime: number,
-  endTime: number
-) {
+export function timeIsSelected(timestamp: number, startTime: number, endTime: number) {
   if (timestamp === startTime) return true
   return Boolean(endTime) && timestamp > startTime && timestamp <= endTime
 }

@@ -12,9 +12,7 @@ export function LocationStep({ catalog }: { catalog: CatalogData }) {
   const t = useTranslations("booking")
   const { control, setValue } = useFormContext<ReservationFormValues>()
   const campusId = useWatch({ control, name: "bookingCampusId" })
-  const rooms = catalog.rooms.filter(
-    (room) => room.campus === campusId && room.enabled
-  )
+  const rooms = catalog.rooms.filter((room) => room.campus === campusId && room.enabled)
 
   function clearSelectedTime() {
     setValue("startTime", 0)
@@ -61,9 +59,7 @@ export function LocationStep({ catalog }: { catalog: CatalogData }) {
                 <div>
                   <h2>{t("rooms")}</h2>
                 </div>
-                <span className="resource-count">
-                  {rooms.length} 个可用空间
-                </span>
+                <span className="resource-count">{rooms.length} 个可用空间</span>
               </div>
               <div className="room-grid">
                 {rooms.map((room) => (

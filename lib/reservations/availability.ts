@@ -1,9 +1,4 @@
-import type {
-  AvailabilityData,
-  AvailabilitySlot,
-  Reservation,
-  Room,
-} from "@/lib/api/types"
+import type { AvailabilityData, AvailabilitySlot, Reservation, Room } from "@/lib/api/types"
 import {
   inputValueToTimestamp,
   timeOnInputDateTimestamp,
@@ -14,12 +9,7 @@ const SLOT_MINUTES = 15
 const DAY_START_HOUR = 8
 const DAY_END_HOUR = 21.5
 
-function isWithinRoomAvailability(
-  room: Room,
-  date: string,
-  slotStart: number,
-  slotEnd: number
-) {
+function isWithinRoomAvailability(room: Room, date: string, slotStart: number, slotEnd: number) {
   const weekday = weekdayFromInputValue(date)
   if (weekday === undefined) return false
 
@@ -36,16 +26,12 @@ function isWithinRoomAvailability(
   })
 }
 
-function overlapsReservation(
-  reservations: Reservation[],
-  slotStart: number,
-  slotEnd: number
-) {
+function overlapsReservation(reservations: Reservation[], slotStart: number, slotEnd: number) {
   return reservations.some(
     (reservation) =>
       reservation.status !== "rejected" &&
       new Date(reservation.startTime).getTime() / 1000 < slotEnd &&
-      new Date(reservation.endTime).getTime() / 1000 > slotStart
+      new Date(reservation.endTime).getTime() / 1000 > slotStart,
   )
 }
 
@@ -55,7 +41,7 @@ function getSlotStatus(
   reservations: Reservation[],
   slotStart: number,
   slotEnd: number,
-  now: Date
+  now: Date,
 ): AvailabilitySlot["status"] {
   if (slotEnd <= now.getTime() / 1000) return "past"
   if (!isWithinRoomAvailability(room, date, slotStart, slotEnd)) return "policy"
@@ -67,7 +53,7 @@ export function buildLegacyAvailability(
   room: Room,
   date: string,
   reservations: Reservation[],
-  now = new Date()
+  now = new Date(),
 ): AvailabilityData {
   const slots: AvailabilitySlot[] = []
   const dayStart = inputValueToTimestamp(date)
@@ -75,8 +61,7 @@ export function buildLegacyAvailability(
   const slotCount = ((DAY_END_HOUR - DAY_START_HOUR) * 60) / SLOT_MINUTES
 
   for (let index = 0; index < slotCount; index += 1) {
-    const slotStart =
-      dayStart + DAY_START_HOUR * 60 * 60 + index * SLOT_MINUTES * 60
+    const slotStart = dayStart + DAY_START_HOUR * 60 * 60 + index * SLOT_MINUTES * 60
     const slotEnd = slotStart + SLOT_MINUTES * 60
 
     slots.push({
@@ -98,7 +83,7 @@ export function buildLegacyAvailability(
 export function buildPriorityAvailability(
   room: Room,
   date: string,
-  now = new Date()
+  now = new Date(),
 ): AvailabilityData {
   const slots: AvailabilitySlot[] = []
   const dayStart = inputValueToTimestamp(date)
@@ -127,13 +112,13 @@ export function rangeIsAvailable(
   slots: AvailabilitySlot[],
   startTime: number,
   endTime: number,
-  maxMinutes = 120
+  maxMinutes = 120,
 ) {
   if (!startTime || endTime <= startTime) return false
   if (endTime - startTime > maxMinutes * 60) return false
 
   const selectedSlots = slots.filter(
-    (slot) => slot.startTime >= startTime && slot.endTime <= endTime
+    (slot) => slot.startTime >= startTime && slot.endTime <= endTime,
   )
   const slotSeconds = SLOT_MINUTES * 60
   const expectedSlotCount = (endTime - startTime) / slotSeconds

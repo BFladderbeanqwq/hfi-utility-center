@@ -31,10 +31,7 @@ export function NeoHome() {
     let active = true
     getCurrentAnnouncement()
       .then((value) => {
-        if (active)
-          setAnnouncement(
-            value?.enabled && value.content?.trim() ? value : null
-          )
+        if (active) setAnnouncement(value?.enabled && value.content?.trim() ? value : null)
       })
       .catch(() => undefined)
     return () => {
@@ -50,9 +47,7 @@ export function NeoHome() {
         <div className="desk-workspace">
           <section className="desk-book" aria-labelledby="book-title">
             <h2 id="book-title">
-              <Link href="/reservation/create">
-                {zh ? "预约场地" : "Book a space"}
-              </Link>
+              <Link href="/reservation/create">{zh ? "预约场地" : "Book a space"}</Link>
             </h2>
             <div className="desk-book__bottom">
               <p>
@@ -106,24 +101,15 @@ export function NeoHome() {
             <Link className="desk-schedule" href="/dashboard">
               <div>
                 <h2>{zh ? "场地看板" : "Live schedule"}</h2>
-                <p>
-                  {zh
-                    ? "查看各场地的使用安排"
-                    : "See what’s happening in each space"}
-                </p>
+                <p>{zh ? "查看各场地的使用安排" : "See what’s happening in each space"}</p>
               </div>
             </Link>
           </div>
         </div>
         {announcement && (
-          <button
-            className="desk-announcement"
-            onClick={() => setAnnouncementOpen(true)}
-          >
+          <button className="desk-announcement" onClick={() => setAnnouncementOpen(true)}>
             <Megaphone aria-hidden="true" size={19} />
-            <span>
-              {announcement.title || (zh ? "校园公告" : "Campus announcement")}
-            </span>
+            <span>{announcement.title || (zh ? "校园公告" : "Campus announcement")}</span>
           </button>
         )}
       </main>

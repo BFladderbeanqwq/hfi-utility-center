@@ -2,12 +2,7 @@ import { useEffect, useMemo } from "react"
 import { enUS, zhCN } from "date-fns/locale"
 import { RefreshCw } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import {
-  Controller,
-  useController,
-  useFormContext,
-  useWatch,
-} from "react-hook-form"
+import { Controller, useController, useFormContext, useWatch } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -43,8 +38,7 @@ export function DateTimeStep({
 }) {
   const t = useTranslations("booking")
   const locale = useLocale()
-  const { clearErrors, control, getValues, setValue } =
-    useFormContext<ReservationFormValues>()
+  const { clearErrors, control, getValues, setValue } = useFormContext<ReservationFormValues>()
   const [roomId, date] = useWatch({
     control,
     name: ["room", "date"],
@@ -59,16 +53,12 @@ export function DateTimeStep({
   })
   const startTime = startTimeField.value
   const endTime = endTimeField.value
-  const room = useMemo(
-    () => rooms.find((candidate) => candidate.id === roomId),
-    [roomId, rooms]
-  )
-  const { availability, error, loading, refresh, clearError, reportError } =
-    useRoomAvailability({
-      room,
-      date,
-      privileged,
-    })
+  const room = useMemo(() => rooms.find((candidate) => candidate.id === roomId), [roomId, rooms])
+  const { availability, error, loading, refresh, clearError, reportError } = useRoomAvailability({
+    room,
+    date,
+    privileged,
+  })
   const today = useMemo(() => startOfToday(), [])
   const maximumDate = useMemo(() => addDays(today, 30), [today])
   const timeFormatter = useMemo(
@@ -78,12 +68,9 @@ export function DateTimeStep({
         minute: "2-digit",
         hour12: false,
       }),
-    [locale]
+    [locale],
   )
-  const timeOptions = useMemo(
-    () => buildTimeOptions(availability?.slots ?? []),
-    [availability]
-  )
+  const timeOptions = useMemo(() => buildTimeOptions(availability?.slots ?? []), [availability])
   const visibleTimeOptions = useMemo(() => {
     if (!availability) return []
 
@@ -93,7 +80,7 @@ export function DateTimeStep({
         slots: availability.slots,
         startTime,
         endTime,
-      })
+      }),
     )
   }, [availability, endTime, startTime, timeOptions])
 
@@ -101,13 +88,7 @@ export function DateTimeStep({
     if (!availability) return
     const selectedRange = getValues()
     if (!selectedRange.startTime || !selectedRange.endTime) return
-    if (
-      rangeIsAvailable(
-        availability.slots,
-        selectedRange.startTime,
-        selectedRange.endTime
-      )
-    ) {
+    if (rangeIsAvailable(availability.slots, selectedRange.startTime, selectedRange.endTime)) {
       return
     }
 
@@ -129,10 +110,7 @@ export function DateTimeStep({
   }
 
   function selectRangeEnd(timestamp: number) {
-    if (
-      availability &&
-      rangeIsAvailable(availability.slots, startTime, timestamp)
-    ) {
+    if (availability && rangeIsAvailable(availability.slots, startTime, timestamp)) {
       endTimeField.onChange(timestamp)
       clearErrors("endTime")
       clearError()
@@ -149,16 +127,12 @@ export function DateTimeStep({
       return
     }
 
-    const startsNewRange =
-      !startTime || Boolean(endTime) || option.timestamp < startTime
+    const startsNewRange = !startTime || Boolean(endTime) || option.timestamp < startTime
     if (startsNewRange) selectRangeStart(option.timestamp)
     else selectRangeEnd(option.timestamp)
   }
 
-  function selectDate(
-    selected: Date | undefined,
-    onChange: (date: string) => void
-  ) {
+  function selectDate(selected: Date | undefined, onChange: (date: string) => void) {
     if (!selected) return
     clearError()
     clearSelectedRange()
@@ -206,9 +180,7 @@ export function DateTimeStep({
                     endMonth={maximumDate}
                     disabled={{ before: today, after: maximumDate }}
                     aria-invalid={fieldState.invalid}
-                    onSelect={(selected) =>
-                      selectDate(selected, field.onChange)
-                    }
+                    onSelect={(selected) => selectDate(selected, field.onChange)}
                   />
                 </FieldGroup>
                 <FieldError errors={[fieldState.error]} />
@@ -262,11 +234,7 @@ export function DateTimeStep({
                   </div>
                   <div className="neo-time-grid">
                     {visibleTimeOptions.map((option) => {
-                      const selected = timeIsSelected(
-                        option.timestamp,
-                        startTime,
-                        endTime
-                      )
+                      const selected = timeIsSelected(option.timestamp, startTime, endTime)
                       const selectable = timeCanBeSelected({
                         option,
                         slots: availability.slots,

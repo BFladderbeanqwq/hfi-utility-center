@@ -27,7 +27,7 @@ export async function getAvailability(
   roomId: number,
   date: string,
   knownRoom?: Room,
-  excludedReservationId?: number
+  excludedReservationId?: number,
 ) {
   const { data } = await api.get<
     ApiResponse<{
@@ -72,16 +72,15 @@ export async function getAvailability(
           startTime,
           endTime,
           page: index + 1,
-        })
-      )
+        }),
+      ),
     )
     return buildLegacyAvailability(
       knownRoom,
       date,
-      [
-        ...firstPage.reservations,
-        ...additionalPages.flatMap((page) => page.reservations),
-      ].filter((item) => item.id !== excludedReservationId)
+      [...firstPage.reservations, ...additionalPages.flatMap((page) => page.reservations)].filter(
+        (item) => item.id !== excludedReservationId,
+      ),
     )
   }
 
@@ -97,14 +96,14 @@ export async function getAvailability(
       startTime: item.startTime,
       endTime: item.endTime,
       status: item.status,
-    }))
+    })),
   )
 }
 
 export async function createReservation(input: CreateReservationInput) {
   const { data } = await api.post<ApiResponse<{ reservationId: number }>>(
     "/reservation/create",
-    input
+    input,
   )
   return data.data!
 }
@@ -116,7 +115,7 @@ export async function forceReservation(input: ForceReservationInput) {
   // the payload uses an administrator identity and a privileged class.
   const { data } = await api.post<ApiResponse<{ reservationId: number }>>(
     "/reservation/create",
-    input
+    input,
   )
   return data.data!
 }
@@ -133,10 +132,9 @@ export async function getReservations(params: {
   needsMultimedia?: boolean
   sort?: "time" | "sequence"
 }) {
-  const { data } = await api.get<ApiResponse<ReservationPage>>(
-    "/reservation/get",
-    { params: { ...params, page: params.page ?? 0 } }
-  )
+  const { data } = await api.get<ApiResponse<ReservationPage>>("/reservation/get", {
+    params: { ...params, page: params.page ?? 0 },
+  })
   return data.data!
 }
 
@@ -156,14 +154,12 @@ export interface CancellationPreview {
 }
 
 export async function previewCancellation(token: string) {
-  const { data } = await api.get<ApiResponse<CancellationPreview>>(
-    "/reservation/cancel/preview",
-    { params: { token }, suppressErrorToast: true }
-  )
+  const { data } = await api.get<ApiResponse<CancellationPreview>>("/reservation/cancel/preview", {
+    params: { token },
+    suppressErrorToast: true,
+  })
   if (!data.success || !data.data) {
-    throw new Error(
-      data.message || "This reservation link is invalid or expired."
-    )
+    throw new Error(data.message || "This reservation link is invalid or expired.")
   }
   return data.data
 }
@@ -184,10 +180,7 @@ export interface ReservationEditInput {
   needsMultimedia: boolean
 }
 
-export async function modifyReservation(
-  token: string,
-  input: ReservationEditInput
-) {
+export async function modifyReservation(token: string, input: ReservationEditInput) {
   const { data } = await api.post<
     ApiResponse<{
       reservationId: number
@@ -202,17 +195,11 @@ export const adminEditReservation = (id: number, input: ReservationEditInput) =>
   api.post("/reservation/admin-edit", { id, ...input })
 
 export async function getFutureReservations() {
-  const response = await api.get<ApiResponse<Reservation[]>>(
-    "/reservation/future"
-  )
+  const response = await api.get<ApiResponse<Reservation[]>>("/reservation/future")
   return response.data.data!
 }
 
-export const updateReservationApproval = (
-  id: number,
-  approved: boolean,
-  reason?: string
-) =>
+export const updateReservationApproval = (id: number, approved: boolean, reason?: string) =>
   api.post("/reservation/approval", {
     id,
     approved,

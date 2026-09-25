@@ -72,9 +72,7 @@ export function FacilityNameDialog({
       <DialogTrigger asChild>
         <button
           type="button"
-          className={
-            mode === "create" ? styles.primaryButton : styles.secondaryButton
-          }
+          className={mode === "create" ? styles.primaryButton : styles.secondaryButton}
           disabled={working}
         >
           {mode === "create" ? <Plus /> : <Pencil />}
@@ -104,11 +102,7 @@ export function FacilityNameDialog({
                 {common("cancel")}
               </button>
             </DialogClose>
-            <button
-              type="submit"
-              className={styles.primaryButton}
-              disabled={working || saving}
-            >
+            <button type="submit" className={styles.primaryButton} disabled={working || saving}>
               {mode === "create" ? <Plus /> : <Pencil />}
               {mode === "create" ? common("add") : common("save")}
             </button>

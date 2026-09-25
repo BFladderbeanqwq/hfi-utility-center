@@ -12,22 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import {
-  checkLogin,
-  loginWithPassword,
-  loginWithToken,
-  rememberAdminEmail,
-} from "@/lib/api/auth"
+import { checkLogin, loginWithPassword, loginWithToken, rememberAdminEmail } from "@/lib/api/auth"
 
 type LoginFields = { email: string; password: string }
 
-export function AdminLoginForm({
-  token,
-  redirectTo,
-}: {
-  token?: string
-  redirectTo: string
-}) {
+export function AdminLoginForm({ token, redirectTo }: { token?: string; redirectTo: string }) {
   const t = useTranslations("admin")
   const { locale } = useAppLocale()
   const router = useRouter()
@@ -90,9 +79,7 @@ export function AdminLoginForm({
       router.replace(redirectTo)
       router.refresh()
     } catch (loginError) {
-      setError(
-        loginError instanceof Error ? loginError.message : t("loginFailed")
-      )
+      setError(loginError instanceof Error ? loginError.message : t("loginFailed"))
     }
   }
 
@@ -136,11 +123,7 @@ export function AdminLoginForm({
             <CardTitle>{t("loginTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="admin-login-card__content">
-            <form
-              noValidate
-              onSubmit={form.handleSubmit(submit)}
-              className="admin-login-form"
-            >
+            <form noValidate onSubmit={form.handleSubmit(submit)} className="admin-login-form">
               <Controller
                 control={form.control}
                 name="email"
@@ -167,9 +150,7 @@ export function AdminLoginForm({
                 rules={{ required: t("passwordRequired") }}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("password")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("password")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}

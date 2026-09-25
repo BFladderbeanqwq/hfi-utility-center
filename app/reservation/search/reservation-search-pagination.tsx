@@ -43,9 +43,7 @@ export function ReservationSearchPagination({
             href={reservationSearchHref(filters, Math.max(0, filters.page - 1))}
             size="default"
             aria-disabled={atFirstPage}
-            className={
-              atFirstPage ? "pointer-events-none opacity-50" : undefined
-            }
+            className={atFirstPage ? "pointer-events-none opacity-50" : undefined}
           >
             <ChevronLeftIcon />
             <span className="hidden sm:block">{previousLabel}</span>
@@ -70,15 +68,10 @@ export function ReservationSearchPagination({
         ))}
         <PaginationItem>
           <PaginationRouteLink
-            href={reservationSearchHref(
-              filters,
-              Math.min(totalPages - 1, filters.page + 1)
-            )}
+            href={reservationSearchHref(filters, Math.min(totalPages - 1, filters.page + 1))}
             size="default"
             aria-disabled={atLastPage}
-            className={
-              atLastPage ? "pointer-events-none opacity-50" : undefined
-            }
+            className={atLastPage ? "pointer-events-none opacity-50" : undefined}
           >
             <span className="hidden sm:block">{nextLabel}</span>
             <ChevronRightIcon />
@@ -101,10 +94,7 @@ function PaginationRouteLink({
   return (
     <Link
       aria-current={active ? "page" : undefined}
-      className={cn(
-        buttonVariants({ variant: active ? "outline" : "ghost", size }),
-        className
-      )}
+      className={cn(buttonVariants({ variant: active ? "outline" : "ghost", size }), className)}
       {...props}
     />
   )

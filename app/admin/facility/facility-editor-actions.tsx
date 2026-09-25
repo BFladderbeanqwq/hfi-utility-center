@@ -49,11 +49,7 @@ export function ConfirmFacilityDelete({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          disabled={working}
-        >
+        <button type="button" className={styles.secondaryButton} disabled={working}>
           <Trash2 />
           {common("delete")}
         </button>
@@ -61,9 +57,7 @@ export function ConfirmFacilityDelete({
       <AlertDialogContent className={styles.dialog}>
         <AlertDialogHeader className={styles.dialogHeader}>
           <AlertDialogTitle>{common("delete")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("confirmDelete", { name: label })}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{t("confirmDelete", { name: label })}</AlertDialogDescription>
         </AlertDialogHeader>
         {error ? <p className={styles.error}>{error}</p> : null}
         <AlertDialogFooter className={styles.dialogActions}>

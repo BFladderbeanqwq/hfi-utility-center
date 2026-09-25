@@ -4,12 +4,7 @@ import { Check } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext } from "react-hook-form"
 
-import {
-  FieldError,
-  FieldGroup,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field"
+import { FieldError, FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field"
 import type { CatalogData } from "@/lib/api/types"
 
 import type { ReservationFormValues } from "../form"
@@ -24,38 +19,32 @@ export function ClassStep({
 }) {
   const t = useTranslations("booking")
   const [query, setQuery] = useState("")
-  const { control, getValues, setValue } =
-    useFormContext<ReservationFormValues>()
+  const { control, getValues, setValue } = useFormContext<ReservationFormValues>()
   const visibleCampuses = useMemo(
     () =>
-      privilegedOnly
-        ? catalog.campuses.filter((campus) => campus.isPrivileged)
-        : catalog.campuses,
-    [catalog.campuses, privilegedOnly]
+      privilegedOnly ? catalog.campuses.filter((campus) => campus.isPrivileged) : catalog.campuses,
+    [catalog.campuses, privilegedOnly],
   )
   const [campusId, setCampusId] = useState(
     () =>
-      catalog.classes.find((item) => item.id === getValues("classId"))
-        ?.campus ??
+      catalog.classes.find((item) => item.id === getValues("classId"))?.campus ??
       visibleCampuses[0]?.id ??
-      0
+      0,
   )
   const campus = catalog.campuses.find((item) => item.id === campusId)
   const classes = useMemo(
     () =>
       catalog.classes.filter(
-        (item) =>
-          item.campus === campusId &&
-          item.name.toLowerCase().includes(query.toLowerCase())
+        (item) => item.campus === campusId && item.name.toLowerCase().includes(query.toLowerCase()),
       ),
-    [catalog, campusId, query]
+    [catalog, campusId, query],
   )
 
   function selectCampus(nextCampusId: number) {
     setCampusId(nextCampusId)
     setQuery("")
     const selectedClassCampus = catalog.classes.find(
-      (item) => item.id === getValues("classId")
+      (item) => item.id === getValues("classId"),
     )?.campus
     if (selectedClassCampus !== nextCampusId) {
       setValue("classId", 0, { shouldValidate: false })
@@ -91,9 +80,7 @@ export function ClassStep({
           name="classId"
           render={({ field, fieldState }) => (
             <FieldSet className="gap-3" data-invalid={fieldState.invalid}>
-              <FieldLegend variant="label">
-                {campus?.name ?? t("classTitle")}
-              </FieldLegend>
+              <FieldLegend variant="label">{campus?.name ?? t("classTitle")}</FieldLegend>
               <div>
                 <Input
                   id="class-search"
@@ -105,11 +92,7 @@ export function ClassStep({
                   placeholder={t("classSearch")}
                 />
               </div>
-              <div
-                className="class-grid"
-                role="radiogroup"
-                aria-label={t("classTitle")}
-              >
+              <div className="class-grid" role="radiogroup" aria-label={t("classTitle")}>
                 {classes.map((item) => (
                   <button
                     type="button"

@@ -1,12 +1,5 @@
 import type { ReactNode } from "react"
-import {
-  CalendarDays,
-  FileText,
-  Mail,
-  MapPin,
-  Monitor,
-  UserRound,
-} from "lucide-react"
+import { CalendarDays, FileText, Mail, MapPin, Monitor, UserRound } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useFormContext } from "react-hook-form"
 
@@ -40,13 +33,10 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
   const locale = useLocale()
   const { getValues } = useFormContext<ReservationFormValues>()
   const values = getValues()
-  const className =
-    catalog.classes.find((item) => item.id === values.classId)?.name ?? "-"
+  const className = catalog.classes.find((item) => item.id === values.classId)?.name ?? "-"
   const campusName =
-    catalog.campuses.find((item) => item.id === values.bookingCampusId)?.name ??
-    "-"
-  const roomName =
-    catalog.rooms.find((item) => item.id === values.room)?.name ?? "-"
+    catalog.campuses.find((item) => item.id === values.bookingCampusId)?.name ?? "-"
+  const roomName = catalog.rooms.find((item) => item.id === values.room)?.name ?? "-"
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "long",
@@ -58,17 +48,10 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
     minute: "2-digit",
     hour12: false,
   })
-  const duration = Math.max(
-    0,
-    Math.round((values.endTime - values.startTime) / 60)
-  )
+  const duration = Math.max(0, Math.round((values.endTime - values.startTime) / 60))
 
   return (
-    <StepLayout
-      title={t("reviewTitle")}
-      description={t("reviewDescription")}
-      hideHeader
-    >
+    <StepLayout title={t("reviewTitle")} description={t("reviewDescription")} hideHeader>
       <div className="confirm-step">
         <div className="confirm-banner">
           <span className="confirm-banner__icon">
@@ -84,10 +67,7 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
             <strong>{roomName}</strong>
             <span className="room-pill">{campusName}</span>
           </ConfirmValue>
-          <ConfirmValue
-            label={t("dateTimeTitle")}
-            icon={<CalendarDays size={20} />}
-          >
+          <ConfirmValue label={t("dateTimeTitle")} icon={<CalendarDays size={20} />}>
             <span className="confirm-date">
               {dateFormatter.format(new Date(values.startTime * 1000))}
             </span>
@@ -97,10 +77,7 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
             </strong>
             <span className="duration-strip">{duration} 分钟</span>
           </ConfirmValue>
-          <ConfirmValue
-            label={t("profileTitle")}
-            icon={<UserRound size={20} />}
-          >
+          <ConfirmValue label={t("profileTitle")} icon={<UserRound size={20} />}>
             <dl>
               <div>
                 <dt>{t("class")}</dt>
@@ -131,9 +108,7 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
           <ConfirmValue label={t("purpose")} icon={<Monitor size={20} />}>
             <strong>{t(`purposeOptions.${values.purposeType}`)}</strong>
             <span>
-              {values.needsMultimedia
-                ? t("multimedia")
-                : t("no") + " · " + t("multimedia")}
+              {values.needsMultimedia ? t("multimedia") : t("no") + " · " + t("multimedia")}
             </span>
           </ConfirmValue>
         </div>

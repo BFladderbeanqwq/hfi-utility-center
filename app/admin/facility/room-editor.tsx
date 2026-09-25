@@ -28,10 +28,7 @@ import {
 import { createRoom, deleteRoom, editRoom } from "@/lib/api/catalog"
 import type { Campus, Room } from "@/lib/api/types"
 
-import {
-  ConfirmFacilityDelete,
-  type FacilityEditorActions,
-} from "./facility-editor-actions"
+import { ConfirmFacilityDelete, type FacilityEditorActions } from "./facility-editor-actions"
 import styles from "./facility.module.css"
 import { PolicyEditor } from "./room-policy-editor"
 
@@ -46,9 +43,7 @@ export function RoomEditor({
 }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
-  const campusNames = new Map(
-    campuses.map((campus) => [campus.id, campus.name])
-  )
+  const campusNames = new Map(campuses.map((campus) => [campus.id, campus.name]))
   const dateFormatter = new Intl.DateTimeFormat(useLocale(), {
     dateStyle: "medium",
   })
@@ -62,9 +57,7 @@ export function RoomEditor({
           mode="create"
           campuses={campuses}
           working={working}
-          onSave={(name, campus) =>
-            mutate(() => createRoom(name, campus), t("roomCreated"))
-          }
+          onSave={(name, campus) => mutate(() => createRoom(name, campus), t("roomCreated"))}
         />
       }
     >
@@ -76,9 +69,7 @@ export function RoomEditor({
             <TableHead>{t("status")}</TableHead>
             <TableHead>{t("campus")}</TableHead>
             <TableHead>{t("roomPolicies")}</TableHead>
-            <TableHead className="hidden xl:table-cell">
-              {t("createdAt")}
-            </TableHead>
+            <TableHead className="hidden xl:table-cell">{t("createdAt")}</TableHead>
             <TableHead className="text-right">{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
@@ -103,12 +94,8 @@ export function RoomEditor({
                 <TableCell>
                   <PolicyEditor room={room} mutate={mutate} working={working} />
                 </TableCell>
-                <TableCell
-                  className={`hidden xl:table-cell ${styles.secondaryText}`}
-                >
-                  {room.createdAt
-                    ? dateFormatter.format(new Date(room.createdAt))
-                    : "—"}
+                <TableCell className={`hidden xl:table-cell ${styles.secondaryText}`}>
+                  {room.createdAt ? dateFormatter.format(new Date(room.createdAt)) : "—"}
                 </TableCell>
                 <TableCell>
                   <div className={styles.rowActions}>
@@ -118,14 +105,8 @@ export function RoomEditor({
                       disabled={working}
                       onClick={() =>
                         mutate(
-                          () =>
-                            editRoom(
-                              room.id,
-                              room.name,
-                              room.campus,
-                              !room.enabled
-                            ),
-                          t("roomStatusUpdated")
+                          () => editRoom(room.id, room.name, room.campus, !room.enabled),
+                          t("roomStatusUpdated"),
                         )
                       }
                     >
@@ -140,7 +121,7 @@ export function RoomEditor({
                       onSave={(name, campus) =>
                         mutate(
                           () => editRoom(room.id, name, campus, room.enabled),
-                          t("roomUpdated")
+                          t("roomUpdated"),
                         )
                       }
                     />
@@ -220,9 +201,7 @@ function RoomDialog({
       <DialogTrigger asChild>
         <button
           type="button"
-          className={
-            mode === "create" ? styles.primaryButton : styles.secondaryButton
-          }
+          className={mode === "create" ? styles.primaryButton : styles.secondaryButton}
           disabled={working || campuses.length === 0}
         >
           {mode === "create" ? <Plus /> : <Pencil />}
@@ -231,9 +210,7 @@ function RoomDialog({
       </DialogTrigger>
       <DialogContent className={styles.dialog}>
         <DialogHeader className={styles.dialogHeader}>
-          <DialogTitle>
-            {mode === "create" ? t("newRoom") : t("renameRoom")}
-          </DialogTitle>
+          <DialogTitle>{mode === "create" ? t("newRoom") : t("renameRoom")}</DialogTitle>
           <DialogDescription>{t("roomName")}</DialogDescription>
         </DialogHeader>
         <form className={styles.form} onSubmit={submit}>
@@ -271,11 +248,7 @@ function RoomDialog({
                 {common("cancel")}
               </button>
             </DialogClose>
-            <button
-              type="submit"
-              className={styles.primaryButton}
-              disabled={working || saving}
-            >
+            <button type="submit" className={styles.primaryButton} disabled={working || saving}>
               {mode === "create" ? <Plus /> : <Pencil />}
               {mode === "create" ? common("add") : common("save")}
             </button>

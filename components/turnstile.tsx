@@ -15,7 +15,7 @@ declare global {
           sitekey: string
           callback: (token: string) => void
           "expired-callback": () => void
-        }
+        },
       ) => string
       remove: (id: string) => void
     }
@@ -23,8 +23,7 @@ declare global {
 }
 
 const turnstileScriptSelector = 'script[data-hfiuc-turnstile="true"]'
-const turnstileScriptUrl =
-  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+const turnstileScriptUrl = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
 let turnstileScriptRequest: Promise<void> | undefined
 
 function loadTurnstileScript() {
@@ -32,9 +31,7 @@ function loadTurnstileScript() {
   if (turnstileScriptRequest) return turnstileScriptRequest
 
   turnstileScriptRequest = new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      turnstileScriptSelector
-    )
+    const existing = document.querySelector<HTMLScriptElement>(turnstileScriptSelector)
     const script = existing ?? document.createElement("script")
 
     script.addEventListener("load", () => resolve(), { once: true })
@@ -45,7 +42,7 @@ function loadTurnstileScript() {
         script.remove()
         reject(new Error("Unable to load Turnstile"))
       },
-      { once: true }
+      { once: true },
     )
 
     if (!existing) {

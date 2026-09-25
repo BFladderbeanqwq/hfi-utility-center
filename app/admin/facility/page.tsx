@@ -27,11 +27,7 @@ const emptyFacilityData: FacilityData = {
 }
 
 async function loadFacilityData(): Promise<FacilityData> {
-  const [campuses, classes, rooms] = await Promise.all([
-    getCampuses(),
-    getClasses(),
-    getRooms(),
-  ])
+  const [campuses, classes, rooms] = await Promise.all([getCampuses(), getClasses(), getRooms()])
   return { campuses, classes, rooms }
 }
 
@@ -58,9 +54,7 @@ export default function AdminFacilitiesPage() {
           <button
             type="button"
             className={styles.secondaryButton}
-            onClick={() =>
-              void facilityResource.reload().catch(() => undefined)
-            }
+            onClick={() => void facilityResource.reload().catch(() => undefined)}
             disabled={facilityResource.loading}
           >
             <RefreshCw />
@@ -69,21 +63,9 @@ export default function AdminFacilitiesPage() {
         }
       />
       <div className={styles.overview}>
-        <FacilityMetric
-          icon={<School />}
-          value={campuses.length}
-          label={t("campuses")}
-        />
-        <FacilityMetric
-          icon={<GraduationCap />}
-          value={classes.length}
-          label={t("classes")}
-        />
-        <FacilityMetric
-          icon={<Building2 />}
-          value={rooms.length}
-          label={t("rooms")}
-        />
+        <FacilityMetric icon={<School />} value={campuses.length} label={t("campuses")} />
+        <FacilityMetric icon={<GraduationCap />} value={classes.length} label={t("classes")} />
+        <FacilityMetric icon={<Building2 />} value={rooms.length} label={t("rooms")} />
       </div>
       <div className={styles.sections}>
         {facilityResource.loading && !rooms.length ? (
@@ -103,11 +85,7 @@ export default function AdminFacilitiesPage() {
           <>
             <RoomEditor rooms={rooms} campuses={campuses} {...editorActions} />
             <CampusEditor campuses={campuses} {...editorActions} />
-            <ClassEditor
-              classes={classes}
-              campuses={campuses}
-              {...editorActions}
-            />
+            <ClassEditor classes={classes} campuses={campuses} {...editorActions} />
           </>
         )}
       </div>

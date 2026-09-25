@@ -12,10 +12,7 @@ export function useReservationSchema() {
       z
         .object({
           classId: z.number().int().positive(t("validation.classRequired")),
-          bookingCampusId: z
-            .number()
-            .int()
-            .positive(t("validation.campusRequired")),
+          bookingCampusId: z.number().int().positive(t("validation.campusRequired")),
           room: z.number().int().positive(t("validation.roomRequired")),
           date: z.string().min(1, t("validation.dateRequired")),
           startTime: z.number().positive(t("validation.startTimeRequired")),
@@ -27,9 +24,7 @@ export function useReservationSchema() {
           reason: z.string().trim().min(1, t("validation.reasonRequired")),
           purposeType: z.enum(["personal", "class", "club"]),
           needsMultimedia: z.boolean(),
-          isAgreed: z
-            .boolean()
-            .refine(Boolean, t("validation.agreementRequired")),
+          isAgreed: z.boolean().refine(Boolean, t("validation.agreementRequired")),
         })
         .superRefine((values, context) => {
           if (!values.isPrivileged && !/^GJ\d{8}$/.test(values.studentId)) {
@@ -40,13 +35,11 @@ export function useReservationSchema() {
             })
           }
         }),
-    [t]
+    [t],
   )
 }
 
-export type ReservationFormValues = z.infer<
-  ReturnType<typeof useReservationSchema>
->
+export type ReservationFormValues = z.infer<ReturnType<typeof useReservationSchema>>
 
 export const reservationDefaults: ReservationFormValues = {
   classId: 0,

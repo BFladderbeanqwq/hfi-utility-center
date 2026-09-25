@@ -23,8 +23,7 @@ export function ChoiceGrid<T extends number | string>({
   emptyText: string
   ref?: Ref<HTMLDivElement>
 }) {
-  if (!items.length)
-    return <p className="py-8 text-sm text-muted-foreground">{emptyText}</p>
+  if (!items.length) return <p className="py-8 text-sm text-muted-foreground">{emptyText}</p>
   return (
     <div
       ref={ref}

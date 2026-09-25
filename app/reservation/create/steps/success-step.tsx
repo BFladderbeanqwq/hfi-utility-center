@@ -28,9 +28,7 @@ export function SuccessStep({
             : t("successDescription")}
         </p>
         {adminForce ? (
-          <p className="success-card__description">
-            {adminT("forceConflictHandled")}
-          </p>
+          <p className="success-card__description">{adminT("forceConflictHandled")}</p>
         ) : null}
         {reservationId ? (
           <div className="success-card__number">
@@ -45,19 +43,11 @@ export function SuccessStep({
           >
             {t("viewReservations")}
           </ActionButton>
-          <ActionButton
-            variant="secondary"
-            icon={<CalendarPlus size={17} />}
-            onClick={onReset}
-          >
+          <ActionButton variant="secondary" icon={<CalendarPlus size={17} />} onClick={onReset}>
             {adminForce ? adminT("forceCreateAnother") : t("bookAgain")}
           </ActionButton>
           {!adminForce ? (
-            <ActionButton
-              href="/"
-              variant="secondary"
-              icon={<ArrowLeft size={17} />}
-            >
+            <ActionButton href="/" variant="secondary" icon={<ArrowLeft size={17} />}>
               {t("home")}
             </ActionButton>
           ) : null}

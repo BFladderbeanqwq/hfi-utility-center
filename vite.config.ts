@@ -12,13 +12,7 @@ export default defineConfig({
     env: {
       builtin: true,
     },
-    ignorePatterns: [
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
-      "output/**",
-    ],
+    ignorePatterns: [".next/**", "out/**", "build/**", "next-env.d.ts", "output/**"],
     rules: {
       "no-array-constructor": "error",
       "no-unused-expressions": "error",
@@ -1255,13 +1249,8 @@ export default defineConfig({
     ],
   },
   fmt: {
-    endOfLine: "lf",
     semi: false,
     singleQuote: false,
-    tabWidth: 2,
-    trailingComma: "es5",
-    printWidth: 80,
-    sortPackageJson: false,
     sortTailwindcss: {
       stylesheet: "app/globals.css",
       functions: ["cn", "cva"],

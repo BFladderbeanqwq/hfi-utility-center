@@ -11,11 +11,7 @@ import { getReservations } from "@/lib/api/reservations"
 import type { Reservation, Room } from "@/lib/api/types"
 import { NeoPage, NeoFooter, StatusBadge } from "./shared"
 
-export function FacilityDashboard({
-  portrait = false,
-}: {
-  portrait?: boolean
-}) {
+export function FacilityDashboard({ portrait = false }: { portrait?: boolean }) {
   const { locale } = useAppLocale()
   const zh = locale === "zh-CN"
   const status = useTranslations("status")
@@ -41,17 +37,15 @@ export function FacilityDashboard({
         getReservations({ ...params, page: 0 }),
       ])
       const rest = await Promise.all(
-        Array.from(
-          { length: Math.max(0, Math.ceil(first.total / 20) - 1) },
-          (_, index) => getReservations({ ...params, page: index + 1 })
-        )
+        Array.from({ length: Math.max(0, Math.ceil(first.total / 20) - 1) }, (_, index) =>
+          getReservations({ ...params, page: index + 1 }),
+        ),
       )
       setRooms(catalog.filter((room) => room.enabled))
       setReservations(
-        [
-          ...first.reservations,
-          ...rest.flatMap((page) => page.reservations),
-        ].sort((a, b) => Date.parse(a.startTime) - Date.parse(b.startTime))
+        [...first.reservations, ...rest.flatMap((page) => page.reservations)].sort(
+          (a, b) => Date.parse(a.startTime) - Date.parse(b.startTime),
+        ),
       )
       setUpdated(new Date())
       setError(false)
@@ -82,14 +76,11 @@ export function FacilityDashboard({
     (item) =>
       item.status === "approved" &&
       Date.parse(item.startTime) <= now.getTime() &&
-      Date.parse(item.endTime) > now.getTime()
+      Date.parse(item.endTime) > now.getTime(),
   )
   return (
     <NeoPage>
-      <main
-        id="main-content"
-        className={`live-board ${portrait ? "live-board--portrait" : ""}`}
-      >
+      <main id="main-content" className={`live-board ${portrait ? "live-board--portrait" : ""}`}>
         <header className="live-board-heading">
           <div>
             <h1>{zh ? "场地看板" : "Live schedule"}</h1>
@@ -101,11 +92,7 @@ export function FacilityDashboard({
               }).format(now)}
             </p>
           </div>
-          <Button
-            variant="secondary"
-            onClick={() => void refresh()}
-            disabled={loading}
-          >
+          <Button variant="secondary" onClick={() => void refresh()} disabled={loading}>
             <RefreshCw className={loading ? "animate-spin" : ""} />
             {zh ? "刷新" : "Refresh"}
           </Button>
@@ -136,16 +123,10 @@ export function FacilityDashboard({
           {rooms.map((room) => {
             const inUse = active.some((item) => item.roomId === room.id)
             const items = reservations.filter(
-              (item) =>
-                item.roomId === room.id &&
-                ["approved", "pending"].includes(item.status)
+              (item) => item.roomId === room.id && ["approved", "pending"].includes(item.status),
             )
             return (
-              <section
-                className="live-room"
-                key={room.id}
-                aria-labelledby={`room-${room.id}`}
-              >
+              <section className="live-room" key={room.id} aria-labelledby={`room-${room.id}`}>
                 <div className="live-room-heading">
                   <h2 id={`room-${room.id}`}>{room.name}</h2>
                   <StatusBadge tone={inUse ? "info" : "neutral"}>
@@ -166,20 +147,14 @@ export function FacilityDashboard({
                           {time(item.startTime)}–{time(item.endTime)}
                         </time>
                         <span>{item.reason}</span>
-                        <StatusBadge
-                          tone={
-                            item.status === "approved" ? "success" : "warning"
-                          }
-                        >
+                        <StatusBadge tone={item.status === "approved" ? "success" : "warning"}>
                           {status(item.status)}
                         </StatusBadge>
                       </li>
                     ))}
                   </ol>
                 ) : (
-                  <p className="live-room-empty">
-                    {zh ? "今日暂无预约" : "No bookings today"}
-                  </p>
+                  <p className="live-room-empty">{zh ? "今日暂无预约" : "No bookings today"}</p>
                 )}
               </section>
             )

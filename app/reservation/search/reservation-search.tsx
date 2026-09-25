@@ -12,22 +12,14 @@ import type { Reservation } from "@/lib/api/types"
 import { ReservationResults } from "./reservation-results"
 import { ReservationSearchFilterForm } from "./reservation-search-filters"
 import { ReservationSearchPagination } from "./reservation-search-pagination"
-import {
-  reservationSearchHref,
-  type ReservationSearchFilters,
-} from "./search-query"
+import { reservationSearchHref, type ReservationSearchFilters } from "./search-query"
 import { useReservationSearch } from "./use-reservation-search"
 
-export function ReservationSearch({
-  filters,
-}: {
-  filters: ReservationSearchFilters
-}) {
+export function ReservationSearch({ filters }: { filters: ReservationSearchFilters }) {
   const t = useTranslations("searchPage")
   const { locale } = useAppLocale()
   const zh = locale === "zh-CN"
-  const { catalog, result, loading, error, catalogError, retry } =
-    useReservationSearch(filters)
+  const { catalog, result, loading, error, catalogError, retry } = useReservationSearch(filters)
 
   return (
     <NeoPage>
@@ -64,9 +56,7 @@ export function ReservationSearch({
             </div>
             {error ? (
               <Alert variant="destructive">
-                <AlertTitle>
-                  {zh ? "预约暂时无法加载" : "Bookings could not be loaded"}
-                </AlertTitle>
+                <AlertTitle>{zh ? "预约暂时无法加载" : "Bookings could not be loaded"}</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
                 <Button variant="outline" onClick={retry}>
                   {zh ? "重试" : "Retry"}
@@ -114,10 +104,7 @@ function SearchContent({
 
   if (loading) {
     return (
-      <p
-        className="flex items-center gap-2 py-5 text-sm text-muted-foreground"
-        aria-live="polite"
-      >
+      <p className="flex items-center gap-2 py-5 text-sm text-muted-foreground" aria-live="polite">
         <Spinner />
         {t("loading")}
       </p>
@@ -130,9 +117,7 @@ function SearchContent({
   return (
     <section className="py-16">
       <p className="font-medium">{t("emptyTitle")}</p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {t("emptyDescription")}
-      </p>
+      <p className="mt-2 text-sm text-muted-foreground">{t("emptyDescription")}</p>
     </section>
   )
 }

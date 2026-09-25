@@ -50,8 +50,7 @@ export interface CatalogData {
   rooms: Room[]
 }
 
-export type ReservationStatus =
-  "pending" | "approved" | "rejected" | "cancelled"
+export type ReservationStatus = "pending" | "approved" | "rejected" | "cancelled"
 export type PurposeType = "personal" | "class" | "club"
 
 export interface Reservation {

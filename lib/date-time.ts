@@ -13,9 +13,7 @@ export function inputValueToDate(value: string) {
   const [year, month, day] = value.split("-").map(Number)
   const date = new Date(year, month - 1, day)
   const isValid =
-    date.getFullYear() === year &&
-    date.getMonth() === month - 1 &&
-    date.getDate() === day
+    date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
 
   return isValid ? date : undefined
 }
@@ -28,10 +26,7 @@ export function inputValueToTimestamp(value: string, endOfDay = false) {
   return date.getTime() / 1000
 }
 
-export function timeOnInputDateTimestamp(
-  date: string,
-  [hour, minute]: number[]
-) {
+export function timeOnInputDateTimestamp(date: string, [hour, minute]: number[]) {
   const dayStart = inputValueToTimestamp(date)
   if (dayStart === undefined) return undefined
   return dayStart + hour * 60 * 60 + minute * 60

@@ -26,14 +26,11 @@ export interface WeeklyAnalytics {
 }
 
 export async function getAnalyticsOverview() {
-  const response = await api.get<ApiResponse<AnalyticsOverview>>(
-    "/analytics/overview"
-  )
+  const response = await api.get<ApiResponse<AnalyticsOverview>>("/analytics/overview")
   return response.data.data!
 }
 
 export async function getWeeklyAnalytics() {
-  const response =
-    await api.get<ApiResponse<WeeklyAnalytics>>("/analytics/weekly")
+  const response = await api.get<ApiResponse<WeeklyAnalytics>>("/analytics/weekly")
   return response.data.data!
 }

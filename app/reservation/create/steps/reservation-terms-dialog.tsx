@@ -27,9 +27,7 @@ export function ReservationTermsDialog() {
       <DialogContent className="rules-modal grid max-h-[calc(100svh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] p-0 sm:max-w-3xl">
         <DialogHeader className="rules-modal__header">
           <DialogTitle>{t("terms.title")}</DialogTitle>
-          <DialogDescription className="sr-only">
-            {t("terms.description")}
-          </DialogDescription>
+          <DialogDescription className="sr-only">{t("terms.description")}</DialogDescription>
         </DialogHeader>
         <div className="rules-modal__body overflow-y-auto">
           <ol className="space-y-4 pr-2 leading-7 text-foreground">
