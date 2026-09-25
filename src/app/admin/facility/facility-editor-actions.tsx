@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Trash2 } from "lucide-react"
+import { useState, type ReactElement, type ReactNode } from "react"
+import { Ellipsis, Trash2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import {
@@ -12,67 +12,188 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { FieldError } from "@/components/ui/field"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
-
-import styles from "./facility.module.css"
+import { cn } from "@/lib/utils"
 
 export type FacilityEditorActions = {
   mutate: AdminMutation
   working: boolean
 }
 
+/** Keeps shadcn's compact desktop sizing while staying a 44px touch target on phones. */
+export const touchTarget = "min-h-11 sm:min-h-0"
+
+/** Same idea for icon-only buttons, which need the width as well as the height. */
+export const iconTouchTarget = "size-11 sm:size-8"
+
+/** Icon-only control with a real `aria-label`; the tooltip is never the only label. */
+export function IconHint({ label, children }: { label: string; children: ReactElement }) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
+
+/** Borderless resource block: quiet heading, right-aligned action, body scrolls sideways. */
+export function ResourceSection({
+  title,
+  count,
+  action,
+  children,
+}: {
+  title: string
+  count: number
+  action?: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <section className="min-w-0">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="flex min-w-0 items-baseline gap-2 text-sm font-medium break-words">
+          {title}
+          <span className="text-muted-foreground tabular-nums">{count}</span>
+        </h2>
+        {action}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+/** Quiet on/off state: a dot plus plain text, no filled pill. */
+export function StateDot({ enabled, label }: { enabled: boolean; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm whitespace-nowrap text-muted-foreground">
+      <span
+        aria-hidden
+        className={cn(
+          "size-1.5 shrink-0 rounded-full",
+          enabled ? "bg-success" : "bg-muted-foreground/40",
+        )}
+      />
+      {label}
+    </span>
+  )
+}
+
+/** Shared `⋯` row menu: callers pass their own leading items, Delete is appended last. */
+export function FacilityRowMenu({
+  label,
+  action,
+  mutate,
+  working,
+  children,
+}: FacilityEditorActions & {
+  label: string
+  action: () => Promise<unknown>
+  children?: ReactNode
+}) {
+  const t = useTranslations("admin")
+  const common = useTranslations("common")
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("actions")}
+            disabled={working}
+            className="size-11 sm:size-7"
+          >
+            <Ellipsis />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-40">
+          {children}
+          {children ? <DropdownMenuSeparator /> : null}
+          <DropdownMenuItem
+            variant="destructive"
+            disabled={working}
+            onSelect={() => setDeleteOpen(true)}
+          >
+            <Trash2 aria-hidden />
+            {common("delete")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <ConfirmFacilityDelete
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        label={label}
+        action={action}
+        mutate={mutate}
+        working={working}
+      />
+    </>
+  )
+}
+
 export function ConfirmFacilityDelete({
+  open,
+  onOpenChange,
   label,
   action,
   mutate,
   working,
 }: FacilityEditorActions & {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   label: string
   action: () => Promise<unknown>
 }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
-  const [open, setOpen] = useState(false)
   const [error, setError] = useState("")
 
   async function removeFacility() {
     setError("")
     try {
-      if (await mutate(action, t("facilityDeleted"))) setOpen(false)
+      if (await mutate(action, t("facilityDeleted"))) onOpenChange(false)
     } catch {
       setError(common("unknown"))
     }
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <button type="button" className={styles.secondaryButton} disabled={working}>
-          <Trash2 />
-          {common("delete")}
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className={styles.dialog}>
-        <AlertDialogHeader className={styles.dialogHeader}>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
           <AlertDialogTitle>{common("delete")}</AlertDialogTitle>
           <AlertDialogDescription>{t("confirmDelete", { name: label })}</AlertDialogDescription>
         </AlertDialogHeader>
-        {error ? <p className={styles.error}>{error}</p> : null}
-        <AlertDialogFooter className={styles.dialogActions}>
-          <AlertDialogCancel className={styles.secondaryButton}>
+        {error ? <FieldError>{error}</FieldError> : null}
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="ghost" className={touchTarget}>
             {common("cancel")}
           </AlertDialogCancel>
-          <button
+          <Button
             type="button"
-            className={styles.dangerButton}
+            variant="destructive"
             disabled={working}
             onClick={removeFacility}
+            className={touchTarget}
           >
-            <Trash2 />
+            <Trash2 aria-hidden />
             {common("delete")}
-          </button>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

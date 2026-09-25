@@ -1,20 +1,34 @@
 "use client"
 
 import { useMemo } from "react"
-import { Building2, CalendarCheck2, CalendarClock, DoorOpen, RefreshCw, Users } from "lucide-react"
+import {
+  ArrowRight,
+  Building2,
+  CalendarCheck2,
+  CalendarClock,
+  DoorOpen,
+  RefreshCw,
+} from "lucide-react"
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 
-import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Badge } from "@/components/ui/badge"
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/data-state"
+import { PageHeader } from "@/components/layout/page-header"
+import { StatusBadge } from "@/components/layout/status-badge"
 import { Button } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
+import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { getAdmins } from "@/lib/api/admins"
-import { getAnalyticsOverview, getWeeklyAnalytics } from "@/lib/api/analytics"
-import { getCampuses, getRooms } from "@/lib/api/catalog"
 import { useAdminResource } from "@/lib/api/admin-hooks"
+import {
+  getAnalyticsOverview,
+  getWeeklyAnalytics,
+  type AnalyticsOverview,
+  type WeeklyAnalytics,
+} from "@/lib/api/analytics"
+import { getCampuses, getRooms } from "@/lib/api/catalog"
 import { getFutureReservations } from "@/lib/api/reservations"
-import type { Reservation } from "@/lib/api/types"
+import type { Admin, Campus, Reservation, Room } from "@/lib/api/types"
 import { formatApiTimestamp } from "@/lib/date-time"
 
 async function loadDashboard() {
@@ -30,7 +44,14 @@ async function loadDashboard() {
   return { overview, weekly, rooms, campuses, admins, reservations }
 }
 
-type DashboardData = Awaited<ReturnType<typeof loadDashboard>>
+interface DashboardData {
+  overview: AnalyticsOverview
+  weekly: WeeklyAnalytics
+  rooms: Room[]
+  campuses: Campus[]
+  admins: Admin[]
+  reservations: Reservation[]
+}
 
 const emptyDashboard: DashboardData = {
   overview: {
@@ -57,8 +78,13 @@ const emptyDashboard: DashboardData = {
   reservations: [],
 }
 
+// One shared template keeps every label/value pair on the same grid tracks.
+const SNAPSHOT_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2.5 [&>dd]:justify-self-end"
+
 export default function AdminPage() {
   const t = useTranslations("admin")
+  const statusT = useTranslations("status")
   const common = useTranslations("common")
   const locale = useLocale()
   const resource = useAdminResource({
@@ -81,109 +107,108 @@ export default function AdminPage() {
     [locale],
   )
 
+  const refresh = () => void resource.reload().catch(() => undefined)
+
   const stats = [
-    {
-      label: t("pendingReservations"),
-      value: data.overview.pending,
-      icon: CalendarClock,
-      tone: "warning",
-    },
+    { label: t("pendingReservations"), value: data.overview.pending, to: "/admin/reservation" },
     {
       label: t("todayReservations"),
       value: data.overview.today.reservations,
-      icon: CalendarCheck2,
-      tone: "primary",
+      to: "/admin/reservation",
     },
     {
       label: t("openRooms"),
       value: data.rooms.filter((room) => room.enabled).length,
-      icon: DoorOpen,
-      tone: "success",
+      to: "/admin/facility",
     },
-    {
-      label: t("adminAccounts"),
-      value: data.admins.length,
-      icon: Users,
-      tone: "info",
-    },
+    { label: t("adminAccounts"), value: data.admins.length, to: "/admin/user" },
   ]
 
   return (
-    <main id="main-content" className="admin-page space-y-6">
-      <AdminPageHeader
+    <div className="flex min-w-0 flex-col gap-6">
+      <PageHeader
         title={t("overviewTitle")}
-        description={t("overviewDescription")}
         actions={
-          <Button
-            variant="outline"
-            onClick={() => void resource.reload().catch(() => undefined)}
-            disabled={resource.loading}
-          >
-            <RefreshCw />
-            {common("refresh")}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-9"
+                aria-label={common("refresh")}
+                onClick={refresh}
+                disabled={resource.loading}
+              >
+                <RefreshCw />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{common("refresh")}</TooltipContent>
+          </Tooltip>
         }
       />
 
-      <section className="admin-stat-grid" aria-label={t("overviewTitle")}>
+      <section
+        className="grid gap-x-6 gap-y-5 sm:grid-cols-2 xl:grid-cols-4"
+        aria-label={t("overviewTitle")}
+      >
         {stats.map((stat) => (
-          <article className="admin-stat-card" key={stat.label}>
-            <span className={`admin-stat-card__icon admin-stat-card__icon--${stat.tone}`}>
-              <stat.icon />
-            </span>
-            <div>
-              <span>{stat.label}</span>
-              <strong>{stat.value}</strong>
-            </div>
-          </article>
+          <Stat key={stat.label} {...stat} />
         ))}
       </section>
 
-      {resource.loading ? (
-        <div className="admin-dashboard-loading">
-          <Spinner />
-          {t("overviewLoading")}
-        </div>
-      ) : null}
+      {resource.loading ? <LoadingState label={t("overviewLoading")} /> : null}
 
       {resource.error && !resource.loading ? (
-        <div className="admin-error-state" role="alert">
-          <p>{common("unknown")}</p>
-          <Button variant="outline" onClick={() => void resource.reload().catch(() => undefined)}>
-            <RefreshCw />
-            {common("retry")}
-          </Button>
-        </div>
+        <ErrorState onRetry={refresh} retryLabel={common("retry")} />
       ) : null}
 
-      <div className="admin-dashboard-grid">
-        <AdminSection
-          title={t("pendingQueue")}
-          action={
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/admin/reservation">{t("viewAll")}</Link>
-            </Button>
-          }
-        >
-          <div className="grid gap-[9px]">
-            {pendingReservations.length ? (
-              pendingReservations.map((reservation) => (
-                <PendingReservation
-                  key={reservation.id}
-                  reservation={reservation}
-                  dateFormatter={dateFormatter}
-                />
-              ))
-            ) : (
-              <p className="px-2.5 py-[30px] text-center text-sm text-muted-foreground">
-                {t("reservationsEmpty")}
-              </p>
-            )}
-          </div>
-        </AdminSection>
+      <Separator />
 
-        <AdminSection title={t("systemSnapshot")}>
-          <dl className="grid gap-[9px]">
+      <div className="grid min-w-0 gap-10 lg:grid-cols-2">
+        <section className="min-w-0 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-medium">{t("pendingQueue")}</h2>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  aria-label={t("viewAll")}
+                >
+                  <Link href="/admin/reservation">
+                    <ArrowRight />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("viewAll")}</TooltipContent>
+            </Tooltip>
+          </div>
+          {pendingReservations.length ? (
+            <ul className="flex min-w-0 flex-col divide-y divide-border">
+              {pendingReservations.map((reservation) => (
+                <li key={reservation.id}>
+                  <PendingReservation
+                    reservation={reservation}
+                    dateFormatter={dateFormatter}
+                    statusLabel={statusT("pending")}
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState
+              icon={CalendarCheck2}
+              title={t("reservationsEmpty")}
+              description={t("reservationsEmptyDescription")}
+            />
+          )}
+        </section>
+
+        <section className="min-w-0 space-y-3">
+          <h2 className="text-sm font-medium">{t("systemSnapshot")}</h2>
+          <dl className={SNAPSHOT_GRID}>
             <SnapshotRow icon={Building2} label={t("campuses")} value={data.campuses.length} />
             <SnapshotRow icon={DoorOpen} label={t("rooms")} value={data.rooms.length} />
             <SnapshotRow
@@ -197,36 +222,56 @@ export default function AdminPage() {
               value={data.weekly.totalReservations}
             />
           </dl>
-        </AdminSection>
+        </section>
       </div>
-    </main>
+    </div>
+  )
+}
+
+function Stat({ label, value, to }: { label: string; value: number; to: string }) {
+  return (
+    <Link
+      href={to}
+      className="min-w-0 border-l-2 border-primary/40 pl-3 transition-colors hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+    >
+      <span className="block text-xs tracking-wide text-muted-foreground uppercase">{label}</span>
+      <span className="block text-2xl font-semibold break-words tabular-nums">{value}</span>
+    </Link>
   )
 }
 
 function PendingReservation({
   reservation,
   dateFormatter,
+  statusLabel,
 }: {
   reservation: Reservation
   dateFormatter: Intl.DateTimeFormat
+  statusLabel: string
 }) {
   return (
     <Link
       href="/admin/reservation"
-      className="admin-pending-item"
-      aria-label={`Reservation ${reservation.id}`}
+      className="flex min-w-0 items-center gap-3 py-3 transition-colors hover:bg-accent/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+      aria-label={reservation.roomName || `#${reservation.id}`}
     >
-      <span className="font-sans text-sm font-extrabold text-primary">#{reservation.id}</span>
-      <span className="admin-pending-item__body">
-        <strong>{reservation.roomName || "—"}</strong>
-        <small>
+      <span className="w-12 shrink-0 text-sm font-semibold text-primary tabular-nums">
+        #{reservation.id}
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="truncate text-sm font-medium break-words">
+          {reservation.roomName || "—"}
+        </span>
+        <span className="truncate text-xs text-muted-foreground">
           {reservation.studentName} · {reservation.reason}
-        </small>
+        </span>
       </span>
-      <span className="admin-pending-item__time">
-        {formatApiTimestamp(dateFormatter, reservation.startTime)}
+      <span className="flex shrink-0 flex-col items-end gap-1">
+        <span className="text-xs text-muted-foreground tabular-nums">
+          {formatApiTimestamp(dateFormatter, reservation.startTime)}
+        </span>
+        <StatusBadge tone="pending">{statusLabel}</StatusBadge>
       </span>
-      <Badge className="admin-pending-item__badge">Pending</Badge>
     </Link>
   )
 }
@@ -241,12 +286,12 @@ function SnapshotRow({
   value: number
 }) {
   return (
-    <div className="admin-snapshot-row">
-      <dt>
-        <Icon />
-        {label}
+    <>
+      <dt className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
+        <Icon className="size-4 shrink-0" />
+        <span className="truncate">{label}</span>
       </dt>
-      <dd>{value}</dd>
-    </div>
+      <dd className="text-sm font-semibold tabular-nums">{value}</dd>
+    </>
   )
 }

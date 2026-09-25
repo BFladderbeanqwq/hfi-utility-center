@@ -1,25 +1,56 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, BellOff, KeyRound, Trash2, TriangleAlert, X } from "lucide-react"
+import {
+  AlertCircle,
+  KeyRound,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  TriangleAlert,
+  UserRound,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { TextActionDialog } from "@/app/admin/text-action-dialog"
+import { EmptyState } from "@/components/layout/data-state"
+import { StatusBadge } from "@/components/layout/status-badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Switch } from "@/components/ui/switch"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { useIsMobile } from "@/hooks/use-mobile"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { changeAdminPassword, deleteAdmin, setAdminNotifications } from "@/lib/api/admins"
 import type { Admin } from "@/lib/api/types"
 
-import styles from "./admin-user.module.css"
 import { EditAdminDialog } from "./edit-admin-dialog"
 
 export function AdminList({
@@ -32,112 +63,43 @@ export function AdminList({
   working: boolean
 }) {
   const t = useTranslations("admin")
-  const common = useTranslations("common")
-  const [notificationError, setNotificationError] = useState<number | null>(null)
+  const isMobile = useIsMobile()
 
   if (admins.length === 0) {
+    return <EmptyState icon={UserRound} title={t("usersEmpty")} />
+  }
+
+  if (isMobile) {
     return (
-      <div className={styles.emptyState}>
-        <BellOff aria-hidden="true" />
-        <p>{t("usersEmpty")}</p>
-      </div>
+      <ul className="flex min-w-0 flex-col divide-y divide-border">
+        {admins.map((admin) => (
+          <li key={admin.id} className="py-4">
+            <AdminAccountCard admin={admin} mutate={mutate} working={working} />
+          </li>
+        ))}
+      </ul>
     )
   }
 
   return (
-    <div className={styles.list}>
-      {admins.map((admin) => {
-        const receivesNotifications = admin.receiveReservationNotifications
-
-        return (
-          <article key={admin.id} className={styles.accountCard}>
-            <header className={styles.accountHeader}>
-              <span className={styles.avatar} aria-hidden="true">
-                {admin.name.trim().slice(0, 1).toUpperCase() || "A"}
-              </span>
-              <div className={styles.identity}>
-                <strong>{admin.name}</strong>
-                <a href={`mailto:${admin.email}`}>{admin.email}</a>
-              </div>
-            </header>
-
-            <section
-              className={`${styles.notificationRow} ${
-                receivesNotifications ? styles.notificationEnabled : ""
-              }`}
-            >
-              <div className={styles.notificationCopy}>
-                <span className={styles.notificationIcon} aria-hidden="true">
-                  {receivesNotifications ? <Bell /> : <BellOff />}
-                </span>
-                <span className={styles.notificationLabel}>
-                  <strong>{t("notifications")}</strong>
-                  <span>
-                    {receivesNotifications
-                      ? t("reservationNotificationsOn")
-                      : t("reservationNotificationsOff")}
-                  </span>
-                </span>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className={`${styles.actionButton} ${styles.notificationToggle}`}
-                disabled={working}
-                onClick={async () => {
-                  setNotificationError(null)
-                  try {
-                    await mutate(
-                      () => setAdminNotifications(admin.id, !receivesNotifications),
-                      t("adminNotificationsUpdated"),
-                    )
-                  } catch {
-                    setNotificationError(admin.id)
-                  }
-                }}
-              >
-                {receivesNotifications ? <Bell /> : <BellOff />}
-                {receivesNotifications ? t("notificationDisable") : t("notificationEnable")}
-              </Button>
-            </section>
-            {notificationError === admin.id ? (
-              <p className={styles.formError} role="alert">
-                {common("unknown")}
-              </p>
-            ) : null}
-
-            <footer className={styles.actions}>
-              <EditAdminDialog admin={admin} mutate={mutate} working={working} />
-              <TextActionDialog
-                title={t("changePassword")}
-                label={t("newPassword")}
-                inputType="password"
-                cancelLabel={common("cancel")}
-                saveLabel={common("save")}
-                onSave={(password) =>
-                  mutate(() => changeAdminPassword(admin.id, password), t("passwordUpdated"))
-                }
-              >
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className={styles.actionButton}
-                  disabled={working}
-                >
-                  <KeyRound />
-                  {t("changePassword")}
-                </Button>
-              </TextActionDialog>
-              <DeleteAdminDialog admin={admin} mutate={mutate} working={working} />
-            </footer>
-          </article>
-        )
-      })}
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>{t("columnAccount")}</TableHead>
+          <TableHead className="w-72">{t("notifications")}</TableHead>
+          <TableHead className="w-20 text-right">{t("actions")}</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {admins.map((admin) => (
+          <AdminAccountRow key={admin.id} admin={admin} mutate={mutate} working={working} />
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 
-function DeleteAdminDialog({
+function useAccountMenu({
   admin,
   mutate,
   working,
@@ -148,16 +110,250 @@ function DeleteAdminDialog({
 }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
-  const [open, setOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [passwordOpen, setPasswordOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  return {
+    trigger: (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-9"
+                aria-label={t("actions")}
+                disabled={working}
+              >
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+                <Pencil />
+                {common("edit")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setPasswordOpen(true)}>
+                <KeyRound />
+                {t("changePassword")}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
+                <Trash2 />
+                {common("delete")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TooltipTrigger>
+        <TooltipContent>{t("actions")}</TooltipContent>
+      </Tooltip>
+    ),
+    dialogs: (
+      <>
+        <EditAdminDialog
+          admin={admin}
+          mutate={mutate}
+          working={working}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+        <TextActionDialog
+          open={passwordOpen}
+          onOpenChange={setPasswordOpen}
+          title={t("changePassword")}
+          label={t("newPassword")}
+          inputType="password"
+          cancelLabel={common("cancel")}
+          saveLabel={common("save")}
+          onSave={(password) =>
+            mutate(() => changeAdminPassword(admin.id, password), t("passwordUpdated"))
+          }
+        />
+        <DeleteAdminDialog
+          admin={admin}
+          mutate={mutate}
+          working={working}
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+        />
+      </>
+    ),
+  }
+}
+
+function useNotificationToggle(admin: Admin, mutate: AdminMutation) {
+  const t = useTranslations("admin")
+  const common = useTranslations("common")
+  const [failed, setFailed] = useState(false)
+  const receives = admin.receiveReservationNotifications
+
+  return {
+    receives,
+    error: failed ? common("unknown") : undefined,
+    toggle: async () => {
+      setFailed(false)
+      try {
+        await mutate(
+          () => setAdminNotifications(admin.id, !receives),
+          t("adminNotificationsUpdated"),
+        )
+      } catch {
+        setFailed(true)
+      }
+    },
+  }
+}
+
+function AdminAccountRow({
+  admin,
+  mutate,
+  working,
+}: {
+  admin: Admin
+  mutate: AdminMutation
+  working: boolean
+}) {
+  const { trigger, dialogs } = useAccountMenu({ admin, mutate, working })
+  const { receives, error, toggle } = useNotificationToggle(admin, mutate)
+
+  return (
+    <TableRow>
+      <TableCell>
+        <AccountIdentity admin={admin} />
+      </TableCell>
+      <TableCell>
+        <NotificationControl
+          receives={receives}
+          error={error}
+          working={working}
+          onToggle={() => void toggle()}
+        />
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex justify-end">{trigger}</div>
+        {dialogs}
+      </TableCell>
+    </TableRow>
+  )
+}
+
+function AdminAccountCard({
+  admin,
+  mutate,
+  working,
+}: {
+  admin: Admin
+  mutate: AdminMutation
+  working: boolean
+}) {
+  const { trigger, dialogs } = useAccountMenu({ admin, mutate, working })
+  const { receives, error, toggle } = useNotificationToggle(admin, mutate)
+
+  return (
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <AccountIdentity admin={admin} />
+        {trigger}
+      </div>
+      <NotificationControl
+        receives={receives}
+        error={error}
+        working={working}
+        onToggle={() => void toggle()}
+      />
+      {dialogs}
+    </div>
+  )
+}
+
+function AccountIdentity({ admin }: { admin: Admin }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <Avatar>
+        <AvatarFallback className="text-sm">
+          {admin.name.trim().slice(0, 1).toUpperCase() || "A"}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex min-w-0 flex-col">
+        <span className="truncate text-sm font-medium break-words">{admin.name}</span>
+        <a
+          href={`mailto:${admin.email}`}
+          className="truncate text-xs text-muted-foreground underline underline-offset-4"
+        >
+          {admin.email}
+        </a>
+      </div>
+    </div>
+  )
+}
+
+function NotificationControl({
+  receives,
+  error,
+  working,
+  onToggle,
+}: {
+  receives: boolean
+  error?: string
+  working: boolean
+  onToggle: () => void
+}) {
+  const t = useTranslations("admin")
+  return (
+    <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex min-w-0 items-center gap-2">
+        <Switch
+          checked={receives}
+          disabled={working}
+          onCheckedChange={onToggle}
+          aria-label={t("notifications")}
+        />
+        <StatusBadge tone={receives ? "approved" : "neutral"}>
+          {receives ? t("reservationNotificationsOn") : t("reservationNotificationsOff")}
+        </StatusBadge>
+      </div>
+      {error ? (
+        <Alert variant="destructive">
+          <AlertCircle />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+    </div>
+  )
+}
+
+function DeleteAdminDialog({
+  admin,
+  mutate,
+  working,
+  open,
+  onOpenChange,
+}: {
+  admin: Admin
+  mutate: AdminMutation
+  working: boolean
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
+  const t = useTranslations("admin")
+  const common = useTranslations("common")
   const [deleting, setDeleting] = useState(false)
   const [actionError, setActionError] = useState(false)
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (deleting) return
+    onOpenChange(nextOpen)
+    if (nextOpen) setActionError(false)
+  }
 
   async function confirmDelete() {
     setActionError(false)
     setDeleting(true)
     try {
       const deleted = await mutate(() => deleteAdmin(admin.id), t("adminDeleted"))
-      if (deleted) setOpen(false)
+      if (deleted) onOpenChange(false)
     } catch {
       setActionError(true)
     } finally {
@@ -166,67 +362,39 @@ function DeleteAdminDialog({
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (!deleting) {
-          setOpen(nextOpen)
-          if (nextOpen) setActionError(false)
-        }
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button
-          size="sm"
-          variant="outline"
-          className={`${styles.actionButton} ${styles.dangerButton}`}
-          disabled={working}
-        >
-          <Trash2 />
-          {common("delete")}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className={`${styles.dialogSurface} ${styles.dangerDialog}`}>
-        <DialogHeader className={styles.dialogHeader}>
-          <span className={styles.dialogIcon} aria-hidden="true">
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogMedia>
             <TriangleAlert />
-          </span>
-          <div>
-            <DialogTitle className={styles.dialogTitle}>{common("delete")}</DialogTitle>
-            <DialogDescription className={styles.dialogDescription}>
-              {t("confirmDelete", { name: admin.name })}
-            </DialogDescription>
-          </div>
-        </DialogHeader>
-        <p className={styles.dangerName}>{admin.email}</p>
+          </AlertDialogMedia>
+          <AlertDialogTitle>{common("delete")}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {t("confirmDelete", { name: admin.name })}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <p className="truncate text-sm text-muted-foreground">{admin.email}</p>
         {actionError ? (
-          <p className={styles.formError} role="alert">
-            {common("unknown")}
-          </p>
+          <Alert variant="destructive">
+            <AlertCircle />
+            <AlertDescription>{common("unknown")}</AlertDescription>
+          </Alert>
         ) : null}
-        <DialogFooter className={styles.dialogFooter}>
-          <Button
-            type="button"
-            variant="outline"
-            className={`${styles.dialogButton} admin-action-button`}
-            disabled={deleting}
-            onClick={() => setOpen(false)}
-          >
-            <X />
-            {common("cancel")}
-          </Button>
-          <Button
-            type="button"
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="outline">{common("cancel")}</AlertDialogCancel>
+          <AlertDialogAction
             variant="destructive"
-            className={`${styles.dialogButton} admin-action-button`}
-            disabled={deleting}
-            onClick={confirmDelete}
+            disabled={deleting || working}
+            onClick={(event) => {
+              event.preventDefault()
+              void confirmDelete()
+            }}
           >
             <Trash2 />
             {common("delete")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

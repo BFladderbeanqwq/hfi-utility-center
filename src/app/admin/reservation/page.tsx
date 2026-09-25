@@ -1,29 +1,69 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Check, Download, RefreshCw, Search, X } from "lucide-react"
-import Link from "next/link"
+import { Check, Download, Inbox, RefreshCw, Search, X } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
-import { Button } from "@/components/ui/button"
+
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/data-state"
+import { PageHeader } from "@/components/layout/page-header"
+import { StatusBadge } from "@/components/layout/status-badge"
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
-import { Spinner } from "@/components/ui/spinner"
+import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getFutureReservations, updateReservationApproval } from "@/lib/api/reservations"
-import type { Reservation } from "@/lib/api/types"
+import type { Reservation, ReservationStatus } from "@/lib/api/types"
 import { backendHref } from "@/lib/api/client"
 import { formatApiTimestamp } from "@/lib/date-time"
+
+const STATUS_FILTERS = ["all", "pending", "approved", "rejected", "cancelled"] as const
+
+type StatusFilter = (typeof STATUS_FILTERS)[number]
+
+const STATUS_DOT: Record<ReservationStatus, string> = {
+  pending: "bg-warning",
+  approved: "bg-success",
+  rejected: "bg-danger",
+  cancelled: "bg-muted-foreground",
+}
+
+const STATUS_TEXT: Record<ReservationStatus, string> = {
+  pending: "text-warning",
+  approved: "text-success",
+  rejected: "text-danger",
+  cancelled: "text-muted-foreground",
+}
+
+const MOBILE_GRID = "grid min-w-0 grid-cols-2 gap-x-4 gap-y-2.5"
+
+interface ReservationFieldData {
+  label: string
+  value: string
+  href?: string
+}
 
 export default function AdminReservationsPage() {
   const t = useTranslations("admin")
@@ -31,7 +71,7 @@ export default function AdminReservationsPage() {
   const statusT = useTranslations("status")
   const locale = useLocale()
   const [query, setQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | Reservation["status"]>("all")
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
   const [rejectingId, setRejectingId] = useState<number>()
   const [reason, setReason] = useState("")
   const [error, setError] = useState<string>()
@@ -103,165 +143,231 @@ export default function AdminReservationsPage() {
     setError(undefined)
   }
 
+  const refresh = () => void reservationResource.reload().catch(() => undefined)
+
   return (
-    <main id="main-content" className="admin-page space-y-6">
-      <AdminPageHeader
+    <div className="flex min-w-0 flex-col gap-6">
+      <PageHeader
         title={t("reservationsTitle")}
         description={t("reservationsDescription")}
         actions={
           <>
-            <Button
-              variant="outline"
-              className="admin-action-button"
-              onClick={() => void reservationResource.reload().catch(() => undefined)}
-              disabled={reservationResource.loading}
-            >
-              <RefreshCw />
-              {common("refresh")}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="size-9"
+                  aria-label={common("refresh")}
+                  onClick={refresh}
+                  disabled={reservationResource.loading}
+                >
+                  <RefreshCw />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{common("refresh")}</TooltipContent>
+            </Tooltip>
             <Button asChild variant="outline">
-              <Link href={backendHref("/reservation/export")}>
+              <a href={backendHref("/reservation/export")}>
                 <Download />
                 {t("exportReservations")}
-              </Link>
+              </a>
             </Button>
           </>
         }
       />
-      <AdminSection title={t("reservationQueue")}>
-        <InputGroup className="admin-reservation-search max-w-lg">
+
+      <div className="flex min-w-0 flex-col gap-3">
+        <InputGroup className="w-full">
           <InputGroupInput
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t("reservationSearch")}
+            aria-label={t("reservationSearch")}
           />
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
         </InputGroup>
-        <div
-          className="mt-3 flex flex-wrap gap-2"
-          role="group"
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          value={statusFilter}
+          onValueChange={(value) => {
+            if (value) setStatusFilter(value as StatusFilter)
+          }}
           aria-label={t("reservationStatusFilter")}
+          className="w-full flex-wrap justify-start"
         >
-          {(["all", "pending", "approved", "rejected", "cancelled"] as const).map((status) => (
-            <Button
-              key={status}
-              type="button"
-              size="sm"
-              variant={statusFilter === status ? "default" : "outline"}
-              onClick={() => setStatusFilter(status)}
-            >
+          {STATUS_FILTERS.map((status) => (
+            <ToggleGroupItem key={status} value={status} className="h-11 sm:h-8">
               {status === "all" ? t("allStatuses") : statusT(status)}
-            </Button>
+            </ToggleGroupItem>
           ))}
+        </ToggleGroup>
+      </div>
+
+      <Separator />
+
+      <section className="flex min-w-0 flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-medium">{t("reservationQueue")}</h2>
+          <span className="text-sm text-muted-foreground tabular-nums">{filtered.length}</span>
         </div>
+
         {reservationResource.error && !reservationResource.loading ? (
-          <div className="admin-error-state mt-5" role="alert">
-            <p>{common("unknown")}</p>
-            <Button
-              variant="outline"
-              onClick={() => void reservationResource.reload().catch(() => undefined)}
-            >
-              <RefreshCw />
-              {common("retry")}
-            </Button>
-          </div>
+          <ErrorState onRetry={refresh} retryLabel={common("retry")} />
         ) : null}
-        {reservationResource.loading ? (
-          <p className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-            <Spinner />
-            {t("reservationsLoading")}
-          </p>
-        ) : null}
+
+        {reservationResource.loading ? <LoadingState label={t("reservationsLoading")} /> : null}
+
         {!reservationResource.loading && !filtered.length ? (
-          <div className="flex min-h-48 flex-col justify-center">
-            <p className="font-medium">{t("reservationsEmpty")}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("reservationsEmptyDescription")}
-            </p>
-          </div>
+          <EmptyState
+            icon={Inbox}
+            title={t("reservationsEmpty")}
+            description={t("reservationsEmptyDescription")}
+          />
         ) : null}
-        <div className="admin-reservation-grid mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((item) => (
-            <article key={item.id} className="admin-reservation-card">
-              <header className="admin-reservation-card__header">
-                <h3 className="admin-reservation-card__title">
-                  {t("reservationNumber", { id: item.id })}
-                </h3>
-                <span
-                  className={`admin-reservation-status admin-reservation-status--${item.status}`}
-                >
-                  {statusT(item.status)}
-                </span>
-              </header>
-              <div className="admin-reservation-card__content">
-                <ReservationGroup title={t("studentInformation")}>
-                  <ReservationField label={t("name")}>{item.studentName}</ReservationField>
-                  <ReservationField label={t("studentId")}>
-                    {item.studentId || "—"}
-                  </ReservationField>
-                  <ReservationField label={t("email")} wide>
-                    <a
-                      className="break-all underline underline-offset-4"
-                      href={`mailto:${item.email}`}
-                    >
-                      {item.email}
-                    </a>
-                  </ReservationField>
-                  <ReservationField label={t("class")}>{item.className || "—"}</ReservationField>
-                  <ReservationField label={t("campus")}>{item.campusName || "—"}</ReservationField>
-                </ReservationGroup>
-                <ReservationGroup title={t("reservationDetails")} className="pt-5">
-                  <ReservationField label={t("room")}>{item.roomName || "—"}</ReservationField>
-                  <ReservationField label={t("startTime")}>
-                    {formatDateTime(item.startTime)}
-                  </ReservationField>
-                  <ReservationField label={t("endTime")}>
-                    {formatDateTime(item.endTime)}
-                  </ReservationField>
-                  <ReservationField label={t("reason")} wide>
-                    {item.reason}
-                  </ReservationField>
-                </ReservationGroup>
-              </div>
-              <footer className="admin-reservation-card__footer">
-                {item.status !== "approved" ? (
-                  <button
-                    type="button"
-                    className="admin-decision-button admin-decision-button--approve"
-                    disabled={working}
-                    onClick={() => submitDecision(item.id, "approved")}
-                  >
-                    <Check /> <span>{t("approve")}</span>
-                  </button>
-                ) : null}
-                {item.status !== "rejected" ? (
-                  <button
-                    type="button"
-                    className="admin-decision-button admin-decision-button--reject"
-                    disabled={working}
-                    onClick={() => startRejection(item.id)}
-                  >
-                    <X /> <span>{t("reject")}</span>
-                  </button>
-                ) : null}
-              </footer>
-            </article>
-          ))}
-        </div>
-      </AdminSection>
-      <Dialog
+
+        {!reservationResource.loading && filtered.length ? (
+          <>
+            <div className="hidden min-w-0 sm:block">
+              <Table className="min-w-[62rem]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-20">{t("columnReservation")}</TableHead>
+                    <TableHead>{t("columnStudent")}</TableHead>
+                    <TableHead>{t("room")}</TableHead>
+                    <TableHead>{t("time")}</TableHead>
+                    <TableHead>{t("reason")}</TableHead>
+                    <TableHead>{t("status")}</TableHead>
+                    <TableHead className="w-32 text-right">{t("actions")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-semibold text-primary tabular-nums">
+                        #{item.id}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex min-w-0 flex-col">
+                          <span className="truncate font-medium">{item.studentName}</span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {[item.studentId, item.className, item.campusName]
+                              .filter(Boolean)
+                              .join(" · ") || "—"}
+                          </span>
+                          <a
+                            href={`mailto:${item.email}`}
+                            className="truncate text-xs text-muted-foreground underline underline-offset-4"
+                          >
+                            {item.email}
+                          </a>
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-40 truncate">{item.roomName || "—"}</TableCell>
+                      <TableCell className="tabular-nums">
+                        <div className="flex flex-col">
+                          <span>{formatDateTime(item.startTime)}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDateTime(item.endTime)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-48">
+                        <span className="line-clamp-2 break-words">{item.reason}</span>
+                      </TableCell>
+                      <TableCell>
+                        {item.status === "pending" ? (
+                          <StatusBadge tone="pending">{statusT(item.status)}</StatusBadge>
+                        ) : (
+                          <StatusDot status={item.status} label={statusT(item.status)} />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-end gap-1">
+                          {item.status !== "approved" ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-9 text-success hover:bg-success-soft sm:h-7"
+                              disabled={working}
+                              onClick={() => void submitDecision(item.id, "approved")}
+                            >
+                              <Check />
+                              {t("approve")}
+                            </Button>
+                          ) : null}
+                          {item.status !== "rejected" ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-9 text-danger hover:bg-danger-soft sm:h-7"
+                              disabled={working}
+                              onClick={() => startRejection(item.id)}
+                            >
+                              <X />
+                              {t("reject")}
+                            </Button>
+                          ) : null}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <ul className="flex min-w-0 flex-col divide-y divide-border sm:hidden">
+              {filtered.map((item) => (
+                <li key={item.id} className="py-4">
+                  <ReservationCard
+                    reservation={item}
+                    statusLabel={statusT(item.status)}
+                    formatDateTime={formatDateTime}
+                    working={working}
+                    approveLabel={t("approve")}
+                    rejectLabel={t("reject")}
+                    studentInformationLabel={t("studentInformation")}
+                    reservationDetailsLabel={t("reservationDetails")}
+                    onApprove={() => void submitDecision(item.id, "approved")}
+                    onReject={() => startRejection(item.id)}
+                    fields={[
+                      { label: t("name"), value: item.studentName },
+                      { label: t("studentId"), value: item.studentId || "—" },
+                      { label: t("email"), value: item.email, href: `mailto:${item.email}` },
+                      { label: t("class"), value: item.className || "—" },
+                      { label: t("campus"), value: item.campusName || "—" },
+                    ]}
+                    details={[
+                      { label: t("room"), value: item.roomName || "—" },
+                      { label: t("startTime"), value: formatDateTime(item.startTime) },
+                      { label: t("endTime"), value: formatDateTime(item.endTime) },
+                      { label: t("reason"), value: item.reason },
+                    ]}
+                  />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+      </section>
+
+      <AlertDialog
         open={rejectingId !== undefined}
         onOpenChange={(open) => {
           if (!open) cancelRejection()
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("reject")}</DialogTitle>
-            <DialogDescription>{t("rejectionDialogDescription")}</DialogDescription>
-          </DialogHeader>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia>
+              <X />
+            </AlertDialogMedia>
+            <AlertDialogTitle>{t("reject")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("rejectionDialogDescription")}</AlertDialogDescription>
+          </AlertDialogHeader>
           <Field data-invalid={Boolean(error)}>
             <FieldLabel htmlFor="rejection-reason">{t("reason")}</FieldLabel>
             <Textarea
@@ -273,60 +379,141 @@ export default function AdminReservationsPage() {
             />
             <FieldError>{error}</FieldError>
           </Field>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" disabled={working}>
-                {common("cancel")}
-              </Button>
-            </DialogClose>
-            <Button
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={working}>{common("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
               variant="destructive"
               disabled={working}
-              onClick={() => {
+              onClick={(event) => {
+                event.preventDefault()
                 if (rejectingId !== undefined) {
-                  submitDecision(rejectingId, "rejected")
+                  void submitDecision(rejectingId, "rejected")
                 }
               }}
             >
               {t("confirmReject")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </main>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   )
 }
 
-function ReservationGroup({
-  title,
-  children,
-  className,
-}: {
-  title: string
-  children: React.ReactNode
-  className?: string
-}) {
+function StatusDot({ status, label }: { status: ReservationStatus; label: string }) {
   return (
-    <section className={className}>
-      <h3 className="mb-4 text-sm font-semibold">{title}</h3>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3">{children}</dl>
-    </section>
+    <span className="flex items-center gap-2 text-sm whitespace-nowrap">
+      <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${STATUS_DOT[status]}`} />
+      <span className={STATUS_TEXT[status]}>{label}</span>
+    </span>
   )
 }
 
-function ReservationField({
-  label,
-  wide,
-  children,
+function ReservationCard({
+  reservation,
+  statusLabel,
+  formatDateTime,
+  working,
+  approveLabel,
+  rejectLabel,
+  studentInformationLabel,
+  reservationDetailsLabel,
+  fields,
+  details,
+  onApprove,
+  onReject,
 }: {
-  label: string
-  wide?: boolean
-  children: React.ReactNode
+  reservation: Reservation
+  statusLabel: string
+  formatDateTime: (value: string) => string
+  working: boolean
+  approveLabel: string
+  rejectLabel: string
+  studentInformationLabel: string
+  reservationDetailsLabel: string
+  fields: ReservationFieldData[]
+  details: ReservationFieldData[]
+  onApprove: () => void
+  onReject: () => void
 }) {
   return (
-    <div className={wide ? "col-span-2" : undefined}>
-      <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="mt-1 font-medium">{children}</dd>
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col">
+          <span className="text-sm font-medium break-words">
+            {formatDateTime(reservation.startTime)}
+          </span>
+          <span className="truncate text-xs text-muted-foreground">
+            {reservation.roomName || "—"} · #{reservation.id}
+          </span>
+        </div>
+        {reservation.status === "pending" ? (
+          <StatusBadge tone="pending">{statusLabel}</StatusBadge>
+        ) : (
+          <StatusDot status={reservation.status} label={statusLabel} />
+        )}
+      </div>
+      <div className="min-w-0">
+        <h3 className="mb-2 text-xs font-medium text-muted-foreground">
+          {studentInformationLabel}
+        </h3>
+        <dl className={MOBILE_GRID}>
+          {fields.map((field) => (
+            <ReservationField key={field.label} {...field} />
+          ))}
+        </dl>
+      </div>
+      <div className="min-w-0">
+        <h3 className="mb-2 text-xs font-medium text-muted-foreground">
+          {reservationDetailsLabel}
+        </h3>
+        <dl className={MOBILE_GRID}>
+          {details.map((field) => (
+            <ReservationField key={field.label} {...field} />
+          ))}
+        </dl>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {reservation.status !== "approved" ? (
+          <Button
+            variant="outline"
+            className="h-11 flex-1 border-success-border text-success hover:bg-success-soft sm:h-8"
+            disabled={working}
+            onClick={onApprove}
+          >
+            <Check />
+            {approveLabel}
+          </Button>
+        ) : null}
+        {reservation.status !== "rejected" ? (
+          <Button
+            variant="ghost"
+            className="h-11 flex-1 text-danger hover:bg-danger-soft sm:h-8"
+            disabled={working}
+            onClick={onReject}
+          >
+            <X />
+            {rejectLabel}
+          </Button>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+function ReservationField({ label, value, href }: ReservationFieldData) {
+  return (
+    <div className="min-w-0">
+      <dt className="truncate text-xs text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm font-medium break-words">
+        {href ? (
+          <a href={href} className="underline underline-offset-4">
+            {value}
+          </a>
+        ) : (
+          value
+        )}
+      </dd>
     </div>
   )
 }

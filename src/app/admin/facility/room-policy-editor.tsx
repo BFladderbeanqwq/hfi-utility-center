@@ -1,7 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarClock, Pencil, Plus, Power, PowerOff, Trash2 } from "lucide-react"
+import {
+  CalendarClock,
+  Ellipsis,
+  Pencil,
+  Plus,
+  Power,
+  PowerOff,
+  RotateCcw,
+  Trash2,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import {
@@ -12,8 +21,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -22,13 +31,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Field, FieldLabel } from "@/components/ui/field"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { createPolicy, deletePolicy, editPolicy, togglePolicy } from "@/lib/api/catalog"
 import type { Room, RoomPolicy } from "@/lib/api/types"
 
-import styles from "./facility.module.css"
+import { EmptyState } from "@/components/layout/data-state"
+import { IconHint, StateDot, iconTouchTarget, touchTarget } from "./facility-editor-actions"
 
 type PolicyDraft = {
   days: number[]
@@ -75,12 +93,10 @@ export function PolicyEditor({
     setError("")
   }
 
-  function toggleDay(day: number) {
+  function toggleDays(values: string[]) {
     setDraft((current) => ({
       ...current,
-      days: current.days.includes(day)
-        ? current.days.filter((item) => item !== day)
-        : [...current.days, day].sort((a, b) => a - b),
+      days: values.map(Number).sort((a, b) => a - b),
     }))
   }
 
@@ -113,45 +129,49 @@ export function PolicyEditor({
   return (
     <Dialog onOpenChange={(open) => !open && resetDraft()}>
       <DialogTrigger asChild>
-        <button type="button" className={`${styles.secondaryButton} ${styles.policyLauncher}`}>
-          <CalendarClock />
-          {t("roomPolicies")} · {room.policies.length}
-        </button>
+        <Button variant="ghost" size="sm" className={`${touchTarget} -ml-2 max-w-full`}>
+          <CalendarClock aria-hidden />
+          <span className="truncate">
+            {t("roomPolicies")} · {room.policies.length}
+          </span>
+        </Button>
       </DialogTrigger>
-      <DialogContent className={`${styles.dialog} ${styles.dialogWide}`}>
-        <DialogHeader className={styles.dialogHeader}>
-          <DialogTitle>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="break-words">
             {room.name} · {t("roomPolicies")}
           </DialogTitle>
           <DialogDescription>{t("policyDialogDescription")}</DialogDescription>
         </DialogHeader>
 
-        <form className={styles.policyForm} onSubmit={submit}>
+        <form className="flex flex-col gap-4" onSubmit={submit}>
           <Field>
             <FieldLabel>{t("selectDay")}</FieldLabel>
-            <div className={styles.weekdays}>
-              {weekdays.map((weekday, index) => {
-                const selected = draft.days.includes(index)
-                return (
-                  <button
-                    key={`${weekday}-${index}`}
-                    type="button"
-                    className={`${styles.weekday} ${selected ? styles.weekdaySelected : ""}`}
-                    aria-pressed={selected}
-                    onClick={() => toggleDay(index)}
-                  >
-                    {weekday}
-                  </button>
-                )
-              })}
-            </div>
+            <ToggleGroup
+              type="multiple"
+              variant="outline"
+              value={draft.days.map(String)}
+              onValueChange={toggleDays}
+              className="grid w-full grid-cols-4 gap-1.5 sm:grid-cols-7"
+            >
+              {weekdays.map((weekday, index) => (
+                <ToggleGroupItem
+                  key={`${weekday}-${index}`}
+                  value={String(index)}
+                  aria-label={weekday}
+                  className="min-h-11"
+                >
+                  {weekday}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            {error ? <FieldError>{error}</FieldError> : null}
           </Field>
-          <div className={styles.timeFields}>
+          <div className="grid grid-cols-2 gap-3">
             <Field>
               <FieldLabel htmlFor={`policy-start-${room.id}`}>{t("policyStart")}</FieldLabel>
               <Input
                 id={`policy-start-${room.id}`}
-                className={styles.input}
                 type="time"
                 value={draft.start}
                 onChange={(event) =>
@@ -166,7 +186,6 @@ export function PolicyEditor({
               <FieldLabel htmlFor={`policy-end-${room.id}`}>{t("policyEnd")}</FieldLabel>
               <Input
                 id={`policy-end-${room.id}`}
-                className={styles.input}
                 type="time"
                 value={draft.end}
                 onChange={(event) =>
@@ -177,91 +196,153 @@ export function PolicyEditor({
                 }
               />
             </Field>
-            <div className={styles.toolbar}>
-              {editingId ? (
-                <button type="button" className={styles.secondaryButton} onClick={resetDraft}>
-                  {common("cancel")}
-                </button>
-              ) : null}
-              <button type="submit" className={styles.primaryButton} disabled={working || saving}>
-                {editingId ? <Pencil /> : <Plus />}
-                {editingId ? common("save") : common("add")}
-              </button>
-            </div>
           </div>
-          {error ? <p className={styles.error}>{error}</p> : null}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {editingId ? (
+              <IconHint label={common("cancel")}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={common("cancel")}
+                  onClick={resetDraft}
+                  className={iconTouchTarget}
+                >
+                  <RotateCcw />
+                </Button>
+              </IconHint>
+            ) : null}
+            <Button type="submit" disabled={working || saving} className={touchTarget}>
+              {editingId ? <Pencil aria-hidden /> : <Plus aria-hidden />}
+              {editingId ? common("save") : common("add")}
+            </Button>
+          </div>
         </form>
 
-        <div className={styles.policyList}>
-          {room.policies.length ? (
-            room.policies.map((policy) => (
-              <div className={styles.policyItem} key={policy.id}>
-                <div>
-                  <div className={styles.policyDays}>
+        {room.policies.length === 0 ? (
+          <EmptyState
+            icon={CalendarClock}
+            title={t("roomPolicies")}
+            description={t("policiesEmpty")}
+          />
+        ) : (
+          <ul className="divide-y divide-border">
+            {room.policies.map((policy) => (
+              <li key={policy.id} className="flex items-center justify-between gap-3 py-2.5">
+                <div className="flex min-w-0 flex-col">
+                  <span className="text-sm font-medium break-words">
                     {policy.days.map((day) => weekdays[day]).join("、")}
-                  </div>
-                  <div className={styles.policyTime}>
+                  </span>
+                  <span className="text-xs text-muted-foreground tabular-nums">
                     {formatTime(policy.startTime)}–{formatTime(policy.endTime)}
-                  </div>
+                  </span>
                 </div>
-                <span
-                  className={`${styles.status} ${
-                    policy.enabled ? styles.statusOn : styles.statusOff
-                  }`}
-                >
-                  {policy.enabled ? common("enabled") : common("disabled")}
-                </span>
-                <div className={styles.rowActions}>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    disabled={working}
-                    onClick={() => editExisting(policy)}
-                  >
-                    <Pencil />
-                    {common("edit")}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.secondaryButton}
-                    disabled={working}
-                    onClick={() => mutate(() => togglePolicy(policy.id), t("policyUpdated"))}
-                  >
-                    {policy.enabled ? <PowerOff /> : <Power />}
-                    {policy.enabled ? common("disabled") : common("enabled")}
-                  </button>
-                  <PolicyDeleteDialog policy={policy} mutate={mutate} working={working} />
+                <div className="flex shrink-0 items-center gap-2">
+                  <StateDot
+                    enabled={policy.enabled}
+                    label={policy.enabled ? common("enabled") : common("disabled")}
+                  />
+                  <PolicyRowMenu
+                    policy={policy}
+                    mutate={mutate}
+                    working={working}
+                    onEdit={() => editExisting(policy)}
+                  />
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles.empty}>{t("policiesEmpty")}</div>
-          )}
-        </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </DialogContent>
     </Dialog>
   )
 }
 
+function PolicyRowMenu({
+  policy,
+  mutate,
+  working,
+  onEdit,
+}: {
+  policy: RoomPolicy
+  mutate: AdminMutation
+  working: boolean
+  onEdit: () => void
+}) {
+  const t = useTranslations("admin")
+  const common = useTranslations("common")
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={t("actions")}
+            disabled={working}
+            className="size-11 sm:size-7"
+          >
+            <Ellipsis />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-40">
+          <DropdownMenuItem onSelect={onEdit} disabled={working}>
+            <Pencil aria-hidden />
+            {common("edit")}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={working}
+            onSelect={() => mutate(() => togglePolicy(policy.id), t("policyUpdated"))}
+          >
+            {policy.enabled ? <PowerOff aria-hidden /> : <Power aria-hidden />}
+            {policy.enabled ? common("disabled") : common("enabled")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            disabled={working}
+            onSelect={() => setDeleteOpen(true)}
+          >
+            <Trash2 aria-hidden />
+            {common("delete")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <PolicyDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        policy={policy}
+        mutate={mutate}
+        working={working}
+      />
+    </>
+  )
+}
+
 function PolicyDeleteDialog({
+  open,
+  onOpenChange,
   policy,
   mutate,
   working,
 }: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
   policy: RoomPolicy
   mutate: AdminMutation
   working: boolean
 }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
-  const [open, setOpen] = useState(false)
   const [error, setError] = useState("")
 
   async function remove() {
     setError("")
     try {
       if (await mutate(() => deletePolicy(policy.id), t("policyDeleted"))) {
-        setOpen(false)
+        onOpenChange(false)
       }
     } catch {
       setError(common("unknown"))
@@ -269,29 +350,29 @@ function PolicyDeleteDialog({
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <button type="button" className={styles.secondaryButton} disabled={working}>
-          <Trash2 />
-          {common("delete")}
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent className={styles.dialog}>
-        <AlertDialogHeader className={styles.dialogHeader}>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
           <AlertDialogTitle>{t("deletePolicy")}</AlertDialogTitle>
           <AlertDialogDescription>
             {t("confirmDelete", { name: t("roomPolicies") })}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {error ? <p className={styles.error}>{error}</p> : null}
-        <AlertDialogFooter className={styles.dialogActions}>
-          <AlertDialogCancel className={styles.secondaryButton}>
+        {error ? <FieldError>{error}</FieldError> : null}
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="ghost" className={touchTarget}>
             {common("cancel")}
           </AlertDialogCancel>
-          <button type="button" className={styles.dangerButton} disabled={working} onClick={remove}>
-            <Trash2 />
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={working}
+            onClick={remove}
+            className={touchTarget}
+          >
+            <Trash2 aria-hidden />
             {common("delete")}
-          </button>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

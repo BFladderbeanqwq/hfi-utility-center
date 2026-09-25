@@ -4,12 +4,17 @@ import { Eye, Megaphone, Save } from "lucide-react"
 import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 
-import { AdminPageHeader, AdminSection } from "@/app/admin/admin-shell"
+import { PageHeader } from "@/components/layout/page-header"
+import { SectionCard } from "@/components/layout/section-card"
+import { StatusBadge } from "@/components/layout/status-badge"
 import { Button } from "@/components/ui/button"
+import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { MarkdownContent } from "@/components/markdown-content"
+import { LoadingState } from "@/components/layout/data-state"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getAdminAnnouncement, updateAnnouncement } from "@/lib/api/announcements"
 import type { Announcement } from "@/lib/api/types"
@@ -22,30 +27,33 @@ const emptyAnnouncement: Announcement = {
   updatedAt: null,
 }
 
+const TITLE_LIMIT = 120
+const CONTENT_LIMIT = 4000
+
 export default function AdminAnnouncementPage() {
   const t = useTranslations("admin")
   const resource = useAdminResource({
     loadResource: getAdminAnnouncement,
     initialData: emptyAnnouncement as Announcement | null,
   })
+  // A `null` payload means "nothing published yet" — the same state the empty
+  // editor starts from — so both render the one form.
+  const announcement = resource.data ?? emptyAnnouncement
   return (
-    <main id="main-content" className="admin-page space-y-6">
-      <AdminPageHeader title={t("announcementTitle")} description={t("announcementDescription")} />
+    <div className="flex min-w-0 flex-col gap-6">
+      <PageHeader title={t("announcementTitle")} />
       {resource.loading ? (
-        <AdminSection title={t("announcementEditor")}>
-          <div className="admin-dashboard-loading">
-            <Spinner />
-            {t("announcementLoading")}
-          </div>
-        </AdminSection>
+        <SectionCard title={t("announcementEditor")}>
+          <LoadingState label={t("announcementLoading")} />
+        </SectionCard>
       ) : (
         <AnnouncementForm
-          key={(resource.data ?? emptyAnnouncement).updatedAt || "empty"}
-          announcement={resource.data ?? emptyAnnouncement}
+          key={announcement.updatedAt || "empty"}
+          announcement={announcement}
           reload={resource.reload}
         />
       )}
-    </main>
+    </div>
   )
 }
 
@@ -57,6 +65,7 @@ function AnnouncementForm({
   reload: () => Promise<void>
 }) {
   const t = useTranslations("admin")
+  const layout = useTranslations("layout")
   const locale = useLocale()
   const { mutate, working } = useAdminMutation({ reload })
   const [title, setTitle] = useState(announcement.title)
@@ -80,93 +89,95 @@ function AnnouncementForm({
   }
 
   return (
-    <div className="admin-announcement-layout">
-      <AdminSection title={t("announcementEditor")} className="admin-announcement-editor">
-        <form className="admin-announcement-form" onSubmit={save}>
-          <div className="admin-announcement-publish-row">
-            <span className="admin-announcement-publish-icon">
-              <Megaphone />
-            </span>
-            <span className="admin-announcement-publish-copy">
-              <strong>{t("announcementPublishStatus")}</strong>
-              <small>
+    <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]">
+      <SectionCard title={t("announcementEditor")}>
+        <form className="flex min-w-0 flex-col gap-5" onSubmit={save}>
+          <Field orientation="horizontal" className="gap-3 py-1">
+            <Megaphone aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <FieldLabel htmlFor="announcement-enabled" className="w-full">
+                {t("announcementPublishStatus")}
+              </FieldLabel>
+              <FieldDescription>
                 {enabled
                   ? t("announcementPublishedDescription")
                   : t("announcementDraftDescription")}
-              </small>
-            </span>
-            <label className="admin-announcement-switch">
-              <input
-                type="checkbox"
-                checked={enabled}
-                onChange={(event) => setEnabled(event.target.checked)}
-              />
-              <span aria-hidden="true" />
-              <em>{enabled ? t("announcementPublished") : t("announcementDraft")}</em>
-            </label>
-          </div>
-          <label className="admin-announcement-field">
-            <span>{t("announcementHeading")}</span>
+              </FieldDescription>
+            </div>
+            <Switch
+              id="announcement-enabled"
+              checked={enabled}
+              onCheckedChange={setEnabled}
+              className="self-start"
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="announcement-title">{t("announcementHeading")}</FieldLabel>
             <Input
+              id="announcement-title"
               value={title}
-              maxLength={120}
+              maxLength={TITLE_LIMIT}
               placeholder={t("announcementHeadingPlaceholder")}
               onChange={(event) => setTitle(event.target.value)}
             />
-            <small>{title.length}/120</small>
-          </label>
-          <label className="admin-announcement-field">
-            <span>{t("announcementContent")}</span>
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {title.length}/{TITLE_LIMIT}
+            </p>
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="announcement-content">{t("announcementContent")}</FieldLabel>
             <Textarea
+              id="announcement-content"
               value={content}
-              maxLength={4000}
+              maxLength={CONTENT_LIMIT}
               placeholder={t("announcementContentPlaceholder")}
               onChange={(event) => setContent(event.target.value)}
+              className="min-h-48"
             />
-            <em>{t("announcementMarkdownHint")}</em>
-            <small>{content.length}/4000</small>
-          </label>
-          <div className="admin-announcement-actions">
+            <FieldDescription>{t("announcementMarkdownHint")}</FieldDescription>
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {content.length}/{CONTENT_LIMIT}
+            </p>
+          </Field>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <Button
               type="submit"
-              className="admin-action-button admin-announcement-save"
+              className="h-10 sm:h-8"
               disabled={working || (enabled && !content.trim())}
             >
-              working ? <Spinner /> : <Save />
+              {working ? <Spinner /> : <Save />}
               {t("saveAnnouncement")}
             </Button>
-            <span>
+            <span className="text-xs text-muted-foreground">
               {t("announcementLastUpdated")}: {updatedAt}
             </span>
           </div>
         </form>
-      </AdminSection>
-      <section className="admin-announcement-preview-panel">
-        <header>
-          <span>
-            <Eye />
-            {t("announcementPreview")}
-          </span>
-          <i className={enabled ? "is-published" : ""}>
+      </SectionCard>
+
+      <section className="flex min-w-0 flex-col gap-3">
+        <div className="flex items-center gap-2">
+          <Eye aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+          <h2 className="text-sm font-medium">{t("announcementPreview")}</h2>
+          <StatusBadge tone={enabled ? "approved" : "neutral"} className="ml-auto">
             {enabled ? t("announcementPublished") : t("announcementDraft")}
-          </i>
-        </header>
-        <div className="admin-announcement-preview-stage">
-          <article className="admin-announcement-preview-card">
-            <span className="admin-announcement-preview-icon">
-              <Megaphone />
-            </span>
-            <small>HFI UTILITY CENTER</small>
-            <h2>{title.trim() || t("announcementPreviewFallbackTitle")}</h2>
-            <MarkdownContent
-              content={content.trim() || t("announcementPreviewFallbackContent")}
-              className="admin-announcement-preview-content"
-            />
-            <span className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-extrabold text-primary-foreground">
-              {t("announcementPreviewConfirm")}
-            </span>
-          </article>
+          </StatusBadge>
         </div>
+        <article className="flex min-w-0 flex-col gap-3">
+          <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            {layout("brand")}
+          </span>
+          <h3 className="text-lg font-semibold break-words">
+            {title.trim() || t("announcementPreviewFallbackTitle")}
+          </h3>
+          <MarkdownContent
+            content={content.trim() || t("announcementPreviewFallbackContent")}
+            className="min-w-0 break-words"
+          />
+        </article>
       </section>
     </div>
   )
