@@ -12,12 +12,21 @@
     "languageShort": "中文"
   },
   "home": {
-    "eyebrow": "Campus space reservation",
-    "description": "Choose a class, room and available time quickly. The server rechecks conflicts and room policies before submission.",
-    "slot": "15-minute slots",
-    "days": "Up to 30 days ahead",
-    "duration": "Maximum 2 hours",
-    "validation": "Live server validation"
+    "announcementFallbackTitle": "Announcement",
+    "announcementReadMore": "Read more",
+    "announcementDescription": "Current campus space announcement",
+    "bookAction": "New booking",
+    "searchTitle": "Find a booking",
+    "dashboardTitle": "Live schedule",
+    "factsTitle": "Booking rules",
+    "slot": "Start time",
+    "slotDescription": "15-minute steps",
+    "days": "Advance window",
+    "daysDescription": "30 days",
+    "duration": "Maximum duration",
+    "durationDescription": "2 hours",
+    "validation": "Conflict check",
+    "validationDescription": "Re-run on submit"
   },
   "common": {
     "loading": "Loading…",

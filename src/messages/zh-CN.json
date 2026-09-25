@@ -12,12 +12,21 @@
     "languageShort": "EN"
   },
   "home": {
-    "eyebrow": "校园空间预约系统",
-    "description": "快速选择班级、教室与可用时间。提交时服务器会再次检查冲突和房间政策。",
-    "slot": "15 分钟时间粒度",
-    "days": "最多提前 30 天",
-    "duration": "单次最长 2 小时",
-    "validation": "服务器实时校验"
+    "announcementFallbackTitle": "公告",
+    "announcementReadMore": "查看详情",
+    "announcementDescription": "当前校园场地公告",
+    "bookAction": "开始预约",
+    "searchTitle": "查询预约",
+    "dashboardTitle": "场地看板",
+    "factsTitle": "预约规则",
+    "slot": "开始时间",
+    "slotDescription": "15 分钟一档",
+    "days": "可提前预约",
+    "daysDescription": "30 天",
+    "duration": "单次时长上限",
+    "durationDescription": "2 小时",
+    "validation": "冲突校验",
+    "validationDescription": "提交时重新核对"
   },
   "common": {
     "loading": "正在加载…",
