@@ -2,24 +2,14 @@
 
 import { useEffect, useState, type FormEvent } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  RefreshCw,
-} from "lucide-react"
+import { AlertCircle, ArrowLeft, ArrowRight, Check, RefreshCw } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 
 import { Spinner } from "@/components/ui/spinner"
 import { getAdminSession, type AdminSession } from "@/lib/api/auth"
 import { getCatalog } from "@/lib/api/catalog"
-import {
-  createReservation,
-  forceReservation,
-  getAvailability,
-} from "@/lib/api/reservations"
+import { createReservation, forceReservation, getAvailability } from "@/lib/api/reservations"
 import type { CatalogData } from "@/lib/api/types"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
 import { ActionButton, NeoFooter, NeoHeader } from "@/components/neo/shared"
@@ -42,11 +32,7 @@ type ReservationResult = {
   reservationId?: number
 }
 
-export function ReservationForm({
-  mode = "public",
-}: {
-  mode?: "public" | "adminForce"
-}) {
+export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminForce" }) {
   const t = useTranslations("booking")
   const adminT = useTranslations("admin")
   const common = useTranslations("common")
@@ -66,9 +52,7 @@ export function ReservationForm({
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState<string>()
   const [catalogReloadKey, setCatalogReloadKey] = useState(0)
-  const currentStepIndex = bookingSteps.findIndex(
-    (step) => step.id === currentStepId
-  )
+  const currentStepIndex = bookingSteps.findIndex((step) => step.id === currentStepId)
   const currentStep = bookingSteps[currentStepIndex]
   const stepTitles = {
     class: t("classTitle"),
@@ -78,12 +62,9 @@ export function ReservationForm({
     review: t("reviewTitle"),
   }
   const selectedClassId = useWatch({ control: form.control, name: "classId" })
-  const selectedClass = catalog?.classes.find(
-    (item) => item.id === selectedClassId
-  )
+  const selectedClass = catalog?.classes.find((item) => item.id === selectedClassId)
   const isPrivilegedSelection = Boolean(
-    catalog?.campuses.find((item) => item.id === selectedClass?.campus)
-      ?.isPrivileged
+    catalog?.campuses.find((item) => item.id === selectedClass?.campus)?.isPrivileged,
   )
 
   useEffect(() => {
@@ -111,9 +92,7 @@ export function ReservationForm({
       } catch (error) {
         if (active) {
           setCatalogError(
-            error instanceof Error
-              ? error.message
-              : "无法连接预约服务，请检查网络后重试。"
+            error instanceof Error ? error.message : "无法连接预约服务，请检查网络后重试。",
           )
         }
       } finally {
@@ -139,9 +118,7 @@ export function ReservationForm({
     }
 
     const availability = await getAvailability(values.room, values.date, room)
-    if (
-      rangeIsAvailable(availability.slots, values.startTime, values.endTime)
-    ) {
+    if (rangeIsAvailable(availability.slots, values.startTime, values.endTime)) {
       return true
     }
 
@@ -240,7 +217,7 @@ export function ReservationForm({
     form.reset(
       isForce && adminSession && priorityClass
         ? forceReservationDefaults(priorityClass.id, adminSession)
-        : reservationDefaults
+        : reservationDefaults,
     )
     setCurrentStepId("class")
     setResult(undefined)
@@ -300,16 +277,10 @@ export function ReservationForm({
 
   if (result) {
     return (
-      <div
-        className={isForce ? "admin-force-booking" : "app-page app-page--light"}
-      >
+      <div className={isForce ? "admin-force-booking" : "app-page app-page--light"}>
         {!isForce ? <NeoHeader /> : null}
         <main className="success-shell">
-          <SuccessStep
-            {...result}
-            adminForce={isForce}
-            onReset={resetReservation}
-          />
+          <SuccessStep {...result} adminForce={isForce} onReset={resetReservation} />
         </main>
         {!isForce ? <NeoFooter /> : null}
       </div>
@@ -319,17 +290,13 @@ export function ReservationForm({
   const stepContent = {
     class: <ClassStep catalog={catalog} privilegedOnly={isForce} />,
     location: <LocationStep catalog={catalog} />,
-    dateTime: (
-      <DateTimeStep rooms={catalog.rooms} privileged={isPrivilegedSelection} />
-    ),
+    dateTime: <DateTimeStep rooms={catalog.rooms} privileged={isPrivilegedSelection} />,
     profile: <ProfileStep adminMode={isForce} />,
     review: <ReviewStep catalog={catalog} />,
   }
 
   return (
-    <div
-      className={isForce ? "admin-force-booking" : "app-page app-page--light"}
-    >
+    <div className={isForce ? "admin-force-booking" : "app-page app-page--light"}>
       {!isForce ? <NeoHeader /> : null}
       <FormProvider {...form}>
         <form
@@ -341,9 +308,7 @@ export function ReservationForm({
           <div className="wizard-card">
             <header className="wizard-title-row">
               <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                <h1>
-                  {isForce ? adminT("forceReservationTitle") : t("createTitle")}
-                </h1>
+                <h1>{isForce ? adminT("forceReservationTitle") : t("createTitle")}</h1>
               </div>
               <p className="wizard-count">
                 {t("step", {
@@ -359,31 +324,19 @@ export function ReservationForm({
                     type="button"
                     disabled={index > currentStepIndex || isWorking}
                     aria-label={stepTitles[step.id]}
-                    aria-current={
-                      index === currentStepIndex ? "step" : undefined
-                    }
+                    aria-current={index === currentStepIndex ? "step" : undefined}
                     className={`stepper-item ${index < currentStepIndex ? "stepper-item--complete" : ""} ${index === currentStepIndex ? "stepper-item--active" : ""}`}
-                    onClick={() =>
-                      index <= currentStepIndex && setCurrentStepId(step.id)
-                    }
+                    onClick={() => index <= currentStepIndex && setCurrentStepId(step.id)}
                   >
                     <span className="stepper-item__number">
-                      {index < currentStepIndex ? (
-                        <Check size={14} />
-                      ) : (
-                        index + 1
-                      )}
+                      {index < currentStepIndex ? <Check size={14} /> : index + 1}
                     </span>
-                    <span className="stepper-item__label">
-                      {stepTitles[step.id]}
-                    </span>
+                    <span className="stepper-item__label">{stepTitles[step.id]}</span>
                   </button>
                 </div>
               ))}
             </div>
-            <div className="wizard-step-body">
-              {stepContent[currentStep.id]}
-            </div>
+            <div className="wizard-step-body">{stepContent[currentStep.id]}</div>
             <div className="wizard-actions">
               <div className="flex items-center gap-3">
                 {flowError ? (
@@ -419,9 +372,7 @@ export function ReservationForm({
                   <ActionButton
                     className="wizard-nav-button"
                     icon={isWorking ? <Spinner /> : undefined}
-                    endContent={
-                      isWorking ? undefined : <ArrowRight size={16} />
-                    }
+                    endContent={isWorking ? undefined : <ArrowRight size={16} />}
                     ariaLabel={common("next")}
                     disabled={isWorking}
                     onClick={(event) => {
@@ -435,9 +386,7 @@ export function ReservationForm({
               </div>
             </div>
             {flowError ? (
-              <p className="pb-3 text-sm text-destructive sm:hidden">
-                {flowError}
-              </p>
+              <p className="pb-3 text-sm text-destructive sm:hidden">{flowError}</p>
             ) : null}
           </div>
         </form>
@@ -449,17 +398,12 @@ export function ReservationForm({
 
 function findPriorityClass(catalog: CatalogData) {
   const privilegedCampusIds = new Set(
-    catalog.campuses
-      .filter((campus) => campus.isPrivileged)
-      .map((campus) => campus.id)
+    catalog.campuses.filter((campus) => campus.isPrivileged).map((campus) => campus.id),
   )
   return catalog.classes.find((item) => privilegedCampusIds.has(item.campus))
 }
 
-function forceReservationDefaults(
-  classId: number,
-  admin: AdminSession
-): ReservationFormValues {
+function forceReservationDefaults(classId: number, admin: AdminSession): ReservationFormValues {
   return {
     ...reservationDefaults,
     classId,

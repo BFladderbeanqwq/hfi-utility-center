@@ -5,10 +5,7 @@ const ADMIN_EMAIL_STORAGE_KEY = "hfiuc-admin-email"
 
 export function rememberAdminEmail(email: string) {
   if (typeof window === "undefined") return
-  window.localStorage.setItem(
-    ADMIN_EMAIL_STORAGE_KEY,
-    email.trim().toLowerCase()
-  )
+  window.localStorage.setItem(ADMIN_EMAIL_STORAGE_KEY, email.trim().toLowerCase())
 }
 
 export function getRememberedAdminEmail() {
@@ -21,11 +18,7 @@ export function forgetAdminEmail() {
   window.localStorage.removeItem(ADMIN_EMAIL_STORAGE_KEY)
 }
 
-export const loginWithPassword = (
-  email: string,
-  password: string,
-  turnstileToken: string
-) =>
+export const loginWithPassword = (email: string, password: string, turnstileToken: string) =>
   api.post("/admin/login", {
     email,
     password,
@@ -54,8 +47,7 @@ export interface AdminSession {
 }
 
 export async function getAdminSession() {
-  const response =
-    await api.get<ApiResponse<AdminSession>>("/admin/check-login")
+  const response = await api.get<ApiResponse<AdminSession>>("/admin/check-login")
   return response.data.data!
 }
 export async function logout() {

@@ -1,14 +1,6 @@
 "use client"
 
-import {
-  Clock3,
-  FileText,
-  GraduationCap,
-  MapPin,
-  Monitor,
-  Search,
-  UserRound,
-} from "lucide-react"
+import { Clock3, FileText, GraduationCap, MapPin, Monitor, Search, UserRound } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
 import { StatusBadge, Surface, type Tone } from "@/components/neo/shared"
@@ -42,17 +34,11 @@ export function ReservationResults({
     minute: "2-digit",
     hour12: false,
   })
-  const grouped = reservations.reduce<Record<string, Reservation[]>>(
-    (groups, reservation) => {
-      const label =
-        sort === "sequence"
-          ? ""
-          : dateFormatter.format(new Date(reservation.startTime))
-      groups[label] = [...(groups[label] ?? []), reservation]
-      return groups
-    },
-    {}
-  )
+  const grouped = reservations.reduce<Record<string, Reservation[]>>((groups, reservation) => {
+    const label = sort === "sequence" ? "" : dateFormatter.format(new Date(reservation.startTime))
+    groups[label] = [...(groups[label] ?? []), reservation]
+    return groups
+  }, {})
 
   if (!reservations.length) {
     return (

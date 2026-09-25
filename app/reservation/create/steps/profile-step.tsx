@@ -55,9 +55,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                 name="studentId"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("studentId")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("studentId")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -66,9 +64,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                       placeholder="GJ00000000"
                       aria-invalid={fieldState.invalid}
                     />
-                    <FieldDescription>
-                      {t("studentIdDescription")}
-                    </FieldDescription>
+                    <FieldDescription>{t("studentIdDescription")}</FieldDescription>
                     <FieldError errors={[fieldState.error]} />
                   </Field>
                 )}
@@ -99,17 +95,9 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
               control={control}
               name="reason"
               render={({ field, fieldState }) => (
-                <Field
-                  className="profile-reason-field"
-                  data-invalid={fieldState.invalid}
-                >
+                <Field className="profile-reason-field" data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor={field.name}>{t("reason")}</FieldLabel>
-                  <Textarea
-                    {...field}
-                    id={field.name}
-                    rows={4}
-                    aria-invalid={fieldState.invalid}
-                  />
+                  <Textarea {...field} id={field.name} rows={4} aria-invalid={fieldState.invalid} />
                   <FieldDescription>{t("reasonDescription")}</FieldDescription>
                   <FieldError errors={[fieldState.error]} />
                 </Field>
@@ -122,10 +110,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
               control={control}
               name="purposeType"
               render={({ field, fieldState }) => (
-                <Field
-                  className="profile-option-panel"
-                  data-invalid={fieldState.invalid}
-                >
+                <Field className="profile-option-panel" data-invalid={fieldState.invalid}>
                   <FieldLabel>{t("purpose")}</FieldLabel>
                   <div className="profile-purpose-options">
                     {(["personal", "class", "club"] as const).map((purpose) => (
@@ -136,9 +121,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                         onClick={() => field.onChange(purpose)}
                         className={`purpose-option ${field.value === purpose ? "purpose-option--selected" : ""}`}
                       >
-                        <span className="font-medium">
-                          {t(`purposeOptions.${purpose}`)}
-                        </span>
+                        <span className="font-medium">{t(`purposeOptions.${purpose}`)}</span>
                       </button>
                     ))}
                   </div>
@@ -160,12 +143,8 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                     aria-label={t("multimedia")}
                   />
                   <FieldContent>
-                    <FieldLabel htmlFor="needsMultimedia">
-                      {t("multimedia")}
-                    </FieldLabel>
-                    <FieldDescription>
-                      {t("multimediaDescription")}
-                    </FieldDescription>
+                    <FieldLabel htmlFor="needsMultimedia">{t("multimedia")}</FieldLabel>
+                    <FieldDescription>{t("multimediaDescription")}</FieldDescription>
                   </FieldContent>
                 </Field>
               )}
@@ -191,9 +170,7 @@ export function ProfileStep({ adminMode = false }: { adminMode?: boolean }) {
                   />
                   <FieldContent>
                     <div className="flex flex-wrap items-baseline gap-x-1">
-                      <FieldLabel htmlFor={field.name}>
-                        {t("agreementPrefix")}
-                      </FieldLabel>
+                      <FieldLabel htmlFor={field.name}>{t("agreementPrefix")}</FieldLabel>
                       <ReservationTermsDialog />
                     </div>
                     <FieldError errors={[fieldState.error]} />

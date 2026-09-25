@@ -75,11 +75,7 @@ export default function AdminUsersPage() {
             </Button>
           </div>
         ) : (
-          <AdminList
-            admins={adminResource.data}
-            mutate={mutate}
-            working={working}
-          />
+          <AdminList admins={adminResource.data} mutate={mutate} working={working} />
         )}
       </AdminSection>
     </main>

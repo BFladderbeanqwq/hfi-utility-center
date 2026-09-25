@@ -14,10 +14,7 @@ import {
 import { createCampus, deleteCampus, editCampus } from "@/lib/api/catalog"
 import type { Campus } from "@/lib/api/types"
 
-import {
-  ConfirmFacilityDelete,
-  type FacilityEditorActions,
-} from "./facility-editor-actions"
+import { ConfirmFacilityDelete, type FacilityEditorActions } from "./facility-editor-actions"
 import styles from "./facility.module.css"
 import { FacilityNameDialog } from "./name-dialog"
 
@@ -40,9 +37,7 @@ export function CampusEditor({
           title={t("newCampus")}
           label={t("campusName")}
           working={working}
-          onSave={(name) =>
-            mutate(() => createCampus(name), t("campusCreated"))
-          }
+          onSave={(name) => mutate(() => createCampus(name), t("campusCreated"))}
         />
       }
     >
@@ -51,9 +46,7 @@ export function CampusEditor({
         <TableHeader>
           <TableRow>
             <TableHead>{t("facilityName")}</TableHead>
-            <TableHead className="hidden md:table-cell">
-              {t("createdAt")}
-            </TableHead>
+            <TableHead className="hidden md:table-cell">{t("createdAt")}</TableHead>
             <TableHead className="text-right">{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
@@ -65,12 +58,8 @@ export function CampusEditor({
                   {campus.name}
                   <span className={styles.recordId}>#{campus.id}</span>
                 </TableCell>
-                <TableCell
-                  className={`hidden md:table-cell ${styles.secondaryText}`}
-                >
-                  {campus.createdAt
-                    ? dateFormatter.format(new Date(campus.createdAt))
-                    : "—"}
+                <TableCell className={`hidden md:table-cell ${styles.secondaryText}`}>
+                  {campus.createdAt ? dateFormatter.format(new Date(campus.createdAt)) : "—"}
                 </TableCell>
                 <TableCell>
                   <div className={styles.rowActions}>
@@ -81,10 +70,7 @@ export function CampusEditor({
                       initialValue={campus.name}
                       working={working}
                       onSave={(name) =>
-                        mutate(
-                          () => editCampus(campus.id, name),
-                          t("campusUpdated")
-                        )
+                        mutate(() => editCampus(campus.id, name), t("campusUpdated"))
                       }
                     />
                     <ConfirmFacilityDelete

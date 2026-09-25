@@ -6,12 +6,7 @@ import { enUS, zhCN } from "date-fns/locale"
 import { CalendarDays, Clock3, DoorOpen, MapPin, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
-import {
-  Controller,
-  useForm,
-  useWatch,
-  type SubmitHandler,
-} from "react-hook-form"
+import { Controller, useForm, useWatch, type SubmitHandler } from "react-hook-form"
 import type { DateRange } from "react-day-picker"
 
 import { Calendar } from "@/components/ui/calendar"
@@ -19,10 +14,7 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import type { CatalogData } from "@/lib/api/types"
 import { inputValueToDate } from "@/lib/date-time"
 
-import {
-  reservationSearchHref,
-  type ReservationSearchFilters,
-} from "./search-query"
+import { reservationSearchHref, type ReservationSearchFilters } from "./search-query"
 
 type SearchFormValues = {
   keyword: string
@@ -59,19 +51,13 @@ export function ReservationSearchFilterForm({
   const campusId = useWatch({ control, name: "campus" })
   const visibleRooms = useMemo(
     () =>
-      catalog?.rooms.filter(
-        (room) => campusId === "all" || room.campus === Number(campusId)
-      ) ?? [],
-    [campusId, catalog]
+      catalog?.rooms.filter((room) => campusId === "all" || room.campus === Number(campusId)) ?? [],
+    [campusId, catalog],
   )
 
   const onSubmit: SubmitHandler<SearchFormValues> = (values) => {
-    const startDate = values.dateRange?.from
-      ? format(values.dateRange.from, "yyyy-MM-dd")
-      : ""
-    const endDate = values.dateRange?.to
-      ? format(values.dateRange.to, "yyyy-MM-dd")
-      : ""
+    const startDate = values.dateRange?.from ? format(values.dateRange.from, "yyyy-MM-dd") : ""
+    const endDate = values.dateRange?.to ? format(values.dateRange.to, "yyyy-MM-dd") : ""
 
     router.push(
       reservationSearchHref(
@@ -85,8 +71,8 @@ export function ReservationSearchFilterForm({
           page: 0,
           sort: values.sort,
         },
-        0
-      )
+        0,
+      ),
     )
   }
 
@@ -155,7 +141,7 @@ export function ReservationSearchFilterForm({
                         ...values,
                         campus: campus.value,
                         room: "all",
-                      })
+                      }),
                     )()
                   }}
                 >
@@ -250,9 +236,7 @@ export function ReservationSearchFilterForm({
                 className={`filter-button ${field.value === "time" ? "filter-button--active" : ""}`}
                 onClick={() => {
                   field.onChange("time")
-                  void handleSubmit((values) =>
-                    onSubmit({ ...values, sort: "time" })
-                  )()
+                  void handleSubmit((values) => onSubmit({ ...values, sort: "time" }))()
                 }}
               >
                 {t("sortByReservation")}
@@ -262,9 +246,7 @@ export function ReservationSearchFilterForm({
                 className={`filter-button ${field.value === "sequence" ? "filter-button--active" : ""}`}
                 onClick={() => {
                   field.onChange("sequence")
-                  void handleSubmit((values) =>
-                    onSubmit({ ...values, sort: "sequence" })
-                  )()
+                  void handleSubmit((values) => onSubmit({ ...values, sort: "sequence" }))()
                 }}
               >
                 {t("sortBySequence")}

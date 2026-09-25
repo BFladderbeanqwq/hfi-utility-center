@@ -16,18 +16,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
-import {
-  getFutureReservations,
-  updateReservationApproval,
-} from "@/lib/api/reservations"
+import { getFutureReservations, updateReservationApproval } from "@/lib/api/reservations"
 import type { Reservation } from "@/lib/api/types"
 import { backendHref } from "@/lib/api/client"
 
@@ -37,9 +30,7 @@ export default function AdminReservationsPage() {
   const statusT = useTranslations("status")
   const locale = useLocale()
   const [query, setQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | Reservation["status"]
-  >("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | Reservation["status"]>("all")
   const [rejectingId, setRejectingId] = useState<number>()
   const [reason, setReason] = useState("")
   const [error, setError] = useState<string>()
@@ -56,7 +47,7 @@ export default function AdminReservationsPage() {
         dateStyle: "short",
         timeStyle: "short",
       }),
-    [locale]
+    [locale],
   )
 
   function formatDateTime(value: string) {
@@ -80,10 +71,7 @@ export default function AdminReservationsPage() {
     })
   }, [query, reservationResource.data, statusFilter])
 
-  async function submitDecision(
-    id: number,
-    nextStatus: "approved" | "rejected"
-  ) {
+  async function submitDecision(id: number, nextStatus: "approved" | "rejected") {
     const approved = nextStatus === "approved"
     const rejectionReason = reason.trim()
     if (!approved && !rejectionReason) {
@@ -93,13 +81,8 @@ export default function AdminReservationsPage() {
 
     setError(undefined)
     const saved = await mutate(
-      () =>
-        updateReservationApproval(
-          id,
-          approved,
-          approved ? undefined : rejectionReason
-        ),
-      t(approved ? "reservationApproved" : "reservationRejected")
+      () => updateReservationApproval(id, approved, approved ? undefined : rejectionReason),
+      t(approved ? "reservationApproved" : "reservationRejected"),
     )
     if (saved) {
       setRejectingId(undefined)
@@ -129,9 +112,7 @@ export default function AdminReservationsPage() {
             <Button
               variant="outline"
               className="admin-action-button"
-              onClick={() =>
-                void reservationResource.reload().catch(() => undefined)
-              }
+              onClick={() => void reservationResource.reload().catch(() => undefined)}
               disabled={reservationResource.loading}
             >
               <RefreshCw />
@@ -162,9 +143,7 @@ export default function AdminReservationsPage() {
           role="group"
           aria-label={t("reservationStatusFilter")}
         >
-          {(
-            ["all", "pending", "approved", "rejected", "cancelled"] as const
-          ).map((status) => (
+          {(["all", "pending", "approved", "rejected", "cancelled"] as const).map((status) => (
             <Button
               key={status}
               type="button"
@@ -181,9 +160,7 @@ export default function AdminReservationsPage() {
             <p>{common("unknown")}</p>
             <Button
               variant="outline"
-              onClick={() =>
-                void reservationResource.reload().catch(() => undefined)
-              }
+              onClick={() => void reservationResource.reload().catch(() => undefined)}
             >
               <RefreshCw />
               {common("retry")}
@@ -219,9 +196,7 @@ export default function AdminReservationsPage() {
               </header>
               <div className="admin-reservation-card__content">
                 <ReservationGroup title={t("studentInformation")}>
-                  <ReservationField label={t("name")}>
-                    {item.studentName}
-                  </ReservationField>
+                  <ReservationField label={t("name")}>{item.studentName}</ReservationField>
                   <ReservationField label={t("studentId")}>
                     {item.studentId || "—"}
                   </ReservationField>
@@ -233,20 +208,11 @@ export default function AdminReservationsPage() {
                       {item.email}
                     </a>
                   </ReservationField>
-                  <ReservationField label={t("class")}>
-                    {item.className || "—"}
-                  </ReservationField>
-                  <ReservationField label={t("campus")}>
-                    {item.campusName || "—"}
-                  </ReservationField>
+                  <ReservationField label={t("class")}>{item.className || "—"}</ReservationField>
+                  <ReservationField label={t("campus")}>{item.campusName || "—"}</ReservationField>
                 </ReservationGroup>
-                <ReservationGroup
-                  title={t("reservationDetails")}
-                  className="pt-5"
-                >
-                  <ReservationField label={t("room")}>
-                    {item.roomName || "—"}
-                  </ReservationField>
+                <ReservationGroup title={t("reservationDetails")} className="pt-5">
+                  <ReservationField label={t("room")}>{item.roomName || "—"}</ReservationField>
                   <ReservationField label={t("startTime")}>
                     {formatDateTime(item.startTime)}
                   </ReservationField>
@@ -293,9 +259,7 @@ export default function AdminReservationsPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("reject")}</DialogTitle>
-            <DialogDescription>
-              {t("rejectionDialogDescription")}
-            </DialogDescription>
+            <DialogDescription>{t("rejectionDialogDescription")}</DialogDescription>
           </DialogHeader>
           <Field data-invalid={Boolean(error)}>
             <FieldLabel htmlFor="rejection-reason">{t("reason")}</FieldLabel>

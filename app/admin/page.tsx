@@ -1,14 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import {
-  Building2,
-  CalendarCheck2,
-  CalendarClock,
-  DoorOpen,
-  RefreshCw,
-  Users,
-} from "lucide-react"
+import { Building2, CalendarCheck2, CalendarClock, DoorOpen, RefreshCw, Users } from "lucide-react"
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 
@@ -24,15 +17,14 @@ import { getFutureReservations } from "@/lib/api/reservations"
 import type { Reservation } from "@/lib/api/types"
 
 async function loadDashboard() {
-  const [overview, weekly, rooms, campuses, admins, reservations] =
-    await Promise.all([
-      getAnalyticsOverview(),
-      getWeeklyAnalytics(),
-      getRooms(),
-      getCampuses(),
-      getAdmins(),
-      getFutureReservations(),
-    ])
+  const [overview, weekly, rooms, campuses, admins, reservations] = await Promise.all([
+    getAnalyticsOverview(),
+    getWeeklyAnalytics(),
+    getRooms(),
+    getCampuses(),
+    getAdmins(),
+    getFutureReservations(),
+  ])
 
   return { overview, weekly, rooms, campuses, admins, reservations }
 }
@@ -74,11 +66,8 @@ export default function AdminPage() {
   })
   const data = resource.data
   const pendingReservations = useMemo(
-    () =>
-      data.reservations
-        .filter((reservation) => reservation.status === "pending")
-        .slice(0, 6),
-    [data.reservations]
+    () => data.reservations.filter((reservation) => reservation.status === "pending").slice(0, 6),
+    [data.reservations],
   )
   const dateFormatter = useMemo(
     () =>
@@ -88,7 +77,7 @@ export default function AdminPage() {
         hour: "2-digit",
         minute: "2-digit",
       }),
-    [locale]
+    [locale],
   )
 
   const stats = [
@@ -138,9 +127,7 @@ export default function AdminPage() {
       <section className="admin-stat-grid" aria-label={t("overviewTitle")}>
         {stats.map((stat) => (
           <article className="admin-stat-card" key={stat.label}>
-            <span
-              className={`admin-stat-card__icon admin-stat-card__icon--${stat.tone}`}
-            >
+            <span className={`admin-stat-card__icon admin-stat-card__icon--${stat.tone}`}>
               <stat.icon />
             </span>
             <div>
@@ -161,10 +148,7 @@ export default function AdminPage() {
       {resource.error && !resource.loading ? (
         <div className="admin-error-state" role="alert">
           <p>{common("unknown")}</p>
-          <Button
-            variant="outline"
-            onClick={() => void resource.reload().catch(() => undefined)}
-          >
+          <Button variant="outline" onClick={() => void resource.reload().catch(() => undefined)}>
             <RefreshCw />
             {common("retry")}
           </Button>
@@ -197,16 +181,8 @@ export default function AdminPage() {
 
         <AdminSection title={t("systemSnapshot")}>
           <dl className="admin-snapshot-list">
-            <SnapshotRow
-              icon={Building2}
-              label={t("campuses")}
-              value={data.campuses.length}
-            />
-            <SnapshotRow
-              icon={DoorOpen}
-              label={t("rooms")}
-              value={data.rooms.length}
-            />
+            <SnapshotRow icon={Building2} label={t("campuses")} value={data.campuses.length} />
+            <SnapshotRow icon={DoorOpen} label={t("rooms")} value={data.rooms.length} />
             <SnapshotRow
               icon={CalendarCheck2}
               label={t("weeklyApproved")}

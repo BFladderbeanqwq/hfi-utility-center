@@ -16,11 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
-import {
-  changeAdminPassword,
-  deleteAdmin,
-  setAdminNotifications,
-} from "@/lib/api/admins"
+import { changeAdminPassword, deleteAdmin, setAdminNotifications } from "@/lib/api/admins"
 import type { Admin } from "@/lib/api/types"
 
 import styles from "./admin-user.module.css"
@@ -37,9 +33,7 @@ export function AdminList({
 }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
-  const [notificationError, setNotificationError] = useState<number | null>(
-    null
-  )
+  const [notificationError, setNotificationError] = useState<number | null>(null)
 
   if (admins.length === 0) {
     return (
@@ -94,9 +88,8 @@ export function AdminList({
                   setNotificationError(null)
                   try {
                     await mutate(
-                      () =>
-                        setAdminNotifications(admin.id, !receivesNotifications),
-                      t("adminNotificationsUpdated")
+                      () => setAdminNotifications(admin.id, !receivesNotifications),
+                      t("adminNotificationsUpdated"),
                     )
                   } catch {
                     setNotificationError(admin.id)
@@ -104,9 +97,7 @@ export function AdminList({
                 }}
               >
                 {receivesNotifications ? <Bell /> : <BellOff />}
-                {receivesNotifications
-                  ? t("notificationDisable")
-                  : t("notificationEnable")}
+                {receivesNotifications ? t("notificationDisable") : t("notificationEnable")}
               </Button>
             </section>
             {notificationError === admin.id ? (
@@ -116,11 +107,7 @@ export function AdminList({
             ) : null}
 
             <footer className={styles.actions}>
-              <EditAdminDialog
-                admin={admin}
-                mutate={mutate}
-                working={working}
-              />
+              <EditAdminDialog admin={admin} mutate={mutate} working={working} />
               <TextActionDialog
                 title={t("changePassword")}
                 label={t("newPassword")}
@@ -128,10 +115,7 @@ export function AdminList({
                 cancelLabel={common("cancel")}
                 saveLabel={common("save")}
                 onSave={(password) =>
-                  mutate(
-                    () => changeAdminPassword(admin.id, password),
-                    t("passwordUpdated")
-                  )
+                  mutate(() => changeAdminPassword(admin.id, password), t("passwordUpdated"))
                 }
               >
                 <Button
@@ -144,11 +128,7 @@ export function AdminList({
                   {t("changePassword")}
                 </Button>
               </TextActionDialog>
-              <DeleteAdminDialog
-                admin={admin}
-                mutate={mutate}
-                working={working}
-              />
+              <DeleteAdminDialog admin={admin} mutate={mutate} working={working} />
             </footer>
           </article>
         )
@@ -176,10 +156,7 @@ function DeleteAdminDialog({
     setActionError(false)
     setDeleting(true)
     try {
-      const deleted = await mutate(
-        () => deleteAdmin(admin.id),
-        t("adminDeleted")
-      )
+      const deleted = await mutate(() => deleteAdmin(admin.id), t("adminDeleted"))
       if (deleted) setOpen(false)
     } catch {
       setActionError(true)
@@ -209,17 +186,13 @@ function DeleteAdminDialog({
           {common("delete")}
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className={`${styles.dialogSurface} ${styles.dangerDialog}`}
-      >
+      <DialogContent className={`${styles.dialogSurface} ${styles.dangerDialog}`}>
         <DialogHeader className={styles.dialogHeader}>
           <span className={styles.dialogIcon} aria-hidden="true">
             <TriangleAlert />
           </span>
           <div>
-            <DialogTitle className={styles.dialogTitle}>
-              {common("delete")}
-            </DialogTitle>
+            <DialogTitle className={styles.dialogTitle}>{common("delete")}</DialogTitle>
             <DialogDescription className={styles.dialogDescription}>
               {t("confirmDelete", { name: admin.name })}
             </DialogDescription>

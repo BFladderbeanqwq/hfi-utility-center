@@ -5,13 +5,7 @@ import remarkGfm from "remark-gfm"
 
 import { cn } from "@/lib/utils"
 
-export function MarkdownContent({
-  content,
-  className,
-}: {
-  content: string
-  className?: string
-}) {
+export function MarkdownContent({ content, className }: { content: string; className?: string }) {
   return (
     <div className={cn("markdown-content", className)}>
       <ReactMarkdown

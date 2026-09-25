@@ -11,10 +11,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import { MarkdownContent } from "@/components/markdown-content"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
-import {
-  getAdminAnnouncement,
-  updateAnnouncement,
-} from "@/lib/api/announcements"
+import { getAdminAnnouncement, updateAnnouncement } from "@/lib/api/announcements"
 import type { Announcement } from "@/lib/api/types"
 
 const emptyAnnouncement: Announcement = {
@@ -32,10 +29,7 @@ export default function AdminAnnouncementPage() {
   })
   return (
     <main id="main-content" className="admin-page space-y-6">
-      <AdminPageHeader
-        title={t("announcementTitle")}
-        description={t("announcementDescription")}
-      />
+      <AdminPageHeader title={t("announcementTitle")} description={t("announcementDescription")} />
       {resource.loading ? (
         <AdminSection title={t("announcementEditor")}>
           <div className="admin-dashboard-loading">
@@ -78,16 +72,13 @@ function AnnouncementForm({
     event.preventDefault()
     await mutate(
       () => updateAnnouncement(title.trim(), content.trim(), enabled),
-      t("announcementSaved")
+      t("announcementSaved"),
     )
   }
 
   return (
     <div className="admin-announcement-layout">
-      <AdminSection
-        title={t("announcementEditor")}
-        className="admin-announcement-editor"
-      >
+      <AdminSection title={t("announcementEditor")} className="admin-announcement-editor">
         <form className="admin-announcement-form" onSubmit={save}>
           <div className="admin-announcement-publish-row">
             <span className="admin-announcement-publish-icon">
@@ -108,9 +99,7 @@ function AnnouncementForm({
                 onChange={(event) => setEnabled(event.target.checked)}
               />
               <span aria-hidden="true" />
-              <em>
-                {enabled ? t("announcementPublished") : t("announcementDraft")}
-              </em>
+              <em>{enabled ? t("announcementPublished") : t("announcementDraft")}</em>
             </label>
           </div>
           <label className="admin-announcement-field">
@@ -167,9 +156,7 @@ function AnnouncementForm({
             <small>HFI UTILITY CENTER</small>
             <h2>{title.trim() || t("announcementPreviewFallbackTitle")}</h2>
             <MarkdownContent
-              content={
-                content.trim() || t("announcementPreviewFallbackContent")
-              }
+              content={content.trim() || t("announcementPreviewFallbackContent")}
               className="admin-announcement-preview-content"
             />
             <span className="admin-announcement-preview-button">

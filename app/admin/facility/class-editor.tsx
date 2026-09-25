@@ -28,10 +28,7 @@ import {
 import { createClass, deleteClass, editClass } from "@/lib/api/catalog"
 import type { Campus, SchoolClass } from "@/lib/api/types"
 
-import {
-  ConfirmFacilityDelete,
-  type FacilityEditorActions,
-} from "./facility-editor-actions"
+import { ConfirmFacilityDelete, type FacilityEditorActions } from "./facility-editor-actions"
 import styles from "./facility.module.css"
 
 export function ClassEditor({
@@ -44,9 +41,7 @@ export function ClassEditor({
   campuses: Campus[]
 }) {
   const t = useTranslations("admin")
-  const campusNames = new Map(
-    campuses.map((campus) => [campus.id, campus.name])
-  )
+  const campusNames = new Map(campuses.map((campus) => [campus.id, campus.name]))
   const dateFormatter = new Intl.DateTimeFormat(useLocale(), {
     dateStyle: "medium",
   })
@@ -59,9 +54,7 @@ export function ClassEditor({
           mode="create"
           campuses={campuses}
           working={working}
-          onSave={(name, campus) =>
-            mutate(() => createClass(name, campus), t("classCreated"))
-          }
+          onSave={(name, campus) => mutate(() => createClass(name, campus), t("classCreated"))}
         />
       }
     >
@@ -71,9 +64,7 @@ export function ClassEditor({
           <TableRow>
             <TableHead>{t("facilityName")}</TableHead>
             <TableHead>{t("campus")}</TableHead>
-            <TableHead className="hidden md:table-cell">
-              {t("createdAt")}
-            </TableHead>
+            <TableHead className="hidden md:table-cell">{t("createdAt")}</TableHead>
             <TableHead className="text-right">{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
@@ -85,12 +76,8 @@ export function ClassEditor({
                   {schoolClass.name}
                   <span className={styles.recordId}>#{schoolClass.id}</span>
                 </TableCell>
-                <TableCell>
-                  {campusNames.get(schoolClass.campus) ?? "—"}
-                </TableCell>
-                <TableCell
-                  className={`hidden md:table-cell ${styles.secondaryText}`}
-                >
+                <TableCell>{campusNames.get(schoolClass.campus) ?? "—"}</TableCell>
+                <TableCell className={`hidden md:table-cell ${styles.secondaryText}`}>
                   {schoolClass.createdAt
                     ? dateFormatter.format(new Date(schoolClass.createdAt))
                     : "—"}
@@ -103,10 +90,7 @@ export function ClassEditor({
                       campuses={campuses}
                       working={working}
                       onSave={(name, campus) =>
-                        mutate(
-                          () => editClass(schoolClass.id, name, campus),
-                          t("classUpdated")
-                        )
+                        mutate(() => editClass(schoolClass.id, name, campus), t("classUpdated"))
                       }
                     />
                     <ConfirmFacilityDelete
@@ -150,9 +134,7 @@ function ClassDialog({
   const nameId = useId()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState(schoolClass?.name ?? "")
-  const [campus, setCampus] = useState(
-    schoolClass ? String(schoolClass.campus) : ""
-  )
+  const [campus, setCampus] = useState(schoolClass ? String(schoolClass.campus) : "")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
@@ -187,9 +169,7 @@ function ClassDialog({
       <DialogTrigger asChild>
         <button
           type="button"
-          className={
-            mode === "create" ? styles.primaryButton : styles.secondaryButton
-          }
+          className={mode === "create" ? styles.primaryButton : styles.secondaryButton}
           disabled={working || campuses.length === 0}
         >
           {mode === "create" ? <Plus /> : <Pencil />}
@@ -198,9 +178,7 @@ function ClassDialog({
       </DialogTrigger>
       <DialogContent className={styles.dialog}>
         <DialogHeader className={styles.dialogHeader}>
-          <DialogTitle>
-            {mode === "create" ? t("newClass") : t("renameClass")}
-          </DialogTitle>
+          <DialogTitle>{mode === "create" ? t("newClass") : t("renameClass")}</DialogTitle>
           <DialogDescription>{t("newClassDescription")}</DialogDescription>
         </DialogHeader>
         <form className={styles.form} onSubmit={submit}>
@@ -238,11 +216,7 @@ function ClassDialog({
                 {common("cancel")}
               </button>
             </DialogClose>
-            <button
-              type="submit"
-              className={styles.primaryButton}
-              disabled={working || saving}
-            >
+            <button type="submit" className={styles.primaryButton} disabled={working || saving}>
               {mode === "create" ? <Plus /> : <Pencil />}
               {mode === "create" ? common("add") : common("save")}
             </button>

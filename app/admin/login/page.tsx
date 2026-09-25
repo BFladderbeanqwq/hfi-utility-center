@@ -14,9 +14,7 @@ export default async function AdminLoginPage({
   const redirectPath = params.redirect?.split("?", 1)[0]
   const redirectQuery = redirectParams.toString()
   const redirectTo = safeAdminRedirect(
-    redirectPath
-      ? `${redirectPath}${redirectQuery ? `?${redirectQuery}` : ""}`
-      : undefined
+    redirectPath ? `${redirectPath}${redirectQuery ? `?${redirectQuery}` : ""}` : undefined,
   )
 
   return <AdminLoginForm token={token} redirectTo={redirectTo} />

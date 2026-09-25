@@ -1,14 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import {
-  CalendarClock,
-  Pencil,
-  Plus,
-  Power,
-  PowerOff,
-  Trash2,
-} from "lucide-react"
+import { CalendarClock, Pencil, Plus, Power, PowerOff, Trash2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import {
@@ -32,12 +25,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
-import {
-  createPolicy,
-  deletePolicy,
-  editPolicy,
-  togglePolicy,
-} from "@/lib/api/catalog"
+import { createPolicy, deletePolicy, editPolicy, togglePolicy } from "@/lib/api/catalog"
 import type { Room, RoomPolicy } from "@/lib/api/types"
 
 import styles from "./facility.module.css"
@@ -111,24 +99,9 @@ export function PolicyEditor({
     setError("")
     try {
       const action = editingId
-        ? () =>
-            editPolicy(
-              editingId,
-              draft.days,
-              parseTime(draft.start),
-              parseTime(draft.end)
-            )
-        : () =>
-            createPolicy(
-              room.id,
-              draft.days,
-              parseTime(draft.start),
-              parseTime(draft.end)
-            )
-      const saved = await mutate(
-        action,
-        editingId ? t("policyUpdated") : t("policyCreated")
-      )
+        ? () => editPolicy(editingId, draft.days, parseTime(draft.start), parseTime(draft.end))
+        : () => createPolicy(room.id, draft.days, parseTime(draft.start), parseTime(draft.end))
+      const saved = await mutate(action, editingId ? t("policyUpdated") : t("policyCreated"))
       if (saved) resetDraft()
     } catch {
       setError(common("unknown"))
@@ -140,10 +113,7 @@ export function PolicyEditor({
   return (
     <Dialog onOpenChange={(open) => !open && resetDraft()}>
       <DialogTrigger asChild>
-        <button
-          type="button"
-          className={`${styles.secondaryButton} ${styles.policyLauncher}`}
-        >
+        <button type="button" className={`${styles.secondaryButton} ${styles.policyLauncher}`}>
           <CalendarClock />
           {t("roomPolicies")} · {room.policies.length}
         </button>
@@ -178,9 +148,7 @@ export function PolicyEditor({
           </Field>
           <div className={styles.timeFields}>
             <Field>
-              <FieldLabel htmlFor={`policy-start-${room.id}`}>
-                {t("policyStart")}
-              </FieldLabel>
+              <FieldLabel htmlFor={`policy-start-${room.id}`}>{t("policyStart")}</FieldLabel>
               <Input
                 id={`policy-start-${room.id}`}
                 className={styles.input}
@@ -195,9 +163,7 @@ export function PolicyEditor({
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor={`policy-end-${room.id}`}>
-                {t("policyEnd")}
-              </FieldLabel>
+              <FieldLabel htmlFor={`policy-end-${room.id}`}>{t("policyEnd")}</FieldLabel>
               <Input
                 id={`policy-end-${room.id}`}
                 className={styles.input}
@@ -213,19 +179,11 @@ export function PolicyEditor({
             </Field>
             <div className={styles.toolbar}>
               {editingId ? (
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  onClick={resetDraft}
-                >
+                <button type="button" className={styles.secondaryButton} onClick={resetDraft}>
                   {common("cancel")}
                 </button>
               ) : null}
-              <button
-                type="submit"
-                className={styles.primaryButton}
-                disabled={working || saving}
-              >
+              <button type="submit" className={styles.primaryButton} disabled={working || saving}>
                 {editingId ? <Pencil /> : <Plus />}
                 {editingId ? common("save") : common("add")}
               </button>
@@ -267,18 +225,12 @@ export function PolicyEditor({
                     type="button"
                     className={styles.secondaryButton}
                     disabled={working}
-                    onClick={() =>
-                      mutate(() => togglePolicy(policy.id), t("policyUpdated"))
-                    }
+                    onClick={() => mutate(() => togglePolicy(policy.id), t("policyUpdated"))}
                   >
                     {policy.enabled ? <PowerOff /> : <Power />}
                     {policy.enabled ? common("disabled") : common("enabled")}
                   </button>
-                  <PolicyDeleteDialog
-                    policy={policy}
-                    mutate={mutate}
-                    working={working}
-                  />
+                  <PolicyDeleteDialog policy={policy} mutate={mutate} working={working} />
                 </div>
               </div>
             ))
@@ -319,11 +271,7 @@ function PolicyDeleteDialog({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          disabled={working}
-        >
+        <button type="button" className={styles.secondaryButton} disabled={working}>
           <Trash2 />
           {common("delete")}
         </button>
@@ -340,12 +288,7 @@ function PolicyDeleteDialog({
           <AlertDialogCancel className={styles.secondaryButton}>
             {common("cancel")}
           </AlertDialogCancel>
-          <button
-            type="button"
-            className={styles.dangerButton}
-            disabled={working}
-            onClick={remove}
-          >
+          <button type="button" className={styles.dangerButton} disabled={working} onClick={remove}>
             <Trash2 />
             {common("delete")}
           </button>

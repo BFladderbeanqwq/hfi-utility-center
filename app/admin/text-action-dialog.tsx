@@ -76,15 +76,10 @@ export function TextActionDialog({
           </span>
           <div>
             <DialogTitle className={styles.dialogTitle}>{title}</DialogTitle>
-            <DialogDescription className={styles.dialogDescription}>
-              {label}
-            </DialogDescription>
+            <DialogDescription className={styles.dialogDescription}>{label}</DialogDescription>
           </div>
         </DialogHeader>
-        <form
-          className={styles.dialogForm}
-          onSubmit={form.handleSubmit(saveValue)}
-        >
+        <form className={styles.dialogForm} onSubmit={form.handleSubmit(saveValue)}>
           <Controller
             control={form.control}
             name="value"

@@ -12,8 +12,7 @@
 
 :root {
   --font-ui:
-    "Archivo Variable", "Noto Sans SC Variable", "PingFang SC",
-    "Microsoft YaHei", sans-serif;
+    "Archivo Variable", "Noto Sans SC Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-display: "Noto Serif SC Variable", "Songti SC", serif;
   --font-sans: var(--font-ui);
   --font-outfit: var(--font-ui);

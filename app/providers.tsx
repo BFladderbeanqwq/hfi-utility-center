@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useSyncExternalStore,
-} from "react"
+import { createContext, useContext, useEffect, useState, useSyncExternalStore } from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { ThemeProvider } from "next-themes"
 
@@ -32,19 +26,13 @@ function storedLocale(): AppLocale {
     .split("; ")
     .find((item) => item.startsWith("locale="))
     ?.split("=")[1]
-  return localStorage.getItem("locale") === "en-US" || cookieLocale === "en-US"
-    ? "en-US"
-    : "zh-CN"
+  return localStorage.getItem("locale") === "en-US" || cookieLocale === "en-US" ? "en-US" : "zh-CN"
 }
 
 export const useAppLocale = () => useContext(LocaleContext)
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const savedLocale = useSyncExternalStore(
-    subscribe,
-    storedLocale,
-    () => defaultLocale
-  )
+  const savedLocale = useSyncExternalStore(subscribe, storedLocale, () => defaultLocale)
   const [selectedLocale, setSelectedLocale] = useState<AppLocale>()
   const locale = selectedLocale ?? savedLocale
 
@@ -60,11 +48,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <LocaleContext.Provider value={{ locale, setLocale }}>
-      <NextIntlClientProvider
-        locale={locale}
-        messages={messages[locale]}
-        timeZone="Asia/Hong_Kong"
-      >
+      <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone="Asia/Hong_Kong">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>

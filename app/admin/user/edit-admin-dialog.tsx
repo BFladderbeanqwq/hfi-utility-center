@@ -60,7 +60,7 @@ export function EditAdminDialog({
     try {
       const saved = await mutate(
         () => editAdmin(admin.id, name.trim(), email.trim()),
-        t("adminUpdated")
+        t("adminUpdated"),
       )
       if (saved) setOpen(false)
     } catch {
@@ -71,12 +71,7 @@ export function EditAdminDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button
-          size="sm"
-          variant="outline"
-          className={styles.actionButton}
-          disabled={working}
-        >
+        <Button size="sm" variant="outline" className={styles.actionButton} disabled={working}>
           <Pencil />
           {common("edit")}
         </Button>
@@ -95,19 +90,14 @@ export function EditAdminDialog({
             </DialogDescription>
           </div>
         </DialogHeader>
-        <form
-          className={styles.dialogForm}
-          onSubmit={form.handleSubmit(saveAdmin)}
-        >
+        <form className={styles.dialogForm} onSubmit={form.handleSubmit(saveAdmin)}>
           <Controller
             control={form.control}
             name="name"
             rules={requiredText}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={`admin-name-${admin.id}`}>
-                  {t("adminName")}
-                </FieldLabel>
+                <FieldLabel htmlFor={`admin-name-${admin.id}`}>{t("adminName")}</FieldLabel>
                 <Input
                   {...field}
                   id={`admin-name-${admin.id}`}
@@ -124,9 +114,7 @@ export function EditAdminDialog({
             rules={requiredText}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor={`admin-email-${admin.id}`}>
-                  {t("adminEmail")}
-                </FieldLabel>
+                <FieldLabel htmlFor={`admin-email-${admin.id}`}>{t("adminEmail")}</FieldLabel>
                 <Input
                   {...field}
                   id={`admin-email-${admin.id}`}

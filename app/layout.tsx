@@ -6,9 +6,7 @@ import "./globals.css"
 import { Providers } from "@/app/providers"
 import { Navbar } from "@/components/navbar"
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body>

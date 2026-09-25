@@ -7,7 +7,7 @@ import { checkLogin } from "@/lib/api/auth"
 
 export type AdminMutation = (
   action: () => Promise<unknown>,
-  successMessage?: string
+  successMessage?: string,
 ) => Promise<boolean>
 
 type AdminSessionStatus = "checking" | "authenticated" | "unauthenticated"
@@ -80,7 +80,7 @@ export function useAdminMutation({ reload }: { reload: () => Promise<void> }) {
         setWorking(false)
       }
     },
-    [reload]
+    [reload],
   )
 
   return { mutate, working }

@@ -14,13 +14,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { useAdminSession } from "@/lib/api/admin-hooks"
 import { logout } from "@/lib/api/auth"
@@ -32,11 +26,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   if (pathname === "/admin/login") return children
 
-  return (
-    <AuthenticatedAdminShell pathname={pathname}>
-      {children}
-    </AuthenticatedAdminShell>
-  )
+  return <AuthenticatedAdminShell pathname={pathname}>{children}</AuthenticatedAdminShell>
 }
 
 function AuthenticatedAdminShell({
@@ -112,9 +102,7 @@ function AuthenticatedAdminShell({
             <nav className="admin-nav">
               {navigationItems.map((item) => {
                 const active =
-                  item.href === "/admin"
-                    ? pathname === "/admin"
-                    : pathname.startsWith(item.href)
+                  item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
                 return (
                   <Button
                     key={item.href}
@@ -122,10 +110,7 @@ function AuthenticatedAdminShell({
                     variant={active ? "secondary" : "ghost"}
                     className={`admin-nav-item ${active ? "admin-nav-item--active" : ""}`}
                   >
-                    <Link
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
-                    >
+                    <Link href={item.href} aria-current={active ? "page" : undefined}>
                       <item.icon />
                       {item.label}
                     </Link>
@@ -186,9 +171,7 @@ export function AdminPageHeader({
     <header className="admin-page-header">
       <div>
         <h1 className="text-3xl font-semibold">{title}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
       </div>
       {actions ? <div className="admin-page-actions">{actions}</div> : null}
     </header>

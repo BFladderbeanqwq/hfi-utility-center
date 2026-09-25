@@ -43,7 +43,7 @@ export function useRoomAvailability({
       setAvailability(
         privileged
           ? buildPriorityAvailability(room, date)
-          : await getAvailability(room.id, date, room)
+          : await getAvailability(room.id, date, room),
       )
     } finally {
       setRefreshing(false)
@@ -51,9 +51,7 @@ export function useRoomAvailability({
   }
 
   const currentAvailability =
-    availability &&
-    availability.roomId === room?.id &&
-    availability.date === date
+    availability && availability.roomId === room?.id && availability.date === date
       ? availability
       : undefined
 

@@ -16,13 +16,7 @@ import styles from "./admin-user.module.css"
 
 type CreateAdminFields = { name: string; email: string; password: string }
 
-export function CreateAdminForm({
-  mutate,
-  working,
-}: {
-  mutate: AdminMutation
-  working: boolean
-}) {
+export function CreateAdminForm({ mutate, working }: { mutate: AdminMutation; working: boolean }) {
   const t = useTranslations("admin")
   const common = useTranslations("common")
   const [actionError, setActionError] = useState(false)
@@ -37,9 +31,8 @@ export function CreateAdminForm({
     setActionError(false)
     try {
       const created = await mutate(
-        () =>
-          createAdmin(values.name.trim(), values.email.trim(), values.password),
-        t("adminCreated")
+        () => createAdmin(values.name.trim(), values.email.trim(), values.password),
+        t("adminCreated"),
       )
       if (created) form.reset()
     } catch {
@@ -49,10 +42,7 @@ export function CreateAdminForm({
 
   return (
     <AdminSection title={t("addAdmin")}>
-      <form
-        className={styles.createForm}
-        onSubmit={form.handleSubmit(createAccount)}
-      >
+      <form className={styles.createForm} onSubmit={form.handleSubmit(createAccount)}>
         <Controller
           control={form.control}
           name="name"
@@ -60,11 +50,7 @@ export function CreateAdminForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="new-admin-name">{t("name")}</FieldLabel>
-              <Input
-                {...field}
-                id="new-admin-name"
-                aria-invalid={fieldState.invalid}
-              />
+              <Input {...field} id="new-admin-name" aria-invalid={fieldState.invalid} />
               <FieldError errors={[fieldState.error]} />
             </Field>
           )}
@@ -95,9 +81,7 @@ export function CreateAdminForm({
           }}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="new-admin-password">
-                {t("initialPassword")}
-              </FieldLabel>
+              <FieldLabel htmlFor="new-admin-password">{t("initialPassword")}</FieldLabel>
               <Input
                 {...field}
                 id="new-admin-password"
@@ -108,10 +92,7 @@ export function CreateAdminForm({
             </Field>
           )}
         />
-        <Button
-          className={styles.createAction}
-          disabled={working || form.formState.isSubmitting}
-        >
+        <Button className={styles.createAction} disabled={working || form.formState.isSubmitting}>
           <Plus />
           {t("addAccount")}
         </Button>

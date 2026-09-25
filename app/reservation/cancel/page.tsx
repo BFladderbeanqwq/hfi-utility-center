@@ -27,13 +27,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Spinner } from "@/components/ui/spinner"
-import {
-  ActionButton,
-  NeoFooter,
-  NeoPage,
-  StatusBadge,
-  Surface,
-} from "@/components/neo/shared"
+import { ActionButton, NeoFooter, NeoPage, StatusBadge, Surface } from "@/components/neo/shared"
 import { getCatalog } from "@/lib/api/catalog"
 import {
   cancelReservation,
@@ -42,12 +36,7 @@ import {
   previewCancellation,
   type CancellationPreview,
 } from "@/lib/api/reservations"
-import type {
-  AvailabilityData,
-  CatalogData,
-  PurposeType,
-  Room,
-} from "@/lib/api/types"
+import type { AvailabilityData, CatalogData, PurposeType, Room } from "@/lib/api/types"
 import { dateToInputValue, inputValueToDate } from "@/lib/date-time"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
 
@@ -205,24 +194,15 @@ export default function CancelReservationPage() {
 
   const selectedRoom = useMemo(
     () => catalog?.rooms.find((room) => room.id === draft?.room),
-    [catalog?.rooms, draft?.room]
+    [catalog?.rooms, draft?.room],
   )
   const roomsForCampus = useMemo(
-    () =>
-      catalog?.rooms.filter(
-        (room) => room.enabled && room.campus === draft?.campus
-      ) || [],
-    [catalog?.rooms, draft?.campus]
+    () => catalog?.rooms.filter((room) => room.enabled && room.campus === draft?.campus) || [],
+    [catalog?.rooms, draft?.campus],
   )
 
   useEffect(() => {
-    if (
-      mode !== "edit" ||
-      editStep !== "time" ||
-      !draft?.date ||
-      !selectedRoom ||
-      !preview
-    ) {
+    if (mode !== "edit" || editStep !== "time" || !draft?.date || !selectedRoom || !preview) {
       return
     }
     let active = true
@@ -231,12 +211,7 @@ export default function CancelReservationPage() {
         if (!active) return undefined
         setLoadingAvailability(true)
         setAvailabilityError(undefined)
-        return getAvailability(
-          selectedRoom.id,
-          draft.date,
-          selectedRoom,
-          preview.reservationId
-        )
+        return getAvailability(selectedRoom.id, draft.date, selectedRoom, preview.reservationId)
       })
       .then((value) => {
         if (active && value) setAvailability(value)
@@ -250,15 +225,7 @@ export default function CancelReservationPage() {
     return () => {
       active = false
     }
-  }, [
-    availabilityReload,
-    bookingT,
-    draft?.date,
-    editStep,
-    mode,
-    preview,
-    selectedRoom,
-  ])
+  }, [availabilityReload, bookingT, draft?.date, editStep, mode, preview, selectedRoom])
 
   const today = useMemo(() => startOfToday(), [])
   const maximumDate = useMemo(() => addDays(today, 30), [today])
@@ -269,12 +236,9 @@ export default function CancelReservationPage() {
         minute: "2-digit",
         hour12: false,
       }),
-    [locale]
+    [locale],
   )
-  const timeOptions = useMemo(
-    () => buildTimeOptions(availability?.slots || []),
-    [availability]
-  )
+  const timeOptions = useMemo(() => buildTimeOptions(availability?.slots || []), [availability])
   const visibleTimeOptions = useMemo(() => {
     if (!availability || !draft) return []
     return timeOptions.filter((option) =>
@@ -283,7 +247,7 @@ export default function CancelReservationPage() {
         slots: availability.slots,
         startTime: draft.startTime,
         endTime: draft.endTime,
-      })
+      }),
     )
   }, [availability, draft, timeOptions])
 
@@ -300,17 +264,11 @@ export default function CancelReservationPage() {
       setDraft({ ...draft, startTime: 0, endTime: 0 })
       return
     }
-    if (
-      !draft.startTime ||
-      draft.endTime ||
-      option.timestamp < draft.startTime
-    ) {
+    if (!draft.startTime || draft.endTime || option.timestamp < draft.startTime) {
       setDraft({ ...draft, startTime: option.timestamp, endTime: 0 })
       return
     }
-    if (
-      rangeIsAvailable(availability.slots, draft.startTime, option.timestamp)
-    ) {
+    if (rangeIsAvailable(availability.slots, draft.startTime, option.timestamp)) {
       setDraft({ ...draft, endTime: option.timestamp })
     } else {
       setAvailabilityError(bookingT("rangeUnavailable"))
@@ -362,8 +320,7 @@ export default function CancelReservationPage() {
   }
 
   const purposeKey = (preview?.purposeType || "personal") as PurposeType
-  const formatTime = (value: number) =>
-    timeFormatter.format(new Date(value * 1000))
+  const formatTime = (value: number) => timeFormatter.format(new Date(value * 1000))
 
   return (
     <NeoPage>
@@ -409,9 +366,7 @@ export default function CancelReservationPage() {
                 <h2>{t("cancelledTitle")}</h2>
                 <p>{t("cancelledDescription")}</p>
                 <div className="management-empty-state__actions">
-                  <ActionButton href="/reservation/create">
-                    {t("bookAgain")}
-                  </ActionButton>
+                  <ActionButton href="/reservation/create">{t("bookAgain")}</ActionButton>
                   <ActionButton variant="secondary" href="/">
                     {t("home")}
                   </ActionButton>
@@ -432,18 +387,10 @@ export default function CancelReservationPage() {
                     </div>
                   </div>
                   <div className="management-summary__meta">
-                    <StatusBadge
-                      tone={
-                        preview.status === "approved" ? "success" : "warning"
-                      }
-                    >
-                      {preview.status === "approved"
-                        ? t("approved")
-                        : t("pending")}
+                    <StatusBadge tone={preview.status === "approved" ? "success" : "warning"}>
+                      {preview.status === "approved" ? t("approved") : t("pending")}
                     </StatusBadge>
-                    <span>
-                      {t("remainingEdits", { count: preview.remainingEdits })}
-                    </span>
+                    <span>{t("remainingEdits", { count: preview.remainingEdits })}</span>
                   </div>
                 </div>
 
@@ -475,8 +422,7 @@ export default function CancelReservationPage() {
                         <Clock3 size={19} />
                         <span>{t("time")}</span>
                         <strong>
-                          {preview.startTime.slice(11, 16)} –{" "}
-                          {preview.endTime.slice(11, 16)}
+                          {preview.startTime.slice(11, 16)} – {preview.endTime.slice(11, 16)}
                         </strong>
                       </article>
                       <article>
@@ -493,9 +439,7 @@ export default function CancelReservationPage() {
                         <Monitor size={19} />
                         <span>{t("multimedia")}</span>
                         <strong>
-                          {preview.needsMultimedia
-                            ? t("required")
-                            : t("notRequired")}
+                          {preview.needsMultimedia ? t("required") : t("notRequired")}
                         </strong>
                       </article>
                       <article className="management-detail-grid__wide">
@@ -536,18 +480,9 @@ export default function CancelReservationPage() {
 
                 {mode === "edit" ? (
                   <div className="management-editor">
-                    <div
-                      className="management-edit-progress"
-                      aria-label={t("modifyProgress")}
-                    >
-                      <div
-                        className={
-                          editStep === "location" ? "is-active" : "is-complete"
-                        }
-                      >
-                        <span>
-                          {editStep === "time" ? <Check size={15} /> : "1"}
-                        </span>
+                    <div className="management-edit-progress" aria-label={t("modifyProgress")}>
+                      <div className={editStep === "location" ? "is-active" : "is-complete"}>
+                        <span>{editStep === "time" ? <Check size={15} /> : "1"}</span>
                         <strong>{t("selectLocation")}</strong>
                       </div>
                       <i />
@@ -678,15 +613,12 @@ export default function CancelReservationPage() {
                               showOutsideDays
                               locale={locale === "zh-CN" ? zhCN : enUS}
                               selected={inputValueToDate(draft.date)}
-                              defaultMonth={
-                                inputValueToDate(draft.date) || today
-                              }
+                              defaultMonth={inputValueToDate(draft.date) || today}
                               startMonth={today}
                               endMonth={maximumDate}
                               disabled={{ before: today, after: maximumDate }}
                               onSelect={(selected) => {
-                                if (selected)
-                                  resetTimes(dateToInputValue(selected))
+                                if (selected) resetTimes(dateToInputValue(selected))
                               }}
                             />
                           </div>
@@ -713,15 +645,9 @@ export default function CancelReservationPage() {
                                 className="availability-refresh-button"
                                 aria-label={bookingT("refresh")}
                                 disabled={loadingAvailability}
-                                onClick={() =>
-                                  setAvailabilityReload((value) => value + 1)
-                                }
+                                onClick={() => setAvailabilityReload((value) => value + 1)}
                               >
-                                {loadingAvailability ? (
-                                  <Spinner />
-                                ) : (
-                                  <RefreshCw size={15} />
-                                )}
+                                {loadingAvailability ? <Spinner /> : <RefreshCw size={15} />}
                               </Button>
                             </div>
                             {loadingAvailability ? (
@@ -732,10 +658,7 @@ export default function CancelReservationPage() {
                             ) : null}
                             {availability && !loadingAvailability ? (
                               <>
-                                <div
-                                  className="neo-time-legend"
-                                  aria-hidden="true"
-                                >
+                                <div className="neo-time-legend" aria-hidden="true">
                                   <span>
                                     <i className="neo-time-legend__available" />
                                     {bookingT("available")}
@@ -750,7 +673,7 @@ export default function CancelReservationPage() {
                                     const selected = timeIsSelected(
                                       option.timestamp,
                                       draft.startTime,
-                                      draft.endTime
+                                      draft.endTime,
                                     )
                                     const selectable = timeCanBeSelected({
                                       option,
@@ -764,9 +687,7 @@ export default function CancelReservationPage() {
                                         key={option.timestamp}
                                         disabled={!selectable && !selected}
                                         aria-pressed={selected}
-                                        variant={
-                                          selected ? "default" : "outline"
-                                        }
+                                        variant={selected ? "default" : "outline"}
                                         className={`neo-time-cell ${option.status === "occupied" && !selectable ? "neo-time-cell--occupied" : ""} ${selected ? "neo-time-cell--selected" : ""}`}
                                         onClick={() => selectTime(option)}
                                       >
@@ -790,9 +711,7 @@ export default function CancelReservationPage() {
                           </ActionButton>
                           <ActionButton
                             icon={working ? <Spinner /> : <Save size={17} />}
-                            disabled={
-                              working || !draft.startTime || !draft.endTime
-                            }
+                            disabled={working || !draft.startTime || !draft.endTime}
                             onClick={saveChanges}
                           >
                             {t("save")}
