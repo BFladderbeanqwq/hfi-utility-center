@@ -1,14 +1,14 @@
-import "@fontsource-variable/archivo"
-import "@fontsource-variable/noto-sans-sc"
-import "@fontsource-variable/noto-serif-sc"
+import { archivo, notoSansSC, notoSerifSC } from "@/app/fonts"
 import "./globals.css"
 
 import { Providers } from "@/app/providers"
 import { Navbar } from "@/components/navbar"
 
+const fontVariables = `${archivo.variable} ${notoSansSC.variable} ${notoSerifSC.variable}`
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" className={fontVariables} suppressHydrationWarning>
       <body>
         <Providers>
           <Navbar>{children}</Navbar>

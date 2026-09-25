@@ -3030,8 +3030,8 @@
 
 :root {
   --font-ui:
-    "Archivo Variable", "Noto Sans SC Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
-  --font-display: "Noto Serif SC Variable", "Songti SC", serif;
+    var(--font-archivo), var(--font-noto-sans-sc), "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-display: var(--font-noto-serif-sc), "Songti SC", serif;
   --font-sans: var(--font-ui);
   --font-outfit: var(--font-ui);
   --background: #faf9fc;
@@ -3225,7 +3225,7 @@
   flex-shrink: 0;
 }
 .brand-wordmark {
-  font-family: "Archivo Variable", sans-serif;
+  font-family: var(--font-ui);
   font-size: 48px;
   font-weight: 650;
   letter-spacing: -0.075em;
