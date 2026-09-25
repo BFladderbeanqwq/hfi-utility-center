@@ -35,17 +35,3 @@ export function timeOnInputDateTimestamp(date: string, [hour, minute]: number[])
 export function weekdayFromInputValue(value: string) {
   return inputValueToDate(value)?.getDay()
 }
-
-export function dateTimeToInputValue(value: string | Date) {
-  const date = typeof value === "string" ? new Date(value) : value
-  if (Number.isNaN(date.getTime())) return ""
-  const datePart = dateToInputValue(date)
-  const hours = String(date.getHours()).padStart(2, "0")
-  const minutes = String(date.getMinutes()).padStart(2, "0")
-  return `${datePart}T${hours}:${minutes}`
-}
-
-export function dateTimeInputToTimestamp(value: string) {
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? undefined : date.getTime() / 1000
-}
