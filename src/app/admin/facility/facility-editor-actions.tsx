@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type ReactElement, type ReactNode } from "react"
-import { Ellipsis, Trash2 } from "lucide-react"
+import { Ellipsis, Pencil, Plus, Trash2 } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import {
@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -197,5 +198,30 @@ export function ConfirmFacilityDelete({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  )
+}
+
+/** Dialog footer shared by the facility forms: Cancel plus a mode-aware submit. */
+export function DialogFormActions({
+  mode,
+  disabled,
+}: {
+  mode: "create" | "edit"
+  disabled: boolean
+}) {
+  const common = useTranslations("common")
+
+  return (
+    <DialogFooter>
+      <DialogClose asChild>
+        <Button type="button" variant="ghost" className={touchTarget}>
+          {common("cancel")}
+        </Button>
+      </DialogClose>
+      <Button type="submit" disabled={disabled} className={touchTarget}>
+        {mode === "create" ? <Plus aria-hidden /> : <Pencil aria-hidden />}
+        {mode === "create" ? common("add") : common("save")}
+      </Button>
+    </DialogFooter>
   )
 }
