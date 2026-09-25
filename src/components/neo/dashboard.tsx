@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { RefreshCw } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useAppLocale } from "@/app/providers"
+import { useAppLocale } from "@/lib/locale"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { getRooms } from "@/lib/api/catalog"

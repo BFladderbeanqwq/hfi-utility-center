@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 
 import { Turnstile } from "@/components/turnstile"
-import { useAppLocale } from "@/app/providers"
+import { useAppLocale } from "@/lib/locale"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
