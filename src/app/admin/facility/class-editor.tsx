@@ -30,6 +30,7 @@ import type { Campus, SchoolClass } from "@/lib/api/types"
 
 import { ConfirmFacilityDelete, type FacilityEditorActions } from "./facility-editor-actions"
 import styles from "./facility.module.css"
+import { formatApiTimestamp } from "@/lib/date-time"
 
 export function ClassEditor({
   classes,
@@ -78,9 +79,7 @@ export function ClassEditor({
                 </TableCell>
                 <TableCell>{campusNames.get(schoolClass.campus) ?? "—"}</TableCell>
                 <TableCell className={`hidden md:table-cell ${styles.secondaryText}`}>
-                  {schoolClass.createdAt
-                    ? dateFormatter.format(new Date(schoolClass.createdAt))
-                    : "—"}
+                  {formatApiTimestamp(dateFormatter, schoolClass.createdAt)}
                 </TableCell>
                 <TableCell>
                   <div className={styles.rowActions}>

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl"
 
 import { StatusBadge, Surface, type Tone } from "@/components/neo/shared"
 import type { Reservation, ReservationStatus } from "@/lib/api/types"
+import { formatApiTimestamp } from "@/lib/date-time"
 
 const statusTone: Record<ReservationStatus, Tone> = {
   pending: "warning",
@@ -35,7 +36,8 @@ export function ReservationResults({
     hour12: false,
   })
   const grouped = reservations.reduce<Record<string, Reservation[]>>((groups, reservation) => {
-    const label = sort === "sequence" ? "" : dateFormatter.format(new Date(reservation.startTime))
+    const label =
+      sort === "sequence" ? "" : formatApiTimestamp(dateFormatter, reservation.startTime)
     groups[label] = [...(groups[label] ?? []), reservation]
     return groups
   }, {})
@@ -74,10 +76,10 @@ export function ReservationResults({
                   <Clock3 size={17} />
                   <strong>
                     {sort === "sequence"
-                      ? `${dateFormatter.format(new Date(reservation.startTime))} · `
+                      ? `${formatApiTimestamp(dateFormatter, reservation.startTime)} · `
                       : null}
-                    {timeFormatter.format(new Date(reservation.startTime))} –{" "}
-                    {timeFormatter.format(new Date(reservation.endTime))}
+                    {formatApiTimestamp(timeFormatter, reservation.startTime)} –{" "}
+                    {formatApiTimestamp(timeFormatter, reservation.endTime)}
                   </strong>
                 </span>
               </header>

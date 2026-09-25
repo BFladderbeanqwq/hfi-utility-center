@@ -23,6 +23,7 @@ import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getFutureReservations, updateReservationApproval } from "@/lib/api/reservations"
 import type { Reservation } from "@/lib/api/types"
 import { backendHref } from "@/lib/api/client"
+import { formatApiTimestamp } from "@/lib/date-time"
 
 export default function AdminReservationsPage() {
   const t = useTranslations("admin")
@@ -51,7 +52,7 @@ export default function AdminReservationsPage() {
   )
 
   function formatDateTime(value: string) {
-    return dateTimeFormatter.format(new Date(value))
+    return formatApiTimestamp(dateTimeFormatter, value)
   }
 
   const filtered = useMemo(() => {

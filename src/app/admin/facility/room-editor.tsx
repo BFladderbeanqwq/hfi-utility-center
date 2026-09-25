@@ -31,6 +31,7 @@ import type { Campus, Room } from "@/lib/api/types"
 import { ConfirmFacilityDelete, type FacilityEditorActions } from "./facility-editor-actions"
 import styles from "./facility.module.css"
 import { PolicyEditor } from "./room-policy-editor"
+import { formatApiTimestamp } from "@/lib/date-time"
 
 export function RoomEditor({
   rooms,
@@ -95,7 +96,7 @@ export function RoomEditor({
                   <PolicyEditor room={room} mutate={mutate} working={working} />
                 </TableCell>
                 <TableCell className={`hidden xl:table-cell ${styles.secondaryText}`}>
-                  {room.createdAt ? dateFormatter.format(new Date(room.createdAt)) : "—"}
+                  {formatApiTimestamp(dateFormatter, room.createdAt)}
                 </TableCell>
                 <TableCell>
                   <div className={styles.rowActions}>
