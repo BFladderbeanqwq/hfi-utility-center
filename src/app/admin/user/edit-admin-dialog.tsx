@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -43,6 +44,7 @@ export function EditAdminDialog({
   const form = useForm<EditAdminFields>({
     defaultValues: { name: admin.name, email: admin.email },
   })
+  const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
   const requiredText = {
     validate: (value: string) => Boolean(value.trim()) || t("fieldRequired"),
   }
@@ -79,7 +81,11 @@ export function EditAdminDialog({
           </DialogTitle>
           <DialogDescription>{admin.email}</DialogDescription>
         </DialogHeader>
-        <form className="flex min-w-0 flex-col gap-4" onSubmit={form.handleSubmit(saveAdmin)}>
+        <form
+          ref={formRef}
+          className="flex min-w-0 flex-col gap-4"
+          onSubmit={form.handleSubmit(saveAdmin, shake)}
+        >
           <Controller
             control={form.control}
             name="name"

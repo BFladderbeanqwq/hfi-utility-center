@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 
 import { AppShell } from "@/components/layout/app-shell"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import { LoadingState } from "@/components/layout/data-state"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,7 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
   const [turnstileToken, setTurnstileToken] = useState("")
   const [error, setError] = useState<string>()
   const [checkingSession, setCheckingSession] = useState(true)
+  const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
   const handleToken = useCallback((value: string) => {
     setTurnstileToken(value)
     if (value) setError(undefined)
@@ -102,7 +104,12 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
 
         <Card className="w-full max-w-md">
           <CardContent>
-            <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
+            <form
+              noValidate
+              ref={formRef}
+              onSubmit={form.handleSubmit(submit, shake)}
+              className="flex flex-col gap-4"
+            >
               <Controller
                 control={form.control}
                 name="email"
