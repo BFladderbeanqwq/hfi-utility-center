@@ -525,6 +525,31 @@
       "support": "Support"
     }
   },
+  "dashboard": {
+    "title": "Live schedule",
+    "refresh": "Refresh",
+    "lastUpdated": "Last updated {time}",
+    "justNow": "just now",
+    "secondsAgo": "{count}s ago",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "refreshEvery": "Refreshes every 30 seconds",
+    "errorTitle": "Unable to refresh the schedule",
+    "errorDescription": "Please retry. The rooms below may be out of date.",
+    "roomsInUse": "Rooms in use",
+    "totalRooms": "Bookable rooms",
+    "bookingsToday": "Bookings today",
+    "pendingApproval": "Awaiting approval",
+    "inUse": "In use",
+    "idle": "No current booking",
+    "timeColumn": "Time",
+    "purposeColumn": "Purpose",
+    "statusColumn": "Status",
+    "purposeFallback": "No purpose provided",
+    "noBookingsToday": "No bookings today",
+    "noRooms": "No rooms available",
+    "noRoomsDescription": "No bookable rooms have been published yet."
+  },
   "layout": {
     "brand": "Utility Center",
     "skipToContent": "Skip to content",
