@@ -1,23 +1,19 @@
 "use client"
 
 import { useId, useState } from "react"
-import { Pencil, Plus } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import { touchTarget } from "./facility-editor-actions"
+import { DialogFormActions } from "./facility-editor-actions"
 
 export function FacilityNameDialog({
   open,
@@ -91,17 +87,7 @@ export function FacilityNameDialog({
             {/* oxlint-enable jsx-a11y/no-autofocus */}
             {error ? <FieldError>{error}</FieldError> : null}
           </Field>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="ghost" className={touchTarget}>
-                {common("cancel")}
-              </Button>
-            </DialogClose>
-            <Button type="submit" disabled={working || saving} className={touchTarget}>
-              {mode === "create" ? <Plus aria-hidden /> : <Pencil aria-hidden />}
-              {mode === "create" ? common("add") : common("save")}
-            </Button>
-          </DialogFooter>
+          <DialogFormActions mode={mode} disabled={working || saving} />
         </form>
       </DialogContent>
     </Dialog>
