@@ -1,7 +1,7 @@
 "use client"
 
 import { AdminPageHeader } from "@/app/admin/admin-shell"
-import { ForceReservationForm } from "@/app/admin/reservation/force-reservation-form"
+import { ReservationForm } from "@/app/reservation/create/reservation-form"
 import { useTranslations } from "next-intl"
 
 export default function AdminForceReservationPage() {
@@ -13,7 +13,7 @@ export default function AdminForceReservationPage() {
         title={t("forceReservationTitle")}
         description={t("forceReservationDescription")}
       />
-      <ForceReservationForm />
+      <ReservationForm mode="adminForce" />
     </main>
   )
 }
