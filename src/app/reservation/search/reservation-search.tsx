@@ -1,12 +1,12 @@
 "use client"
 
+import { SearchX } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useAppLocale } from "@/lib/locale"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
 
-import { Spinner } from "@/components/ui/spinner"
-import { NeoFooter, NeoPage } from "@/components/neo/shared"
+import { AppShell } from "@/components/layout/app-shell"
+import { EmptyState, ErrorState, LoadingState } from "@/components/layout/data-state"
+import { PageHeader } from "@/components/layout/page-header"
+import { SectionCard } from "@/components/layout/section-card"
 import type { Reservation } from "@/lib/api/types"
 
 import { ReservationResults } from "./reservation-results"
@@ -17,77 +17,76 @@ import { useReservationSearch } from "./use-reservation-search"
 
 export function ReservationSearch({ filters }: { filters: ReservationSearchFilters }) {
   const t = useTranslations("searchPage")
-  const { locale } = useAppLocale()
-  const zh = locale === "zh-CN"
   const { catalog, result, loading, error, catalogError, retry } = useReservationSearch(filters)
 
   return (
-    <NeoPage>
-      <main id="main-content" className="internal-main booking-list-page">
-        <div className="list-layout">
-          <aside className="booking-sidebar">
-            <div className="booking-sidebar__intro">
-              <strong>{t("filtersTitle")}</strong>
-              <span>{t("filtersDescription")}</span>
-            </div>
-            {catalogError && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  {zh
-                    ? "场地筛选暂时无法加载，仍可按关键词查询。"
-                    : "Room filters are unavailable. Keyword search still works."}
-                </AlertDescription>
-                <Button variant="outline" onClick={retry}>
-                  {zh ? "重新加载" : "Retry"}
-                </Button>
-              </Alert>
-            )}
+    <AppShell>
+      <PageHeader
+        title={t("title")}
+        actions={
+          loading ? null : (
+            <span className="text-sm whitespace-nowrap text-muted-foreground tabular-nums">
+              {t("total", { count: result.total })}
+            </span>
+          )
+        }
+      />
+
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[17.5rem_minmax(0,1fr)] lg:items-start">
+        <div className="min-w-0 lg:sticky lg:top-20">
+          {/* The only boxed surface on the page: the panel the user acts on. */}
+          <SectionCard title={t("filtersTitle")} contentClassName="min-w-0">
+            {catalogError ? (
+              <div className="mb-4">
+                <ErrorState
+                  title={t("catalogErrorTitle")}
+                  description={t("catalogErrorDescription")}
+                  retryLabel={t("reloadCatalog")}
+                  onRetry={retry}
+                />
+              </div>
+            ) : null}
             <ReservationSearchFilterForm
               key={reservationSearchHref(filters, filters.page)}
               catalog={catalog}
               filters={filters}
             />
-          </aside>
-          <section className="booking-list-content">
-            <div className="page-title-row">
-              <div>
-                <h1>{t("title")}</h1>
-              </div>
-            </div>
-            {error ? (
-              <Alert variant="destructive">
-                <AlertTitle>{zh ? "预约暂时无法加载" : "Bookings could not be loaded"}</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-                <Button variant="outline" onClick={retry}>
-                  {zh ? "重试" : "Retry"}
-                </Button>
-              </Alert>
-            ) : (
-              <SearchContent
-                loading={loading}
-                reservations={result.reservations}
-                sort={filters.sort}
-              />
-            )}
-            {!loading && !error ? (
-              <div className="list-pagination">
-                <div className="list-pagination__summary">
-                  <span>{t("total", { count: result.total })}</span>
-                  <span>{t("page", { page: filters.page + 1 })}</span>
-                </div>
-                <ReservationSearchPagination
-                  filters={filters}
-                  totalReservations={result.total}
-                  previousLabel={t("previous")}
-                  nextLabel={t("next")}
-                />
-              </div>
-            ) : null}
-          </section>
+          </SectionCard>
         </div>
-      </main>
-      <NeoFooter />
-    </NeoPage>
+
+        <div className="flex min-w-0 flex-col gap-4">
+          {error ? (
+            <ErrorState
+              title={t("errorTitle")}
+              description={error}
+              retryLabel={t("retry")}
+              onRetry={retry}
+            />
+          ) : (
+            <SearchContent
+              loading={loading}
+              reservations={result.reservations}
+              sort={filters.sort}
+            />
+          )}
+
+          {!loading && !error ? (
+            <div className="flex min-w-0 flex-col gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span className="tabular-nums">{t("total", { count: result.total })}</span>
+                <span className="tabular-nums">{t("page", { page: filters.page + 1 })}</span>
+              </div>
+              <ReservationSearchPagination
+                filters={filters}
+                totalReservations={result.total}
+                previousLabel={t("previous")}
+                nextLabel={t("next")}
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </AppShell>
   )
 }
 
@@ -102,22 +101,15 @@ function SearchContent({
 }) {
   const t = useTranslations("searchPage")
 
-  if (loading) {
-    return (
-      <p className="flex items-center gap-2 py-5 text-sm text-muted-foreground" aria-live="polite">
-        <Spinner />
-        {t("loading")}
-      </p>
-    )
-  }
-  if (reservations.length) {
-    return <ReservationResults reservations={reservations} sort={sort} />
-  }
+  if (loading) return <LoadingState rows={6} />
 
   return (
-    <section className="py-16">
-      <p className="font-medium">{t("emptyTitle")}</p>
-      <p className="mt-2 text-sm text-muted-foreground">{t("emptyDescription")}</p>
-    </section>
+    <div className="t-reveal">
+      {reservations.length ? (
+        <ReservationResults reservations={reservations} sort={sort} />
+      ) : (
+        <EmptyState icon={SearchX} title={t("emptyTitle")} description={t("emptyDescription")} />
+      )}
+    </div>
   )
 }

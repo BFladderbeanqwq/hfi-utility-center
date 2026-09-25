@@ -1,18 +1,28 @@
 "use client"
 
-import { useEffect, useState, type FormEvent } from "react"
+import { Fragment, useEffect, useState, type FormEvent } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { AlertCircle, ArrowLeft, ArrowRight, Check, RefreshCw } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 
+import { AppShell } from "@/components/layout/app-shell"
+import { ErrorState, LoadingState } from "@/components/layout/data-state"
+import { PageHeader } from "@/components/layout/page-header"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { getAdminSession, type AdminSession } from "@/lib/api/auth"
 import { getCatalog } from "@/lib/api/catalog"
 import { createReservation, forceReservation, getAvailability } from "@/lib/api/reservations"
 import type { CatalogData } from "@/lib/api/types"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
-import { ActionButton, NeoFooter, NeoHeader } from "@/components/neo/shared"
 
 import {
   bookingSteps,
@@ -52,8 +62,21 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState<string>()
   const [catalogReloadKey, setCatalogReloadKey] = useState(0)
+  const [stepDirection, setStepDirection] = useState<"forward" | "back">("forward")
+  const [hasSlid, setHasSlid] = useState(false)
   const currentStepIndex = bookingSteps.findIndex((step) => step.id === currentStepId)
   const currentStep = bookingSteps[currentStepIndex]
+
+  // The step body is keyed on the step id, so navigating remounts it and the
+  // slide plays on that mount. `hasSlid` is the first-paint guard: the step a
+  // user lands on has no previous screen to slide from.
+  function goToStep(nextStepId: BookingStepId) {
+    const nextIndex = bookingSteps.findIndex((step) => step.id === nextStepId)
+    setStepDirection(nextIndex >= currentStepIndex ? "forward" : "back")
+    setHasSlid(true)
+    setCurrentStepId(nextStepId)
+  }
+
   const stepTitles = {
     class: t("classTitle"),
     location: t("locationTitle"),
@@ -91,9 +114,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
         }
       } catch (error) {
         if (active) {
-          setCatalogError(
-            error instanceof Error ? error.message : "无法连接预约服务，请检查网络后重试。",
-          )
+          setCatalogError(error instanceof Error ? error.message : t("connectionError"))
         }
       } finally {
         if (active) setCatalogLoading(false)
@@ -104,7 +125,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
     return () => {
       active = false
     }
-  }, [adminT, catalogReloadKey, form, isForce])
+  }, [adminT, catalogReloadKey, form, isForce, t])
 
   async function selectedTimeIsStillAvailable(values: ReservationFormValues) {
     if (!catalog) return false
@@ -132,7 +153,9 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
     const valid = await form.trigger([...currentStep.fields], {
       shouldFocus: true,
     })
-    if (!valid) return
+    if (!valid) {
+      return
+    }
 
     if (currentStep.id === "dateTime") {
       setIsWorking(true)
@@ -149,7 +172,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
     const nextStep = bookingSteps[currentStepIndex + 1]
     if (!nextStep) return
     setFlowError(undefined)
-    setCurrentStepId(nextStep.id)
+    goToStep(nextStep.id)
   }
 
   async function confirmReservation(values: ReservationFormValues) {
@@ -158,7 +181,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
 
     try {
       if (!(await selectedTimeIsStillAvailable(values))) {
-        setCurrentStepId("dateTime")
+        goToStep("dateTime")
         return
       }
 
@@ -209,7 +232,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
     const previousStep = bookingSteps[currentStepIndex - 1]
     if (!previousStep) return
     setFlowError(undefined)
-    setCurrentStepId(previousStep.id)
+    goToStep(previousStep.id)
   }
 
   function resetReservation() {
@@ -219,7 +242,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
         ? forceReservationDefaults(priorityClass.id, adminSession)
         : reservationDefaults,
     )
-    setCurrentStepId("class")
+    goToStep("class")
     setResult(undefined)
     setFlowError(undefined)
   }
@@ -227,63 +250,51 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   if (catalogLoading) {
     if (isForce) {
       return (
-        <div className="admin-dashboard-loading">
-          <Spinner />
-          {adminT("forceLoading")}
+        <div className="flex min-h-40 items-center justify-center">
+          <LoadingState label={adminT("forceLoading")} />
         </div>
       )
     }
     return (
-      <div className="app-page app-page--light">
-        <NeoHeader />
-        <main id="main-content" className="neo-load-state">
-          <Spinner className="size-8" />
-          <strong>正在载入预约资源</strong>
-        </main>
-      </div>
+      <AppShell>
+        <PageHeader title={t("loadingTitle")} />
+        <LoadingState rows={5} />
+      </AppShell>
     )
   }
 
   if (catalogError || !catalog) {
     if (isForce) {
       return (
-        <div className="neo-load-state neo-load-state--error">
-          <AlertCircle size={30} />
-          <strong>{adminT("forceLoadError")}</strong>
-          <span>{catalogError}</span>
-          <ActionButton onClick={() => setCatalogReloadKey((key) => key + 1)}>
-            <RefreshCw />
-            {common("retry")}
-          </ActionButton>
+        <div className="flex min-w-0 flex-col gap-3">
+          <ErrorState
+            title={adminT("forceLoadError")}
+            description={catalogError}
+            onRetry={() => setCatalogReloadKey((key) => key + 1)}
+          />
         </div>
       )
     }
     return (
-      <div className="app-page app-page--light">
-        <NeoHeader />
-        <main className="neo-load-state neo-load-state--error">
-          <AlertCircle size={30} />
-          <strong>预约服务暂时无法连接</strong>
-          <span>{catalogError}</span>
-          <ActionButton onClick={() => setCatalogReloadKey((key) => key + 1)}>
-            <RefreshCw />
-            重新加载
-          </ActionButton>
-        </main>
-        <NeoFooter />
-      </div>
+      <AppShell>
+        <PageHeader title={t("loadError")} />
+        <ErrorState
+          description={catalogError ?? t("connectionError")}
+          onRetry={() => setCatalogReloadKey((key) => key + 1)}
+        />
+      </AppShell>
     )
   }
 
   if (result) {
+    if (isForce) {
+      return <SuccessStep {...result} adminForce onReset={resetReservation} />
+    }
     return (
-      <div className={isForce ? "admin-force-booking" : "app-page app-page--light"}>
-        {!isForce ? <NeoHeader /> : null}
-        <main className="success-shell">
-          <SuccessStep {...result} adminForce={isForce} onReset={resetReservation} />
-        </main>
-        {!isForce ? <NeoFooter /> : null}
-      </div>
+      <AppShell>
+        <PageHeader title={t("success")} description={t("successDescription")} />
+        <SuccessStep {...result} onReset={resetReservation} />
+      </AppShell>
     )
   }
 
@@ -295,104 +306,143 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
     review: <ReviewStep catalog={catalog} />,
   }
 
-  return (
-    <div className={isForce ? "admin-force-booking" : "app-page app-page--light"}>
-      {!isForce ? <NeoHeader /> : null}
-      <FormProvider {...form}>
-        <form
-          id="main-content"
-          noValidate
-          onSubmit={handleFormSubmit}
-          className="internal-main wizard-page"
-        >
-          <div className="wizard-card">
-            <header className="wizard-title-row">
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                <h1>{isForce ? adminT("forceReservationTitle") : t("createTitle")}</h1>
-              </div>
-              <p className="wizard-count">
-                {t("step", {
-                  current: currentStepIndex + 1,
-                  total: bookingSteps.length,
-                })}
-              </p>
-            </header>
-            <div className="booking-stepper" aria-label={t("progress")}>
-              {bookingSteps.map((step, index) => (
-                <div className="stepper-item-wrap" key={step.id}>
-                  <button
+  const stepper = (
+    <Breadcrumb className="mb-4 min-w-0">
+      <BreadcrumbList className="min-w-0 flex-wrap gap-y-1">
+        {bookingSteps.map((step, index) => {
+          const complete = index < currentStepIndex
+          const current = index === currentStepIndex
+          return (
+            <Fragment key={step.id}>
+              <BreadcrumbItem>
+                {complete ? (
+                  <Button
                     type="button"
-                    disabled={index > currentStepIndex || isWorking}
-                    aria-label={stepTitles[step.id]}
-                    aria-current={index === currentStepIndex ? "step" : undefined}
-                    className={`stepper-item ${index < currentStepIndex ? "stepper-item--complete" : ""} ${index === currentStepIndex ? "stepper-item--active" : ""}`}
-                    onClick={() => index <= currentStepIndex && setCurrentStepId(step.id)}
+                    variant="ghost"
+                    size="xs"
+                    disabled={isWorking}
+                    onClick={() => goToStep(step.id)}
+                    className="min-h-8 gap-1.5 rounded-md px-1.5 text-xs"
                   >
-                    <span className="stepper-item__number">
-                      {index < currentStepIndex ? <Check size={14} /> : index + 1}
+                    <Check aria-hidden className="size-3.5 text-success" />
+                    <span className="hidden sm:inline">{stepTitles[step.id]}</span>
+                    <span className="sr-only sm:hidden">
+                      {stepTitles[step.id]} {index + 1}
                     </span>
-                    <span className="stepper-item__label">{stepTitles[step.id]}</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="wizard-step-body">{stepContent[currentStep.id]}</div>
-            <div className="wizard-actions">
-              <div className="flex items-center gap-3">
-                {flowError ? (
-                  <p className="hidden max-w-md text-right text-sm text-destructive sm:block">
-                    {flowError}
-                  </p>
-                ) : null}
-              </div>
-              <div className="wizard-action-controls">
-                <ActionButton
-                  className="wizard-nav-button"
-                  icon={<ArrowLeft size={16} />}
-                  ariaLabel={common("back")}
-                  variant="secondary"
-                  disabled={currentStepIndex === 0 || isWorking}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    returnToPreviousStep()
-                  }}
-                >
-                  {common("back")}
-                </ActionButton>
-                {currentStep.id === "review" ? (
-                  <ActionButton
-                    ariaLabel={t("confirmReservation")}
-                    type="submit"
-                    disabled={isWorking}
+                  </Button>
+                ) : current ? (
+                  <BreadcrumbPage
+                    aria-current="step"
+                    className="flex min-h-8 items-center gap-1.5 px-1.5 text-xs font-medium text-foreground"
                   >
-                    {isWorking ? <Spinner /> : null}
-                    {isForce ? adminT("forceConfirm") : t("confirmReservation")}
-                  </ActionButton>
+                    <span className="tabular-nums">{index + 1}</span>
+                    <span className="hidden sm:inline">{stepTitles[step.id]}</span>
+                    <span className="sr-only sm:hidden">{stepTitles[step.id]}</span>
+                  </BreadcrumbPage>
                 ) : (
-                  <ActionButton
-                    className="wizard-nav-button"
-                    icon={isWorking ? <Spinner /> : undefined}
-                    endContent={isWorking ? undefined : <ArrowRight size={16} />}
-                    ariaLabel={common("next")}
-                    disabled={isWorking}
-                    onClick={(event) => {
-                      event.preventDefault()
-                      void continueToNextStep()
-                    }}
+                  <span
+                    aria-hidden
+                    className="flex min-h-8 items-center gap-1.5 px-1.5 text-xs text-muted-foreground/70"
                   >
-                    {common("next")}
-                  </ActionButton>
+                    <span className="tabular-nums">{index + 1}</span>
+                    <span className="hidden sm:inline">{stepTitles[step.id]}</span>
+                  </span>
                 )}
-              </div>
-            </div>
-            {flowError ? (
-              <p className="pb-3 text-sm text-destructive sm:hidden">{flowError}</p>
-            ) : null}
+              </BreadcrumbItem>
+              {index < bookingSteps.length - 1 ? <BreadcrumbSeparator /> : null}
+            </Fragment>
+          )
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
+
+  const actionBar = (
+    <div className="sticky bottom-0 z-20 -mx-4 mt-4 flex min-w-0 flex-wrap items-center gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:justify-end sm:px-6 lg:-mx-8 lg:px-8">
+      {flowError ? (
+        <p className="order-last w-full min-w-0 text-sm break-words text-destructive">
+          {flowError}
+        </p>
+      ) : null}
+      <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={currentStepIndex === 0 || isWorking}
+          onClick={returnToPreviousStep}
+          className="min-h-11 flex-1 sm:min-h-8 sm:flex-none"
+        >
+          <ArrowLeft aria-hidden />
+          {common("back")}
+        </Button>
+        {currentStep.id === "review" ? (
+          <Button
+            type="submit"
+            disabled={isWorking}
+            className="min-h-11 flex-1 sm:min-h-8 sm:flex-none"
+          >
+            {isWorking ? <Spinner /> : null}
+            {isForce ? adminT("forceConfirm") : t("confirmReservation")}
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            disabled={isWorking}
+            onClick={() => void continueToNextStep()}
+            className="min-h-11 flex-1 sm:min-h-8 sm:flex-none"
+          >
+            {isWorking ? <Spinner /> : null}
+            {common("next")}
+            {isWorking ? null : <ArrowRight aria-hidden />}
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+
+  if (isForce) {
+    return (
+      <FormProvider {...form}>
+        <form noValidate onSubmit={handleFormSubmit} className="flex min-w-0 flex-col gap-4">
+          {stepper}
+          <div
+            key={currentStep.id}
+            data-direction={stepDirection}
+            data-animate={hasSlid ? "" : undefined}
+            className="t-page-slide min-w-0"
+          >
+            {stepContent[currentStep.id]}
           </div>
+          {actionBar}
         </form>
       </FormProvider>
-      {!isForce ? <NeoFooter /> : null}
-    </div>
+    )
+  }
+
+  return (
+    <AppShell>
+      <PageHeader
+        title={t("createTitle")}
+        description={t("step", {
+          current: currentStepIndex + 1,
+          total: bookingSteps.length,
+        })}
+      />
+      <FormProvider {...form}>
+        <form noValidate onSubmit={handleFormSubmit} className="min-w-0">
+          {stepper}
+          <div
+            key={currentStep.id}
+            data-direction={stepDirection}
+            data-animate={hasSlid ? "" : undefined}
+            className="t-page-slide min-w-0"
+          >
+            {stepContent[currentStep.id]}
+          </div>
+          {actionBar}
+        </form>
+      </FormProvider>
+    </AppShell>
   )
 }
 

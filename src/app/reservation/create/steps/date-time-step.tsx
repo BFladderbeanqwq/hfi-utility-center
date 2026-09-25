@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { enUS, zhCN } from "date-fns/locale"
-import { RefreshCw } from "lucide-react"
+import { CalendarDays, RefreshCw } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { Controller, useController, useFormContext, useWatch } from "react-hook-form"
 
@@ -13,7 +13,10 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Spinner } from "@/components/ui/spinner"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { dateToInputValue, inputValueToDate } from "@/lib/date-time"
 import type { Room } from "@/lib/api/types"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
@@ -39,6 +42,7 @@ export function DateTimeStep({
   const t = useTranslations("booking")
   const locale = useLocale()
   const { clearErrors, control, getValues, setValue } = useFormContext<ReservationFormValues>()
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const [roomId, date] = useWatch({
     control,
     name: ["room", "date"],
@@ -61,6 +65,16 @@ export function DateTimeStep({
   })
   const today = useMemo(() => startOfToday(), [])
   const maximumDate = useMemo(() => addDays(today, 30), [today])
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      }),
+    [locale],
+  )
   const timeFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
@@ -137,6 +151,7 @@ export function DateTimeStep({
     clearError()
     clearSelectedRange()
     onChange(dateToInputValue(selected))
+    setCalendarOpen(false)
   }
 
   function formatTime(value: number) {
@@ -155,84 +170,105 @@ export function DateTimeStep({
 
   return (
     <StepLayout title={t("dateTimeTitle")} error={error}>
-      <div className="datetime-card">
-        <div className="datetime-card__calendar">
-          <Controller
-            control={control}
-            name="date"
-            render={({ field, fieldState }) => (
-              <FieldSet className="gap-4" data-invalid={fieldState.invalid}>
-                <div className="panel-heading">
-                  <div>
-                    <FieldLegend variant="label">{t("dateTitle")}</FieldLegend>
-                    <FieldDescription>{t("dateDescription")}</FieldDescription>
-                  </div>
-                </div>
-                <FieldGroup>
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        <Controller
+          control={control}
+          name="date"
+          render={({ field, fieldState }) => (
+            <FieldSet className="min-w-0 content-start gap-3" data-invalid={fieldState.invalid}>
+              <div className="min-w-0">
+                <FieldLegend variant="label">{t("dateTitle")}</FieldLegend>
+                <FieldDescription>{t("dateDescription")}</FieldDescription>
+              </div>
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11 w-full justify-start font-normal sm:min-h-8"
+                    aria-invalid={fieldState.invalid}
+                    aria-label={t("dateTitle")}
+                  >
+                    <CalendarDays aria-hidden />
+                    <span className="min-w-0 truncate">
+                      {field.value
+                        ? dateFormatter.format(inputValueToDate(field.value) ?? new Date())
+                        : t("dateTitle")}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    className="booking-calendar"
                     mode="single"
                     showOutsideDays
                     locale={locale === "zh-CN" ? zhCN : enUS}
-                    selected={inputValueToDate(field.value)}
-                    defaultMonth={inputValueToDate(field.value) ?? today}
-                    startMonth={today}
                     endMonth={maximumDate}
                     disabled={{ before: today, after: maximumDate }}
-                    aria-invalid={fieldState.invalid}
                     onSelect={(selected) => selectDate(selected, field.onChange)}
                   />
-                </FieldGroup>
-                <FieldError errors={[fieldState.error]} />
-              </FieldSet>
-            )}
-          />
-        </div>
+                </PopoverContent>
+              </Popover>
+              <FieldError errors={[fieldState.error]} />
+            </FieldSet>
+          )}
+        />
 
         {date ? (
           <FieldSet
-            className="datetime-card__time min-w-0 gap-4"
+            className="min-w-0 gap-3"
             data-invalid={startTimeState.invalid || endTimeState.invalid}
           >
-            <div className="panel-heading datetime-panel-heading">
-              <div>
+            <div className="flex min-w-0 items-start justify-between gap-2">
+              <div className="min-w-0">
                 <FieldLegend variant="label">{t("timeRange")}</FieldLegend>
                 <FieldDescription>{selectedRangeLabel()}</FieldDescription>
               </div>
-              <Button
-                className="availability-refresh-button"
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={refresh}
-                title={t("refresh")}
-                aria-label={t("refresh")}
-                disabled={loading}
-              >
-                {loading ? <Spinner /> : <RefreshCw size={15} />}
-              </Button>
+              <TooltipProvider delayDuration={300}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={refresh}
+                      aria-label={t("refresh")}
+                      disabled={loading}
+                      className="size-11 shrink-0 sm:size-8"
+                    >
+                      {loading ? <Spinner /> : <RefreshCw aria-hidden />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t("refresh")}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
+
             <FieldGroup>
               {loading ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Spinner />
-                  {t("checking")}
+                <div
+                  className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5"
+                  aria-live="polite"
+                >
+                  <span className="sr-only">{t("checking")}</span>
+                  {Array.from({ length: 10 }, (_, index) => (
+                    <Skeleton key={index} className="h-11 w-full sm:h-8" />
+                  ))}
                 </div>
               ) : null}
 
               {availability && !loading ? (
                 <>
-                  <div className="neo-time-legend" aria-hidden="true">
-                    <span>
-                      <i className="neo-time-legend__available" />
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <span aria-hidden className="size-2 rounded-full bg-success" />
                       {t("available")}
                     </span>
-                    <span>
-                      <i className="neo-time-legend__occupied" />
+                    <span className="flex items-center gap-1.5">
+                      <span aria-hidden className="size-2 rounded-full bg-muted-foreground/40" />
                       {t("occupied")}
                     </span>
                   </div>
-                  <div className="neo-time-grid">
+                  <div className="grid min-w-0 grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
                     {visibleTimeOptions.map((option) => {
                       const selected = timeIsSelected(option.timestamp, startTime, endTime)
                       const selectable = timeCanBeSelected({
@@ -241,15 +277,20 @@ export function DateTimeStep({
                         startTime,
                         endTime,
                       })
+                      const occupied = option.status === "occupied" && !selectable
                       return (
                         <Button
                           type="button"
                           key={option.timestamp}
                           disabled={!selectable && !selected}
                           aria-pressed={selected}
-                          aria-label={`${formatTime(option.timestamp)}${option.status === "occupied" && !selectable ? `, ${t("occupied")}` : ""}`}
-                          variant={selected ? "default" : "outline"}
-                          className={`neo-time-cell ${option.status === "occupied" && !selectable ? "neo-time-cell--occupied" : ""} ${selected ? "neo-time-cell--selected" : ""}`}
+                          aria-label={`${formatTime(option.timestamp)}${occupied ? `, ${t("occupied")}` : ""}`}
+                          variant={selected ? "default" : occupied ? "ghost" : "outline"}
+                          className={
+                            occupied
+                              ? "min-h-11 text-muted-foreground line-through sm:min-h-8"
+                              : "min-h-11 font-mono text-xs tabular-nums sm:min-h-8"
+                          }
                           onClick={() => selectTime(option)}
                         >
                           {formatTime(option.timestamp)}

@@ -1,33 +1,33 @@
-import { AlertCircle } from "lucide-react"
+import type { ReactNode } from "react"
+import { CircleAlert } from "lucide-react"
+
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export function StepLayout({
   title,
   description,
   error,
-  hideHeader = false,
   children,
 }: {
   title: string
   description?: string
   error?: string
-  hideHeader?: boolean
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
-    <section aria-labelledby="step-title" className="wizard-step-full">
-      {hideHeader ? null : (
-        <header className="panel-heading">
-          <div>
-            <h2 id="step-title">{title}</h2>
-            {description ? <p>{description}</p> : null}
-          </div>
-        </header>
-      )}
+    <section aria-labelledby="step-title" className="flex min-w-0 flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-1">
+        <h2 id="step-title" className="text-base font-medium break-words">
+          {title}
+        </h2>
+        {description ? (
+          <p className="text-sm break-words text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
       {error ? (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle />
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive">
+          <CircleAlert aria-hidden />
+          <AlertDescription className="break-words">{error}</AlertDescription>
         </Alert>
       ) : null}
       {children}

@@ -1,12 +1,16 @@
-import { Check, DoorOpen } from "lucide-react"
+import { DoorOpen } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext, useWatch } from "react-hook-form"
 
-import { FieldError, FieldSet } from "@/components/ui/field"
+import { FieldError, FieldLegend, FieldSet } from "@/components/ui/field"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { CatalogData } from "@/lib/api/types"
 
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
+
+const TILE_GROUP =
+  "[&>[data-state=on]]:border-primary [&>[data-state=on]]:bg-primary/10 [&>[data-state=on]]:text-primary"
 
 export function LocationStep({ catalog }: { catalog: CatalogData }) {
   const t = useTranslations("booking")
@@ -25,25 +29,33 @@ export function LocationStep({ catalog }: { catalog: CatalogData }) {
         control={control}
         name="bookingCampusId"
         render={({ field, fieldState }) => (
-          <FieldSet className="gap-3" data-invalid={fieldState.invalid}>
-            <div className="campus-tabs">
+          <FieldSet className="min-w-0 gap-3" data-invalid={fieldState.invalid}>
+            <FieldLegend variant="label">{t("campus")}</FieldLegend>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              value={String(campusId)}
+              onValueChange={(value) => {
+                if (!value) return
+                field.onChange(Number(value))
+                setValue("room", 0)
+                clearSelectedTime()
+              }}
+              className={`flex w-full flex-wrap items-stretch gap-2 ${TILE_GROUP}`}
+            >
               {catalog.campuses
                 .filter((campus) => !campus.isPrivileged)
                 .map((campus) => (
-                  <button
+                  <ToggleGroupItem
                     type="button"
                     key={campus.id}
-                    className={`campus-tab ${field.value === campus.id ? "campus-tab--active" : ""}`}
-                    onClick={() => {
-                      field.onChange(campus.id)
-                      setValue("room", 0)
-                      clearSelectedTime()
-                    }}
+                    value={String(campus.id)}
+                    className="min-h-11 flex-1 sm:min-h-8"
                   >
                     {campus.name}
-                  </button>
+                  </ToggleGroupItem>
                 ))}
-            </div>
+            </ToggleGroup>
             <FieldError errors={[fieldState.error]} />
           </FieldSet>
         )}
@@ -54,37 +66,36 @@ export function LocationStep({ catalog }: { catalog: CatalogData }) {
           control={control}
           name="room"
           render={({ field, fieldState }) => (
-            <FieldSet className="mt-6 gap-3" data-invalid={fieldState.invalid}>
-              <div className="resource-heading">
-                <div>
-                  <h2>{t("rooms")}</h2>
-                </div>
-                <span className="resource-count">{rooms.length} 个可用空间</span>
-              </div>
-              <div className="room-grid">
+            <FieldSet className="mt-6 min-w-0 gap-3" data-invalid={fieldState.invalid}>
+              <FieldLegend variant="label">
+                {t("rooms")} · {t("availableRooms", { count: rooms.length })}
+              </FieldLegend>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={String(field.value)}
+                onValueChange={(value) => {
+                  if (!value) return
+                  field.onChange(Number(value))
+                  clearSelectedTime()
+                }}
+                aria-label={t("rooms")}
+                className={`grid w-full grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 ${TILE_GROUP}`}
+              >
                 {rooms.map((room) => (
-                  <button
-                    type="button"
+                  <ToggleGroupItem
                     key={room.id}
-                    className={`room-card ${field.value === room.id ? "room-card--selected" : ""}`}
-                    onClick={() => {
-                      field.onChange(room.id)
-                      clearSelectedTime()
-                    }}
+                    value={String(room.id)}
+                    className="min-h-11 min-w-0 justify-start gap-2 px-3 sm:min-h-12"
                   >
-                    <span className="room-card__icon">
-                      <DoorOpen size={18} />
-                    </span>
-                    <strong>{room.name}</strong>
-                    {field.value === room.id ? (
-                      <span className="room-card__check">
-                        <Check size={13} />
-                      </span>
-                    ) : null}
-                  </button>
+                    <DoorOpen aria-hidden className="size-4 shrink-0 opacity-70" />
+                    <span className="truncate">{room.name}</span>
+                  </ToggleGroupItem>
                 ))}
-              </div>
-              {!rooms.length ? <p>{t("roomEmpty")}</p> : null}
+              </ToggleGroup>
+              {!rooms.length ? (
+                <p className="text-sm text-muted-foreground">{t("roomEmpty")}</p>
+              ) : null}
               <FieldError errors={[fieldState.error]} />
             </FieldSet>
           )}

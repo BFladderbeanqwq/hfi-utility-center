@@ -3,18 +3,42 @@
 import { useMemo, useState } from "react"
 import { format } from "date-fns"
 import { enUS, zhCN } from "date-fns/locale"
-import { CalendarDays, Clock3, DoorOpen, MapPin, Search } from "lucide-react"
+import { CalendarDays, RotateCcw, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { Controller, useForm, useWatch, type SubmitHandler } from "react-hook-form"
 import type { DateRange } from "react-day-picker"
 
 import { Calendar } from "@/components/ui/calendar"
-import { Field, FieldLabel } from "@/components/ui/field"
-import type { CatalogData } from "@/lib/api/types"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend } from "@/components/ui/field"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import type { CatalogData, ReservationStatus } from "@/lib/api/types"
 import { inputValueToDate } from "@/lib/date-time"
 
 import { reservationSearchHref, type ReservationSearchFilters } from "./search-query"
+
+const ALL = "all"
+
+const STATUSES = [
+  "pending",
+  "approved",
+  "rejected",
+] as const satisfies ReadonlyArray<ReservationStatus>
+
+// Finger-sized controls on phones, compact rows on desktop.
+const CONTROL = "w-full min-h-11 sm:min-h-8"
 
 type SearchFormValues = {
   keyword: string
@@ -22,6 +46,7 @@ type SearchFormValues = {
   room: string
   dateRange?: DateRange
   sort: "time" | "sequence"
+  status: ReservationStatus | typeof ALL
 }
 
 export function ReservationSearchFilterForm({
@@ -33,26 +58,45 @@ export function ReservationSearchFilterForm({
 }) {
   const router = useRouter()
   const t = useTranslations("searchPage")
+  const statusT = useTranslations("status")
   const common = useTranslations("common")
   const [calendarOpen, setCalendarOpen] = useState(false)
   const dateLocale = useLocale() === "zh-CN" ? zhCN : enUS
-  const { control, handleSubmit, setValue } = useForm<SearchFormValues>({
+  const { control, handleSubmit } = useForm<SearchFormValues>({
     defaultValues: {
       keyword: filters.keyword,
-      campus: filters.campusId ? String(filters.campusId) : "all",
-      room: filters.roomId ? String(filters.roomId) : "all",
+      campus: filters.campusId ? String(filters.campusId) : ALL,
+      room: filters.roomId ? String(filters.roomId) : ALL,
       dateRange: {
         from: inputValueToDate(filters.startDate),
         to: inputValueToDate(filters.endDate),
       },
       sort: filters.sort,
+      status: filters.status ?? ALL,
     },
   })
   const campusId = useWatch({ control, name: "campus" })
   const visibleRooms = useMemo(
     () =>
-      catalog?.rooms.filter((room) => campusId === "all" || room.campus === Number(campusId)) ?? [],
+      catalog?.rooms.filter((room) => campusId === ALL || room.campus === Number(campusId)) ?? [],
     [campusId, catalog],
+  )
+  const campuses = useMemo(
+    () => [
+      { value: ALL, label: t("allCampuses") },
+      ...(catalog?.campuses
+        .filter((campus) => !campus.isPrivileged)
+        .map((campus) => ({
+          value: String(campus.id),
+          label:
+            campus.name === "Shipai Campus"
+              ? t("shipaiCampus")
+              : campus.name === "Knowledge City Campus"
+                ? t("knowledgeCityCampus")
+                : campus.name,
+        })) ?? []),
+    ],
+    [catalog, t],
   )
 
   const onSubmit: SubmitHandler<SearchFormValues> = (values) => {
@@ -63,9 +107,9 @@ export function ReservationSearchFilterForm({
       reservationSearchHref(
         {
           keyword: values.keyword.trim(),
-          campusId: values.campus === "all" ? 0 : Number(values.campus),
-          roomId: values.room === "all" ? 0 : Number(values.room),
-          status: undefined,
+          campusId: values.campus === ALL ? 0 : Number(values.campus),
+          roomId: values.room === ALL ? 0 : Number(values.room),
+          status: values.status === ALL ? undefined : values.status,
           startDate,
           endDate,
           page: 0,
@@ -77,222 +121,198 @@ export function ReservationSearchFilterForm({
   }
 
   return (
-    <form className="neo-filter-form" onSubmit={handleSubmit(onSubmit)}>
-      <div className="filter-group">
-        <div className="filter-heading">
-          <Search size={15} />
-          <span>{t("keywordLabel")}</span>
-        </div>
-        <Controller
-          control={control}
-          name="keyword"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel className="sr-only" htmlFor={field.name}>
-                {t("keyword")}
-              </FieldLabel>
-              <label className="sidebar-search-control">
-                <Search size={15} aria-hidden="true" />
-                <input
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="search-keyword">{t("keywordLabel")}</FieldLabel>
+          <Controller
+            control={control}
+            name="keyword"
+            render={({ field }) => (
+              <InputGroup className="[&_[data-slot=input-group]]:h-11 sm:[&_[data-slot=input-group]]:h-8">
+                <InputGroupAddon>
+                  <Search aria-hidden />
+                </InputGroupAddon>
+                <InputGroupInput
                   {...field}
-                  id={field.name}
+                  id="search-keyword"
+                  type="search"
+                  autoComplete="off"
+                  maxLength={100}
                   placeholder={t("keyword")}
-                  aria-invalid={fieldState.invalid}
                 />
-              </label>
-            </Field>
-          )}
-        />
-      </div>
+              </InputGroup>
+            )}
+          />
+        </Field>
 
-      <div className="filter-group">
-        <div className="filter-heading">
-          <MapPin size={15} />
-          <span>{t("campusFilter")}</span>
-        </div>
-        <Controller
-          control={control}
-          name="campus"
-          render={({ field }) => (
-            <div className="filter-status-list">
-              {[
-                { value: "all", label: t("allCampuses") },
-                ...(catalog?.campuses
-                  .filter((campus) => !campus.isPrivileged)
-                  .map((campus) => ({
-                    value: String(campus.id),
-                    label:
-                      campus.name === "Shipai Campus"
-                        ? t("shipaiCampus")
-                        : campus.name === "Knowledge City Campus"
-                          ? t("knowledgeCityCampus")
-                          : campus.name,
-                  })) ?? []),
-              ].map((campus) => (
-                <button
-                  key={campus.value}
-                  type="button"
-                  className={`filter-button ${field.value === campus.value ? "filter-button--active" : ""}`}
-                  onClick={() => {
-                    field.onChange(campus.value)
-                    setValue("room", "all")
-                    void handleSubmit((values) =>
-                      onSubmit({
-                        ...values,
-                        campus: campus.value,
-                        room: "all",
-                      }),
-                    )()
-                  }}
+        <Field>
+          <FieldLabel htmlFor="search-campus">{t("campusFilter")}</FieldLabel>
+          <Controller
+            control={control}
+            name="campus"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger
+                  id="search-campus"
+                  className={CONTROL}
+                  aria-label={t("campusFilter")}
                 >
-                  {campus.label}
-                </button>
-              ))}
-            </div>
-          )}
-        />
-      </div>
+                  <SelectValue placeholder={t("allCampuses")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {campuses.map((campus) => (
+                    <SelectItem key={campus.value} value={campus.value}>
+                      {campus.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
 
-      <div className="filter-group">
-        <div className="filter-heading">
-          <CalendarDays size={15} />
-          <span>{t("dateFilter")}</span>
-        </div>
-        <Controller
-          control={control}
-          name="dateRange"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel className="sr-only" htmlFor={field.name}>
-                {t("dateRange")}
-              </FieldLabel>
-              <button
-                id={field.name}
-                name={field.name}
-                ref={field.ref}
-                type="button"
-                className="neo-filter-control"
-                onBlur={field.onBlur}
-                onClick={() => setCalendarOpen((open) => !open)}
-                aria-expanded={calendarOpen}
-              >
-                <CalendarDays />
-                <DateRangeLabel
-                  range={field.value}
-                  locale={dateLocale}
-                  placeholder={t("dateRange")}
-                />
-              </button>
-              {calendarOpen ? (
-                <div className="sidebar-date-calendar">
+        <Field>
+          <FieldLabel htmlFor="search-date-range">{t("dateFilter")}</FieldLabel>
+          <Controller
+            control={control}
+            name="dateRange"
+            render={({ field }) => (
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="search-date-range"
+                    type="button"
+                    variant="outline"
+                    className={`${CONTROL} justify-start font-normal`}
+                    aria-expanded={calendarOpen}
+                  >
+                    <CalendarDays aria-hidden />
+                    <DateRangeLabel
+                      range={field.value}
+                      locale={dateLocale}
+                      placeholder={t("dateRange")}
+                    />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    className="booking-calendar"
-                    classNames={{
-                      month: "booking-calendar__month",
-                      month_caption: "booking-calendar__caption",
-                      caption_label: "booking-calendar__caption-label",
-                      nav: "booking-calendar__nav",
-                      button_previous: "booking-calendar__previous",
-                      button_next: "booking-calendar__next",
-                      month_grid: "booking-calendar__grid",
-                      weekdays: "booking-calendar__weekdays",
-                      weekday: "booking-calendar__weekday",
-                      week: "booking-calendar__week",
-                      day: "booking-calendar__day",
-                      day_button: "booking-calendar__day-button",
-                      selected: "booking-calendar__selected",
-                      range_start: "booking-calendar__range-start",
-                      range_middle: "booking-calendar__range-middle",
-                      range_end: "booking-calendar__range-end",
-                      outside: "booking-calendar__outside",
-                      disabled: "booking-calendar__disabled",
-                      today: "booking-calendar__today",
-                    }}
                     mode="range"
                     selected={field.value}
                     onSelect={field.onChange}
                     locale={dateLocale}
                   />
-                </div>
-              ) : null}
-            </Field>
-          )}
-        />
-        <span className="filter-help">{t("dateHelp")}</span>
-      </div>
+                </PopoverContent>
+              </Popover>
+            )}
+          />
+        </Field>
 
-      <div className="filter-group">
-        <div className="filter-heading">
-          <Clock3 size={15} />
-          <span>{t("sortFilter")}</span>
-        </div>
-        <Controller
-          control={control}
-          name="sort"
-          render={({ field }) => (
-            <div className="filter-status-list">
-              <button
-                type="button"
-                className={`filter-button ${field.value === "time" ? "filter-button--active" : ""}`}
-                onClick={() => {
-                  field.onChange("time")
-                  void handleSubmit((values) => onSubmit({ ...values, sort: "time" }))()
-                }}
-              >
-                {t("sortByReservation")}
-              </button>
-              <button
-                type="button"
-                className={`filter-button ${field.value === "sequence" ? "filter-button--active" : ""}`}
-                onClick={() => {
-                  field.onChange("sequence")
-                  void handleSubmit((values) => onSubmit({ ...values, sort: "sequence" }))()
-                }}
-              >
-                {t("sortBySequence")}
-              </button>
-            </div>
-          )}
-        />
-      </div>
+        <Field>
+          <FieldLabel htmlFor="search-sort-time">{t("sortFilter")}</FieldLabel>
+          <Controller
+            control={control}
+            name="sort"
+            render={({ field }) => (
+              <RadioGroup value={field.value} onValueChange={field.onChange} className="gap-1.5">
+                <Field orientation="horizontal" className="min-h-11 sm:min-h-8">
+                  <RadioGroupItem value="time" id="search-sort-time" />
+                  <FieldLabel htmlFor="search-sort-time" className="font-normal">
+                    {t("sortByReservation")}
+                  </FieldLabel>
+                </Field>
+                <Field orientation="horizontal" className="min-h-11 sm:min-h-8">
+                  <RadioGroupItem value="sequence" id="search-sort-sequence" />
+                  <FieldLabel htmlFor="search-sort-sequence" className="font-normal">
+                    {t("sortBySequence")}
+                  </FieldLabel>
+                </Field>
+              </RadioGroup>
+            )}
+          />
+        </Field>
 
-      <div className="filter-group">
-        <div className="filter-heading">
-          <DoorOpen size={15} />
-          <span>{t("roomFilter")}</span>
-        </div>
-        <Controller
-          control={control}
-          name="room"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel className="sr-only" htmlFor={field.name}>
-                {t("allRooms")}
-              </FieldLabel>
-              <select
-                id={field.name}
-                name={field.name}
-                value={field.value}
-                onChange={(event) => field.onChange(event.target.value)}
-                aria-invalid={fieldState.invalid}
-                className="filter-native-select"
-              >
-                <option value="all">{t("allRooms")}</option>
-                {visibleRooms.map((room) => (
-                  <option key={room.id} value={String(room.id)}>
-                    {room.name}
-                  </option>
+        <Field>
+          <FieldLabel htmlFor="search-room">{t("roomFilter")}</FieldLabel>
+          <Controller
+            control={control}
+            name="room"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger id="search-room" className={CONTROL} aria-label={t("roomFilter")}>
+                  <SelectValue placeholder={t("allRooms")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL}>{t("allRooms")}</SelectItem>
+                  {visibleRooms.map((room) => (
+                    <SelectItem key={room.id} value={String(room.id)}>
+                      {room.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
+
+        <FieldSet>
+          <FieldLegend variant="label">{t("statusFilter")}</FieldLegend>
+          <Controller
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <div className="flex flex-col gap-1.5">
+                <Field orientation="horizontal" className="min-h-11 sm:min-h-8">
+                  <Checkbox
+                    id="search-status-all"
+                    checked={field.value === ALL}
+                    onCheckedChange={(checked) => field.onChange(checked ? ALL : undefined)}
+                  />
+                  <FieldLabel htmlFor="search-status-all" className="font-normal">
+                    {t("allStatuses")}
+                  </FieldLabel>
+                </Field>
+                {STATUSES.map((status) => (
+                  <Field key={status} orientation="horizontal" className="min-h-11 sm:min-h-8">
+                    <Checkbox
+                      id={`search-status-${status}`}
+                      checked={field.value === status}
+                      onCheckedChange={(checked) => field.onChange(checked ? status : ALL)}
+                    />
+                    <FieldLabel htmlFor={`search-status-${status}`} className="font-normal">
+                      {statusT(status)}
+                    </FieldLabel>
+                  </Field>
                 ))}
-              </select>
-            </Field>
-          )}
-        />
-      </div>
+              </div>
+            )}
+          />
+        </FieldSet>
 
-      <button type="submit" className="neo-filter-submit">
-        <Search size={15} aria-hidden="true" />
-        <span>{common("search")}</span>
-      </button>
+        <div className="flex items-center gap-2">
+          <Button type="submit" className="min-h-11 flex-1 sm:min-h-8">
+            <Search aria-hidden />
+            {common("search")}
+          </Button>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("reset")}
+                  className="size-11 shrink-0 sm:size-8"
+                  onClick={() => router.push("/reservation/search")}
+                >
+                  <RotateCcw aria-hidden />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("reset")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </FieldGroup>
     </form>
   )
 }
@@ -307,7 +327,7 @@ function DateRangeLabel({
   placeholder: string
 }) {
   if (!range?.from) {
-    return <span className="text-muted-foreground">{placeholder}</span>
+    return <span className="min-w-0 truncate text-muted-foreground">{placeholder}</span>
   }
   const start = format(range.from, "PP", { locale })
   if (!range.to) return start

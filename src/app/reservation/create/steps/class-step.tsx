@@ -1,14 +1,20 @@
 import { useMemo, useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Check } from "lucide-react"
+import { Check, Search } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useFormContext } from "react-hook-form"
 
 import { FieldError, FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { CatalogData } from "@/lib/api/types"
 
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
+
+// Selected tiles get their emphasis from the primitive's own `data-state=on`,
+// applied once on the group so every tile stays consistent.
+const TILE_GROUP =
+  "[&>[data-state=on]]:border-primary [&>[data-state=on]]:bg-primary/10 [&>[data-state=on]]:text-primary"
 
 export function ClassStep({
   catalog,
@@ -54,65 +60,79 @@ export function ClassStep({
 
   return (
     <StepLayout title={t("classTitle")}>
-      <div className="wizard-content-grid wizard-content-grid--step-one">
-        <FieldSet className="gap-3">
-          <FieldLegend variant="label">所属校区</FieldLegend>
-          <FieldGroup className="selection-stack">
-            {visibleCampuses.map((item) => {
-              const selected = item.id === campusId
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  aria-pressed={selected}
-                  onClick={() => selectCampus(item.id)}
-                  className={`selection-button ${selected ? "selection-button--selected" : ""}`}
-                >
-                  <span>{item.name}</span>
-                  {selected ? <Check /> : null}
-                </button>
-              )
-            })}
-          </FieldGroup>
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[14rem_minmax(0,1fr)]">
+        <FieldSet className="min-w-0 gap-3">
+          <FieldLegend variant="label">{t("campusLabel")}</FieldLegend>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={String(campusId)}
+            onValueChange={(value) => value && selectCampus(Number(value))}
+            className={`flex w-full flex-col items-stretch gap-2 ${TILE_GROUP}`}
+          >
+            {visibleCampuses.map((item) => (
+              <ToggleGroupItem
+                key={item.id}
+                value={String(item.id)}
+                className="min-h-11 justify-start sm:min-h-8"
+              >
+                {item.name}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
         </FieldSet>
+
         <Controller
           control={control}
           name="classId"
           render={({ field, fieldState }) => (
-            <FieldSet className="gap-3" data-invalid={fieldState.invalid}>
+            <FieldSet className="min-w-0 gap-3" data-invalid={fieldState.invalid}>
               <FieldLegend variant="label">{campus?.name ?? t("classTitle")}</FieldLegend>
-              <div>
-                <Input
-                  id="class-search"
-                  aria-label={t("classSearch")}
-                  name="class-search"
-                  autoComplete="off"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder={t("classSearch")}
-                />
-              </div>
-              <div className="class-grid" role="radiogroup" aria-label={t("classTitle")}>
+              <FieldGroup>
+                <InputGroup className="[&_[data-slot=input-group]]:h-11 sm:[&_[data-slot=input-group]]:h-8">
+                  <InputGroupAddon>
+                    <Search aria-hidden />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    id="class-search"
+                    name="class-search"
+                    type="search"
+                    autoComplete="off"
+                    aria-label={t("classSearch")}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder={t("classSearch")}
+                  />
+                </InputGroup>
+              </FieldGroup>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={String(field.value)}
+                onValueChange={(value) => {
+                  if (!value) return
+                  field.onChange(Number(value))
+                  setValue("isPrivileged", Boolean(campus?.isPrivileged), {
+                    shouldValidate: false,
+                  })
+                }}
+                aria-label={t("classTitle")}
+                className={`grid w-full grid-cols-2 gap-2 sm:grid-cols-3 ${TILE_GROUP}`}
+              >
                 {classes.map((item) => (
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={field.value === item.id}
-                    className={`selection-button ${field.value === item.id ? "selection-button--selected" : ""}`}
+                  <ToggleGroupItem
                     key={item.id}
-                    onClick={() => {
-                      field.onChange(item.id)
-                      setValue("isPrivileged", Boolean(campus?.isPrivileged), {
-                        shouldValidate: false,
-                      })
-                    }}
+                    value={String(item.id)}
+                    className="min-h-11 min-w-0 justify-start sm:min-h-8"
                   >
-                    {item.name}
-                    {field.value === item.id ? <Check size={14} /> : null}
-                  </button>
+                    <span className="truncate">{item.name}</span>
+                    {field.value === item.id ? <Check aria-hidden className="size-3.5" /> : null}
+                  </ToggleGroupItem>
                 ))}
-              </div>
-              {!classes.length ? <p>{t("classEmpty")}</p> : null}
+              </ToggleGroup>
+              {!classes.length ? (
+                <p className="text-sm text-muted-foreground">{t("classEmpty")}</p>
+              ) : null}
               <FieldError errors={[fieldState.error]} />
             </FieldSet>
           )}
