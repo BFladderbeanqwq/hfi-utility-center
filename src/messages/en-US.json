@@ -515,5 +515,21 @@
       "privacy": "Privacy",
       "support": "Support"
     }
+  },
+  "layout": {
+    "brand": "Utility Center",
+    "skipToContent": "Skip to content",
+    "mainNav": "Main navigation",
+    "mobileNav": "Menu",
+    "openMenu": "Open navigation",
+    "liveSchedule": "Live schedule",
+    "moreCampusTools": "More campus tools"
+  },
+  "states": {
+    "loading": "Loading…",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "The data could not be loaded. Please try again.",
+    "retry": "Retry",
+    "emptyTitle": "Nothing here yet"
   }
 }
