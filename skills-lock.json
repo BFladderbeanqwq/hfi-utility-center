@@ -19,71 +19,11 @@
       "skillPath": "cleanup-useeffect/SKILL.md",
       "computedHash": "3fa0f379beb932bfcbe8555b3726c15d3174e9768f085104106d7ee8cda215e6"
     },
-    "commit": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "commit/SKILL.md",
-      "computedHash": "437a7b308ea8364e64b888bdaf6db0c5ef24dea50948dc4a21ab32694fd2c154"
-    },
-    "developing-agents": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "developing-agents/SKILL.md",
-      "computedHash": "3a04f4e3f09c2ff35f2956b4bffef6d3f62891b7f540aec8303f9594be662d8c"
-    },
-    "find-skills": {
-      "source": "vercel-labs/skills",
-      "sourceType": "github",
-      "skillPath": "skills/find-skills/SKILL.md",
-      "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
-    },
-    "frontend-debugging": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "frontend-debugging/SKILL.md",
-      "computedHash": "3ed121903110f616761ff002291011e0d04346abcf46edeafe489c10dcb94b0a"
-    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "89496d5dd00f4810205f351759594fc2742bf8eea85a2f2b2d1de59f4bd91576"
-    },
-    "git-branch-linearizing": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "git-branch-linearizing/SKILL.md",
-      "computedHash": "7cfa2bddc91a8613229ffa4b138d13f78815983ffb57203d028492b548101292"
-    },
-    "migrate-radix-to-base": {
-      "source": "shadcn/ui",
-      "sourceType": "github",
-      "skillPath": "skills/migrate-radix-to-base/SKILL.md",
-      "computedHash": "e1f2030ee5059be3dff0812ca0e4b995ee9fa3132176f049ebe6c90346a6755e"
-    },
-    "shadcn": {
-      "source": "shadcn/ui",
-      "sourceType": "github",
-      "skillPath": "skills/shadcn/SKILL.md",
-      "computedHash": "f615de216e085a84e31593ad0fa9062232adc40cd87b7c7ab2b8e49abf6500be"
-    },
-    "skill-compression": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "skill-compression/SKILL.md",
-      "computedHash": "5016791c3c020d7ac816be9e5014578c2258d123432f339e5381578c16b549e3"
-    },
-    "slop-design": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "slop-design/SKILL.md",
-      "computedHash": "12f3e602b91314eb4d87d736a62046c0034b1ea6c4c83cb40f2f170c017afaea"
-    },
-    "slop-tests": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "slop-tests/SKILL.md",
-      "computedHash": "e4d86681e211381755697aa94c0761dd8a511d006957c560d9fa1bcdc117deb6"
     },
     "transitions-dev": {
       "source": "Jakubantalik/transitions.dev",
@@ -96,12 +36,6 @@
       "sourceType": "github",
       "skillPath": "skills/transitions-polish/SKILL.md",
       "computedHash": "95aec18ac2c9fb2c545c2bf2e7419a8001b8e7f1fb640cdb89db0a543548d27f"
-    },
-    "ui-style-consistency": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "ui-style-consistency/SKILL.md",
-      "computedHash": "5024891103bd12626cc1f05c1b65ef535c9ca5c152f47bcb30edd03a68fe9f30"
     },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
@@ -126,12 +60,6 @@
       "sourceType": "github",
       "skillPath": "skills/web-design-guidelines/SKILL.md",
       "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
-    },
-    "writing-adrs": {
-      "source": "Arcadi4/skills",
-      "sourceType": "github",
-      "skillPath": "writing-adrs/SKILL.md",
-      "computedHash": "ae7c2400b4bf5ffd36b432df66f13745cee7517051e5cd7615a890cd6798ac10"
     }
   }
 }
