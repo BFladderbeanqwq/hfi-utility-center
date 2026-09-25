@@ -340,6 +340,8 @@
     "policyWeekdays": "周日,周一,周二,周三,周四,周五,周六",
     "turnstileMissing": "密码登录暂不可用，请使用邮件登录链接。",
     "loginLoading": "正在准备登录…",
+    "navGroupManagement": "管理",
+    "toggleSidebar": "切换导航栏",
     "columnReservation": "预约",
     "columnStudent": "学生",
     "columnAccount": "账号"

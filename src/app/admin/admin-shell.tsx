@@ -13,20 +13,50 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
+import { AppFrame } from "@/components/layout/app-shell"
+import { AppHeader } from "@/components/layout/app-header"
+import { LoadingState } from "@/components/layout/data-state"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSkeleton,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useAdminSession } from "@/lib/api/admin-hooks"
 import { logout } from "@/lib/api/auth"
-import { cn } from "@/lib/utils"
 
-const shellClassName = "admin-workspace"
+const NAVIGATION = [
+  { href: "/admin", labelKey: "overview", icon: LayoutDashboard },
+  { href: "/admin/reservation", labelKey: "reservations", icon: CalendarClock },
+  { href: "/admin/force-reservation", labelKey: "forceReservationTab", icon: CalendarPlus },
+  { href: "/admin/facility", labelKey: "facilities", icon: Building2 },
+  { href: "/admin/announcement", labelKey: "announcements", icon: Megaphone },
+  { href: "/admin/user", labelKey: "users", icon: Users },
+] as const
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  if (pathname === "/admin/login") return children
 
-  return <AuthenticatedAdminShell pathname={pathname}>{children}</AuthenticatedAdminShell>
+  return (
+    <TooltipProvider>
+      {pathname === "/admin/login" ? (
+        children
+      ) : (
+        <AuthenticatedAdminShell pathname={pathname}>{children}</AuthenticatedAdminShell>
+      )}
+    </TooltipProvider>
+  )
 }
 
 function AuthenticatedAdminShell({
@@ -37,28 +67,15 @@ function AuthenticatedAdminShell({
   children: React.ReactNode
 }) {
   const t = useTranslations("admin")
+  const layout = useTranslations("layout")
   const router = useRouter()
   const session = useAdminSession(pathname)
-  const navigationItems = [
-    {
-      href: "/admin",
-      label: t("overview"),
-      icon: LayoutDashboard,
-    },
-    {
-      href: "/admin/reservation",
-      label: t("reservations"),
-      icon: CalendarClock,
-    },
-    {
-      href: "/admin/force-reservation",
-      label: t("forceReservationTab"),
-      icon: CalendarPlus,
-    },
-    { href: "/admin/facility", label: t("facilities"), icon: Building2 },
-    { href: "/admin/announcement", label: t("announcements"), icon: Megaphone },
-    { href: "/admin/user", label: t("users"), icon: Users },
-  ]
+  const navigationItems = NAVIGATION.map((item) => ({
+    href: item.href,
+    label: t(item.labelKey),
+    icon: item.icon,
+    active: item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href),
+  }))
 
   async function signOut() {
     try {
@@ -68,112 +85,89 @@ function AuthenticatedAdminShell({
     }
   }
 
-  if (session.checking) {
-    return (
-      <div className={shellClassName}>
-        <aside className="admin-sidebar">
-          <Card size="sm" className="admin-sidebar-card">
-            <CardHeader>
-              <CardTitle>{t("workspace")}</CardTitle>
-            </CardHeader>
-          </Card>
-        </aside>
-        <main
-          id="main-content"
-          className="admin-content flex items-start gap-2 text-sm text-muted-foreground"
-        >
-          <Spinner />
-          {t("checking")}
-        </main>
+  if (!session.checking && !session.authenticated) return null
+
+  return (
+    <SidebarProvider className="flex-col">
+      <AppHeader
+        actions={
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <SidebarTrigger aria-label={t("toggleSidebar")} />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">{t("toggleSidebar")}</TooltipContent>
+          </Tooltip>
+        }
+      />
+      <div className="flex min-h-0 flex-1">
+        <Sidebar collapsible="icon" className="top-14! h-[calc(100svh-3.5rem)]!">
+          <SidebarHeader className="border-b border-sidebar-border">
+            <div className="flex items-center gap-2 px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+              <Building2 aria-hidden className="size-5 shrink-0 text-primary" />
+              <span className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+                <span className="truncate text-sm font-semibold">{t("workspace")}</span>
+                <span className="truncate text-xs text-muted-foreground">{layout("brand")}</span>
+              </span>
+            </div>
+          </SidebarHeader>
+
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>{t("navGroupManagement")}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                {session.checking ? (
+                  <SidebarMenu>
+                    {navigationItems.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuSkeleton showIcon />
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                ) : (
+                  <SidebarMenu>
+                    {navigationItems.map((item) => (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={item.active}
+                          tooltip={item.label}
+                          className="h-9 data-[collapsible=icon]:h-8!"
+                        >
+                          <Link href={item.href} aria-current={item.active ? "page" : undefined}>
+                            <item.icon />
+                            <span>{item.label}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                )}
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter className="border-t border-sidebar-border">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => void signOut()}
+                  tooltip={t("logout")}
+                  className="h-9 data-[collapsible=icon]:h-8!"
+                >
+                  <LogOut />
+                  <span className="sr-only">{t("logout")}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+
+        <SidebarInset className="min-w-0">
+          <AppFrame width="wide">
+            {session.checking ? <LoadingState label={t("checking")} rows={4} /> : children}
+          </AppFrame>
+        </SidebarInset>
       </div>
-    )
-  }
-  if (!session.authenticated) return null
-
-  return (
-    <div className={shellClassName}>
-      <aside className="admin-sidebar">
-        <Card size="sm" className="admin-sidebar-card">
-          <CardHeader className="admin-sidebar-heading">
-            <CardTitle>{t("workspace")}</CardTitle>
-            <span>HFI Utility Center</span>
-          </CardHeader>
-          <CardContent className="admin-sidebar-body">
-            <nav className="admin-nav">
-              {navigationItems.map((item) => {
-                const active =
-                  item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
-                return (
-                  <Button
-                    key={item.href}
-                    asChild
-                    variant={active ? "secondary" : "ghost"}
-                    className={`admin-nav-item ${active ? "admin-nav-item--active" : ""}`}
-                  >
-                    <Link href={item.href} aria-current={active ? "page" : undefined}>
-                      <item.icon />
-                      {item.label}
-                    </Link>
-                  </Button>
-                )
-              })}
-            </nav>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="admin-logout-button"
-              title={t("logout")}
-              aria-label={t("logout")}
-              onClick={signOut}
-            >
-              <LogOut />
-            </Button>
-          </CardContent>
-        </Card>
-      </aside>
-      <div className="admin-content">{children}</div>
-    </div>
-  )
-}
-
-export function AdminSection({
-  title,
-  children,
-  className,
-  action,
-}: {
-  title: string
-  children: React.ReactNode
-  className?: string
-  action?: React.ReactNode
-}) {
-  return (
-    <Card className={cn("admin-section h-full", className)}>
-      <CardHeader className="admin-section__header">
-        <CardTitle>{title}</CardTitle>
-        {action ? <CardAction>{action}</CardAction> : null}
-      </CardHeader>
-      <CardContent className="flex-1">{children}</CardContent>
-    </Card>
-  )
-}
-
-export function AdminPageHeader({
-  title,
-  description,
-  actions,
-}: {
-  title: string
-  description: string
-  actions?: React.ReactNode
-}) {
-  return (
-    <header className="admin-page-header">
-      <div>
-        <h1 className="text-3xl font-semibold">{title}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
-      </div>
-      {actions ? <div className="admin-page-actions">{actions}</div> : null}
-    </header>
+    </SidebarProvider>
   )
 }

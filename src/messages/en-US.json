@@ -340,6 +340,8 @@
     "policyWeekdays": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
     "turnstileMissing": "Password login is unavailable. Please use an email login link.",
     "loginLoading": "Preparing login…",
+    "navGroupManagement": "Management",
+    "toggleSidebar": "Toggle navigation",
     "columnReservation": "Reservation",
     "columnStudent": "Student",
     "columnAccount": "Account"
