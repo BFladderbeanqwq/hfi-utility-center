@@ -1,19 +1,13 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { ThemeProvider } from "next-themes"
 
 import enMessages from "@/messages/en-US.json"
 import zhMessages from "@/messages/zh-CN.json"
+import { defaultLocale, LocaleContext, type AppLocale } from "@/lib/locale"
 
-type AppLocale = "zh-CN" | "en-US"
-
-const defaultLocale: AppLocale = "zh-CN"
-const LocaleContext = createContext<{
-  locale: AppLocale
-  setLocale: (locale: AppLocale) => void
-}>(null!)
 const subscribe = () => () => {}
 
 const messages = {
@@ -28,8 +22,6 @@ function storedLocale(): AppLocale {
     ?.split("=")[1]
   return localStorage.getItem("locale") === "en-US" || cookieLocale === "en-US" ? "en-US" : "zh-CN"
 }
-
-export const useAppLocale = () => useContext(LocaleContext)
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const savedLocale = useSyncExternalStore(subscribe, storedLocale, () => defaultLocale)
