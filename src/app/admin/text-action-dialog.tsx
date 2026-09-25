@@ -5,6 +5,7 @@ import { Check, KeyRound, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,15 +15,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-import styles from "./user/admin-user.module.css"
-
 export function TextActionDialog({
-  children,
+  open,
+  onOpenChange,
   title,
   label,
   initialValue = "",
@@ -31,7 +30,8 @@ export function TextActionDialog({
   saveLabel,
   onSave,
 }: {
-  children: React.ReactNode
+  open: boolean
+  onOpenChange: (open: boolean) => void
   title: string
   label: string
   initialValue?: string
@@ -40,7 +40,6 @@ export function TextActionDialog({
   saveLabel: string
   onSave: (value: string) => Promise<boolean>
 }) {
-  const [open, setOpen] = useState(false)
   const [actionError, setActionError] = useState(false)
   const common = useTranslations("common")
   const inputId = useId()
@@ -48,7 +47,7 @@ export function TextActionDialog({
 
   function handleOpenChange(nextOpen: boolean) {
     if (!nextOpen && form.formState.isSubmitting) return
-    setOpen(nextOpen)
+    onOpenChange(nextOpen)
     if (nextOpen) {
       setActionError(false)
       form.reset({ value: initialValue })
@@ -60,7 +59,7 @@ export function TextActionDialog({
     setActionError(false)
     try {
       const saved = await onSave(submittedValue)
-      if (saved) setOpen(false)
+      if (saved) onOpenChange(false)
     } catch {
       setActionError(true)
     }
@@ -68,18 +67,15 @@ export function TextActionDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className={styles.dialogSurface}>
-        <DialogHeader className={styles.dialogHeader}>
-          <span className={styles.dialogIcon} aria-hidden="true">
-            <KeyRound />
-          </span>
-          <div>
-            <DialogTitle className={styles.dialogTitle}>{title}</DialogTitle>
-            <DialogDescription className={styles.dialogDescription}>{label}</DialogDescription>
-          </div>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <KeyRound aria-hidden className="size-4 shrink-0" />
+            {title}
+          </DialogTitle>
+          <DialogDescription>{label}</DialogDescription>
         </DialogHeader>
-        <form className={styles.dialogForm} onSubmit={form.handleSubmit(saveValue)}>
+        <form className="flex min-w-0 flex-col gap-4" onSubmit={form.handleSubmit(saveValue)}>
           <Controller
             control={form.control}
             name="value"
@@ -99,34 +95,24 @@ export function TextActionDialog({
                   type={inputType}
                   autoFocus
                   aria-invalid={fieldState.invalid}
-                  className={styles.dialogInput}
                 />
                 <FieldError errors={[fieldState.error]} />
               </Field>
             )}
           />
           {actionError ? (
-            <p className={styles.formError} role="alert">
-              {common("unknown")}
-            </p>
+            <Alert variant="destructive">
+              <AlertDescription>{common("unknown")}</AlertDescription>
+            </Alert>
           ) : null}
-          <DialogFooter className={styles.dialogFooter}>
+          <DialogFooter>
             <DialogClose asChild>
-              <Button
-                type="button"
-                variant="outline"
-                className={`${styles.dialogButton} admin-action-button`}
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="button" variant="outline" disabled={form.formState.isSubmitting}>
                 <X />
                 {cancelLabel}
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              className={`${styles.dialogButton} admin-action-button`}
-              disabled={form.formState.isSubmitting}
-            >
+            <Button type="submit" disabled={form.formState.isSubmitting}>
               <Check />
               {saveLabel}
             </Button>

@@ -1,8 +1,11 @@
 "use client"
 
+import { useState } from "react"
+import { Pencil, Plus, School } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 
-import { AdminSection } from "@/app/admin/admin-shell"
+import { Button } from "@/components/ui/button"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -13,11 +16,16 @@ import {
 } from "@/components/ui/table"
 import { createCampus, deleteCampus, editCampus } from "@/lib/api/catalog"
 import type { Campus } from "@/lib/api/types"
-
-import { ConfirmFacilityDelete, type FacilityEditorActions } from "./facility-editor-actions"
-import styles from "./facility.module.css"
-import { FacilityNameDialog } from "./name-dialog"
 import { formatApiTimestamp } from "@/lib/date-time"
+
+import { EmptyState } from "@/components/layout/data-state"
+import {
+  FacilityRowMenu,
+  ResourceSection,
+  type FacilityEditorActions,
+  touchTarget,
+} from "./facility-editor-actions"
+import { FacilityNameDialog } from "./name-dialog"
 
 export function CampusEditor({
   campuses,
@@ -25,74 +33,121 @@ export function CampusEditor({
   working,
 }: FacilityEditorActions & { campuses: Campus[] }) {
   const t = useTranslations("admin")
+  const common = useTranslations("common")
   const dateFormatter = new Intl.DateTimeFormat(useLocale(), {
     dateStyle: "medium",
   })
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const editing = campuses.find((campus) => campus.id === editingId)
 
   return (
-    <AdminSection
+    <ResourceSection
       title={t("campuses")}
+      count={campuses.length}
       action={
-        <FacilityNameDialog
-          mode="create"
-          title={t("newCampus")}
-          label={t("campusName")}
-          working={working}
-          onSave={(name) => mutate(() => createCampus(name), t("campusCreated"))}
-        />
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={working}
+          onClick={() => setCreateOpen(true)}
+          className={touchTarget}
+        >
+          <Plus aria-hidden />
+          {common("add")}
+        </Button>
       }
     >
-      <p className={styles.sectionIntro}>{t("facilitiesDescription")}</p>
-      <Table className={styles.table}>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("facilityName")}</TableHead>
-            <TableHead className="hidden md:table-cell">{t("createdAt")}</TableHead>
-            <TableHead className="text-right">{t("actions")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {campuses.length ? (
-            campuses.map((campus) => (
+      {campuses.length === 0 ? (
+        <EmptyState icon={School} title={t("campusesEmpty")} />
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-xs text-muted-foreground">{t("facilityName")}</TableHead>
+              <TableHead className="hidden text-xs text-muted-foreground md:table-cell">
+                {t("createdAt")}
+              </TableHead>
+              <TableHead className="w-0 text-right text-xs text-muted-foreground">
+                {t("actions")}
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {campuses.map((campus) => (
               <TableRow key={campus.id}>
-                <TableCell className="font-medium">
-                  {campus.name}
-                  <span className={styles.recordId}>#{campus.id}</span>
+                <TableCell>
+                  <span className="block max-w-[16rem] truncate font-medium">{campus.name}</span>
+                  <span className="block font-mono text-xs text-muted-foreground">
+                    #{campus.id}
+                  </span>
                 </TableCell>
-                <TableCell className={`hidden md:table-cell ${styles.secondaryText}`}>
+                <TableCell className="hidden text-xs text-muted-foreground md:table-cell">
                   {formatApiTimestamp(dateFormatter, campus.createdAt)}
                 </TableCell>
-                <TableCell>
-                  <div className={styles.rowActions}>
-                    <FacilityNameDialog
-                      mode="edit"
-                      title={t("renameCampus")}
-                      label={t("campusName")}
-                      initialValue={campus.name}
-                      working={working}
-                      onSave={(name) =>
-                        mutate(() => editCampus(campus.id, name), t("campusUpdated"))
-                      }
-                    />
-                    <ConfirmFacilityDelete
-                      label={campus.name}
-                      action={() => deleteCampus(campus.id)}
-                      mutate={mutate}
-                      working={working}
-                    />
-                  </div>
+                <TableCell className="w-0 text-right">
+                  <CampusRowMenu
+                    campus={campus}
+                    mutate={mutate}
+                    working={working}
+                    onEdit={() => setEditingId(campus.id)}
+                  />
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={3}>
-                <div className={styles.empty}>{t("campusesEmpty")}</div>
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </AdminSection>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      <FacilityNameDialog
+        key="create"
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        mode="create"
+        title={t("newCampus")}
+        label={t("campusName")}
+        working={working}
+        onSave={(name) => mutate(() => createCampus(name), t("campusCreated"))}
+      />
+      {editing ? (
+        <FacilityNameDialog
+          key={editing.id}
+          open
+          onOpenChange={(nextOpen) => !nextOpen && setEditingId(null)}
+          mode="edit"
+          title={t("renameCampus")}
+          label={t("campusName")}
+          initialValue={editing.name}
+          working={working}
+          onSave={(name) => mutate(() => editCampus(editing.id, name), t("campusUpdated"))}
+        />
+      ) : null}
+    </ResourceSection>
+  )
+}
+
+function CampusRowMenu({
+  campus,
+  mutate,
+  working,
+  onEdit,
+}: FacilityEditorActions & {
+  campus: Campus
+  onEdit: () => void
+}) {
+  const common = useTranslations("common")
+
+  return (
+    <FacilityRowMenu
+      label={campus.name}
+      action={() => deleteCampus(campus.id)}
+      mutate={mutate}
+      working={working}
+    >
+      <DropdownMenuItem onSelect={onEdit} disabled={working}>
+        <Pencil aria-hidden />
+        {common("edit")}
+      </DropdownMenuItem>
+    </FacilityRowMenu>
   )
 }

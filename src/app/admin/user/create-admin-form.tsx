@@ -5,14 +5,13 @@ import { Plus } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Controller, useForm } from "react-hook-form"
 
-import { AdminSection } from "@/app/admin/admin-shell"
+import { SectionCard } from "@/components/layout/section-card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { createAdmin } from "@/lib/api/admins"
-
-import styles from "./admin-user.module.css"
 
 type CreateAdminFields = { name: string; email: string; password: string }
 
@@ -41,8 +40,8 @@ export function CreateAdminForm({ mutate, working }: { mutate: AdminMutation; wo
   }
 
   return (
-    <AdminSection title={t("addAdmin")}>
-      <form className={styles.createForm} onSubmit={form.handleSubmit(createAccount)}>
+    <SectionCard title={t("addAdmin")} contentClassName="flex flex-col gap-4">
+      <form className="flex min-w-0 flex-col gap-4" onSubmit={form.handleSubmit(createAccount)}>
         <Controller
           control={form.control}
           name="name"
@@ -92,16 +91,20 @@ export function CreateAdminForm({ mutate, working }: { mutate: AdminMutation; wo
             </Field>
           )}
         />
-        <Button className={styles.createAction} disabled={working || form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          className="h-10 w-full"
+          disabled={working || form.formState.isSubmitting}
+        >
           <Plus />
           {t("addAccount")}
         </Button>
         {actionError ? (
-          <p className={styles.formError} role="alert">
-            {common("unknown")}
-          </p>
+          <Alert variant="destructive">
+            <AlertDescription>{common("unknown")}</AlertDescription>
+          </Alert>
         ) : null}
       </form>
-    </AdminSection>
+    </SectionCard>
   )
 }

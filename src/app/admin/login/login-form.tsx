@@ -1,24 +1,26 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { LogIn } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 
-import { Turnstile } from "@/components/turnstile"
-import { useAppLocale } from "@/lib/locale"
+import { AppShell } from "@/components/layout/app-shell"
+import { LoadingState } from "@/components/layout/data-state"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { Turnstile } from "@/components/turnstile"
 import { checkLogin, loginWithPassword, loginWithToken, rememberAdminEmail } from "@/lib/api/auth"
 
 type LoginFields = { email: string; password: string }
 
 export function AdminLoginForm({ token, redirectTo }: { token?: string; redirectTo: string }) {
   const t = useTranslations("admin")
-  const { locale } = useAppLocale()
   const router = useRouter()
   const form = useForm<LoginFields>({
     defaultValues: { email: "", password: "" },
@@ -85,45 +87,22 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
 
   if (checkingSession) {
     return (
-      <main id="main-content" className="admin-login-loading">
-        <Spinner className="size-8" />
-        <span>{t("loginLoading")}</span>
-      </main>
+      <AppShell width="narrow">
+        <div className="flex min-h-[80svh] items-center justify-center">
+          <LoadingState label={t("loginLoading")} />
+        </div>
+      </AppShell>
     )
   }
 
   return (
-    <main className="admin-login-page">
-      <section className="admin-login-brand" aria-label="HFI Campus">
-        <h1>
-          {locale === "zh-CN" ? (
-            <>
-              管理场地，
-              <br />
-              协调校园。
-            </>
-          ) : (
-            <>
-              Spaces,
-              <br />
-              in good hands.
-            </>
-          )}
-        </h1>
-        <p>
-          {locale === "zh-CN"
-            ? "审核预约，维护场地与使用规则。"
-            : "Review bookings and manage campus spaces."}
-        </p>
-      </section>
+    <AppShell width="narrow">
+      <div className="flex min-h-[80svh] flex-col items-center justify-center gap-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-balance">{t("loginTitle")}</h1>
 
-      <section className="admin-login-form-panel">
-        <Card className="admin-login-card">
-          <CardHeader className="admin-login-card__header">
-            <CardTitle>{t("loginTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="admin-login-card__content">
-            <form noValidate onSubmit={form.handleSubmit(submit)} className="admin-login-form">
+        <Card className="w-full max-w-md">
+          <CardContent>
+            <form noValidate onSubmit={form.handleSubmit(submit)} className="flex flex-col gap-4">
               <Controller
                 control={form.control}
                 name="email"
@@ -137,7 +116,6 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
                       type="email"
                       autoComplete="email"
                       placeholder="name@hfiuc.org"
-                      className="admin-login-input"
                       aria-invalid={fieldState.invalid}
                     />
                     <FieldError errors={[fieldState.error]} />
@@ -156,7 +134,6 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
                       id={field.name}
                       type="password"
                       autoComplete="current-password"
-                      className="admin-login-input"
                       aria-invalid={fieldState.invalid}
                     />
                     <FieldError errors={[fieldState.error]} />
@@ -164,21 +141,24 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
                 )}
               />
               <Turnstile onToken={handleToken} />
-              <p className="admin-login-error" role="alert">
-                {error}
-              </p>
+              {error ? (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              ) : null}
               <Button
                 type="submit"
-                className="admin-login-submit"
+                size="lg"
+                className="h-11 w-full"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? <Spinner /> : null}
-                {form.formState.isSubmitting ? t("loggingIn") : t("login")}
+                {form.formState.isSubmitting ? <Spinner /> : <LogIn />}
+                {t("login")}
               </Button>
             </form>
           </CardContent>
         </Card>
-      </section>
-    </main>
+      </div>
+    </AppShell>
   )
 }
