@@ -1,6 +1,13 @@
 import type { ReservationStatus } from "@/lib/api/types"
 import { inputValueToTimestamp } from "@/lib/date-time"
 
+const SHANGHAI_DAY_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Shanghai",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+})
+
 export type ReservationSearchFilters = {
   keyword: string
   campusId: number
@@ -72,12 +79,7 @@ export function reservationSearchRequest(filters: ReservationSearchFilters, now 
 }
 
 function shanghaiDayStart(now: Date) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Shanghai",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(now)
+  const parts = SHANGHAI_DAY_FORMATTER.formatToParts(now)
   const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
   return (
     Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day)) / 1000 - 8 * 60 * 60

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useMemo, type ReactNode } from "react"
 import { Clock3, Mail, MapPin, Monitor, ShieldCheck, UserRound } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
 import { useFormContext } from "react-hook-form"
@@ -31,17 +31,25 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
   const campusName =
     catalog.campuses.find((item) => item.id === values.bookingCampusId)?.name ?? "-"
   const roomName = catalog.rooms.find((item) => item.id === values.room)?.name ?? "-"
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  })
-  const timeFormatter = new Intl.DateTimeFormat(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      }),
+    [locale],
+  )
+  const timeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    [locale],
+  )
   const duration = Math.max(0, Math.round((values.endTime - values.startTime) / 60))
 
   return (

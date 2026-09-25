@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState, type CSSProperties } from "react"
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react"
 import { Building2, CalendarCheck2, CalendarX2, DoorOpen, Hourglass } from "lucide-react"
 import { useTranslations } from "next-intl"
 
@@ -103,15 +103,26 @@ export function FacilityDashboard({ portrait = false }: { portrait?: boolean }) 
     }
   }, [refresh])
 
-  const time = (value: Date | string) =>
-    formatApiTimestamp(
+  const timeFormatter = useMemo(
+    () =>
       new Intl.DateTimeFormat(locale, {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       }),
-      value,
-    )
+    [locale],
+  )
+  const headerDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        month: "long",
+        day: "numeric",
+        weekday: "long",
+      }),
+    [locale],
+  )
+
+  const time = (value: Date | string) => formatApiTimestamp(timeFormatter, value)
 
   const active = reservations.filter(
     (item) =>
@@ -138,11 +149,7 @@ export function FacilityDashboard({ portrait = false }: { portrait?: boolean }) 
     <AppShell width={portrait ? "full" : "wide"}>
       <PageHeader
         className={cn(portrait && "px-4 py-5 sm:px-6 sm:py-6 lg:px-8")}
-        eyebrow={new Intl.DateTimeFormat(locale, {
-          month: "long",
-          day: "numeric",
-          weekday: "long",
-        }).format(now)}
+        eyebrow={headerDateFormatter.format(now)}
         title={t("title")}
         actions={
           updated && !error ? (

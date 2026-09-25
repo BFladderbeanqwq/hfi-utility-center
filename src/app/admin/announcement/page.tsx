@@ -1,7 +1,7 @@
 "use client"
 
 import { Eye, Megaphone, Save } from "lucide-react"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 
 import { PageHeader } from "@/components/layout/page-header"
@@ -71,11 +71,16 @@ function AnnouncementForm({
   const [title, setTitle] = useState(announcement.title)
   const [content, setContent] = useState(announcement.content)
   const [enabled, setEnabled] = useState(announcement.enabled)
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+    [locale],
+  )
   const updatedAt = formatApiTimestamp(
-    new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }),
+    dateFormatter,
     announcement.updatedAt,
     t("announcementNeverUpdated"),
   )
