@@ -7,14 +7,15 @@
     "build": "next build",
     "dev": "next dev",
     "start": "next start",
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx,mjs}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,mjs}\"",
+    "lint": "vp lint",
+    "format": "vp fmt \"**/*.{ts,tsx,mjs}\"",
+    "format:check": "vp fmt --check \"**/*.{ts,tsx,mjs}\"",
     "typecheck": "tsc --noEmit",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "prepare": "vp config"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
@@ -47,12 +48,19 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "prettier": "^3.8.3",
-    "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "wrangler": "^4.137.0"
+    "wrangler": "^4.137.0",
+    "vite-plus": "0.3.3"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.3.3"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "12.1.0",
+      "onFail": "download"
+    }
   }
 }
