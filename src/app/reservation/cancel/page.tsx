@@ -325,7 +325,7 @@ export default function CancelReservationPage() {
   return (
     <NeoPage>
       <main id="main-content" className="internal-main management-page">
-        <div className="management-shell">
+        <div className="mx-auto w-[min(980px,100%)]">
           <header className="management-hero">
             <div className="management-hero__icon">
               <ShieldCheck size={28} />
@@ -651,7 +651,7 @@ export default function CancelReservationPage() {
                               </Button>
                             </div>
                             {loadingAvailability ? (
-                              <div className="management-availability-loading">
+                              <div className="flex min-h-[70px] items-center gap-2 text-sm text-muted-foreground">
                                 <Spinner />
                                 {bookingT("checking")}
                               </div>

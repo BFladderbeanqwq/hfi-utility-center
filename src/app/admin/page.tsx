@@ -164,7 +164,7 @@ export default function AdminPage() {
             </Button>
           }
         >
-          <div className="admin-pending-list">
+          <div className="grid gap-[9px]">
             {pendingReservations.length ? (
               pendingReservations.map((reservation) => (
                 <PendingReservation
@@ -174,13 +174,15 @@ export default function AdminPage() {
                 />
               ))
             ) : (
-              <p className="admin-empty-copy">{t("reservationsEmpty")}</p>
+              <p className="px-2.5 py-[30px] text-center text-sm text-muted-foreground">
+                {t("reservationsEmpty")}
+              </p>
             )}
           </div>
         </AdminSection>
 
         <AdminSection title={t("systemSnapshot")}>
-          <dl className="admin-snapshot-list">
+          <dl className="grid gap-[9px]">
             <SnapshotRow icon={Building2} label={t("campuses")} value={data.campuses.length} />
             <SnapshotRow icon={DoorOpen} label={t("rooms")} value={data.rooms.length} />
             <SnapshotRow
@@ -213,7 +215,7 @@ function PendingReservation({
       className="admin-pending-item"
       aria-label={`Reservation ${reservation.id}`}
     >
-      <span className="admin-pending-item__number">#{reservation.id}</span>
+      <span className="font-sans text-sm font-extrabold text-primary">#{reservation.id}</span>
       <span className="admin-pending-item__body">
         <strong>{reservation.roomName || "—"}</strong>
         <small>

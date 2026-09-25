@@ -22,7 +22,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   return (
     <div className="admin-app-shell">
       <NeoHeader />
-      <div className="admin-app-shell__content">{children}</div>
+      <div className="min-h-[calc(100svh-94px)]">{children}</div>
     </div>
   )
 }

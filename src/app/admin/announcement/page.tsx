@@ -159,7 +159,7 @@ function AnnouncementForm({
               content={content.trim() || t("announcementPreviewFallbackContent")}
               className="admin-announcement-preview-content"
             />
-            <span className="admin-announcement-preview-button">
+            <span className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-extrabold text-primary-foreground">
               {t("announcementPreviewConfirm")}
             </span>
           </article>

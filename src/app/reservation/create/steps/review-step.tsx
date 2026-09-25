@@ -65,7 +65,9 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
         <div className="confirm-grid">
           <ConfirmValue label={t("location")} icon={<MapPin size={20} />}>
             <strong>{roomName}</strong>
-            <span className="room-pill">{campusName}</span>
+            <span className="self-start rounded-[12px] bg-secondary px-2.5 py-1 text-sm text-primary">
+              {campusName}
+            </span>
           </ConfirmValue>
           <ConfirmValue label={t("dateTimeTitle")} icon={<CalendarDays size={20} />}>
             <span className="confirm-date">
