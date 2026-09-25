@@ -1,10 +1,10 @@
-import { archivo, notoSansSC, notoSerifSC } from "@/app/fonts"
+import { geist, geistMono, notoSansSC } from "@/app/fonts"
 import "./globals.css"
 
 import { Providers } from "@/app/providers"
 import { Navbar } from "@/components/navbar"
 
-const fontVariables = `${archivo.variable} ${notoSansSC.variable} ${notoSerifSC.variable}`
+const fontVariables = `${geist.variable} ${geistMono.variable} ${notoSansSC.variable}`
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
