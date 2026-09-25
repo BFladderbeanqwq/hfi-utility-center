@@ -35,3 +35,27 @@ export function timeOnInputDateTimestamp(date: string, [hour, minute]: number[])
 export function weekdayFromInputValue(value: string) {
   return inputValueToDate(value)?.getDay()
 }
+
+/**
+ * Formats a timestamp that came from the API, degrading to `fallback` when the
+ * payload carries something `Date` cannot parse.
+ *
+ * This is deliberately total. `Intl.DateTimeFormat.format` throws a
+ * `RangeError` on an invalid date, and an exception thrown while rendering
+ * does not just blank the page: React unwinds the whole document, Next.js
+ * swaps in its own error document, and React removes the `class` attribute
+ * from `<html>` on the way out. That attribute is where next-themes keeps the
+ * theme, so a single malformed timestamp silently dropped every surface back
+ * onto the light token set even though the stored theme was still dark.
+ */
+export function formatApiTimestamp(
+  formatter: Intl.DateTimeFormat,
+  value: string | number | Date | null | undefined,
+  fallback = "—",
+) {
+  if (!value) return fallback
+
+  const date = new Date(value)
+
+  return Number.isNaN(date.getTime()) ? fallback : formatter.format(date)
+}

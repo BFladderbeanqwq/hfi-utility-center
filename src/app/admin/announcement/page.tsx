@@ -13,6 +13,7 @@ import { MarkdownContent } from "@/components/markdown-content"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getAdminAnnouncement, updateAnnouncement } from "@/lib/api/announcements"
 import type { Announcement } from "@/lib/api/types"
+import { formatApiTimestamp } from "@/lib/date-time"
 
 const emptyAnnouncement: Announcement = {
   title: "",
@@ -25,7 +26,7 @@ export default function AdminAnnouncementPage() {
   const t = useTranslations("admin")
   const resource = useAdminResource({
     loadResource: getAdminAnnouncement,
-    initialData: emptyAnnouncement,
+    initialData: emptyAnnouncement as Announcement | null,
   })
   return (
     <main id="main-content" className="admin-page space-y-6">
@@ -39,8 +40,8 @@ export default function AdminAnnouncementPage() {
         </AdminSection>
       ) : (
         <AnnouncementForm
-          key={resource.data.updatedAt || "empty"}
-          announcement={resource.data}
+          key={(resource.data ?? emptyAnnouncement).updatedAt || "empty"}
+          announcement={resource.data ?? emptyAnnouncement}
           reload={resource.reload}
         />
       )}
@@ -61,12 +62,14 @@ function AnnouncementForm({
   const [title, setTitle] = useState(announcement.title)
   const [content, setContent] = useState(announcement.content)
   const [enabled, setEnabled] = useState(announcement.enabled)
-  const updatedAt = announcement.updatedAt
-    ? new Intl.DateTimeFormat(locale, {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date(announcement.updatedAt))
-    : t("announcementNeverUpdated")
+  const updatedAt = formatApiTimestamp(
+    new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }),
+    announcement.updatedAt,
+    t("announcementNeverUpdated"),
+  )
 
   async function save(event: React.FormEvent) {
     event.preventDefault()

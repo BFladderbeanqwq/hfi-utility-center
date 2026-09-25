@@ -15,6 +15,7 @@ import { getCampuses, getRooms } from "@/lib/api/catalog"
 import { useAdminResource } from "@/lib/api/admin-hooks"
 import { getFutureReservations } from "@/lib/api/reservations"
 import type { Reservation } from "@/lib/api/types"
+import { formatApiTimestamp } from "@/lib/date-time"
 
 async function loadDashboard() {
   const [overview, weekly, rooms, campuses, admins, reservations] = await Promise.all([
@@ -223,7 +224,7 @@ function PendingReservation({
         </small>
       </span>
       <span className="admin-pending-item__time">
-        {dateFormatter.format(new Date(reservation.startTime))}
+        {formatApiTimestamp(dateFormatter, reservation.startTime)}
       </span>
       <Badge className="admin-pending-item__badge">Pending</Badge>
     </Link>
