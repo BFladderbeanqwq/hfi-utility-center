@@ -1252,7 +1252,7 @@ export default defineConfig({
     semi: false,
     singleQuote: false,
     sortTailwindcss: {
-      stylesheet: "app/globals.css",
+      stylesheet: "src/app/globals.css",
       functions: ["cn", "cva"],
     },
     ignorePatterns: [
