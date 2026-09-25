@@ -68,9 +68,11 @@ function AnnouncementForm({
   const layout = useTranslations("layout")
   const locale = useLocale()
   const { mutate, working } = useAdminMutation({ reload })
-  const [title, setTitle] = useState(announcement.title)
-  const [content, setContent] = useState(announcement.content)
-  const [enabled, setEnabled] = useState(announcement.enabled)
+  // Keyed on `announcement.updatedAt` at the call site so updates remount with
+  // fresh state; these initializers only run on initial mount.
+  const [title, setTitle] = useState(() => announcement.title)
+  const [content, setContent] = useState(() => announcement.content)
+  const [enabled, setEnabled] = useState(() => announcement.enabled)
   const dateFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
