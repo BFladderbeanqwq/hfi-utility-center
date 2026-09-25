@@ -1,4 +1,4 @@
-import { FacilityDashboard } from "@/components/neo/dashboard"
+import { FacilityDashboard } from "../facility-dashboard"
 
 export default function PortraitDashboardPage() {
   return <FacilityDashboard portrait />

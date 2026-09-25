@@ -525,6 +525,31 @@
       "support": "技术支持"
     }
   },
+  "dashboard": {
+    "title": "场地看板",
+    "refresh": "刷新",
+    "lastUpdated": "最后更新：{time}",
+    "justNow": "刚刚",
+    "secondsAgo": "{count} 秒前",
+    "minutesAgo": "{count} 分钟前",
+    "hoursAgo": "{count} 小时前",
+    "refreshEvery": "每 30 秒自动刷新",
+    "errorTitle": "暂时无法更新场地信息",
+    "errorDescription": "请重试，下方场地数据可能不是最新的。",
+    "roomsInUse": "使用中的场地",
+    "totalRooms": "可预约场地",
+    "bookingsToday": "今日预约",
+    "pendingApproval": "待审批",
+    "inUse": "使用中",
+    "idle": "当前无预约占用",
+    "timeColumn": "时间",
+    "purposeColumn": "用途",
+    "statusColumn": "状态",
+    "purposeFallback": "未填写预约理由",
+    "noBookingsToday": "今日暂无预约",
+    "noRooms": "暂无开放场地",
+    "noRoomsDescription": "暂未发布可预约的场地。"
+  },
   "layout": {
     "brand": "校园服务台",
     "skipToContent": "跳到主要内容",
