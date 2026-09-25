@@ -16,7 +16,8 @@
     "deploy": "pnpm run build:cf && opennextjs-cloudflare deploy",
     "upload": "pnpm run build:cf && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
