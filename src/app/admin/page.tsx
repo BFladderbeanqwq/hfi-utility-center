@@ -1,22 +1,16 @@
 "use client"
 
 import { useMemo } from "react"
-import {
-  ArrowRight,
-  Building2,
-  CalendarCheck2,
-  CalendarClock,
-  DoorOpen,
-  RefreshCw,
-} from "lucide-react"
+import { ArrowRight, Building2, CalendarCheck2, CalendarClock, DoorOpen } from "lucide-react"
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/layout/data-state"
 import { PageHeader } from "@/components/layout/page-header"
+import { RefreshButton } from "@/components/layout/refresh-button"
 import { StatusBadge } from "@/components/layout/status-badge"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { getAdmins } from "@/lib/api/admins"
 import { useAdminResource } from "@/lib/api/admin-hooks"
@@ -129,21 +123,7 @@ export default function AdminPage() {
       <PageHeader
         title={t("overviewTitle")}
         actions={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-9"
-                aria-label={common("refresh")}
-                onClick={refresh}
-                disabled={resource.loading}
-              >
-                <RefreshCw />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{common("refresh")}</TooltipContent>
-          </Tooltip>
+          <RefreshButton label={common("refresh")} loading={resource.loading} onRefresh={refresh} />
         }
       />
 
