@@ -225,7 +225,7 @@ export function DateTimeStep({
                 <FieldLegend variant="label">{t("timeRange")}</FieldLegend>
                 <FieldDescription>{selectedRangeLabel()}</FieldDescription>
               </div>
-              <TooltipProvider delayDuration={300}>
+              <TooltipProvider delayDuration={80}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button

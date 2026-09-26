@@ -23,7 +23,7 @@ export function RefreshStatus({
 
   return (
     <span className="min-w-0 text-xs text-muted-foreground">
-      <TooltipProvider delayDuration={300}>
+      <TooltipProvider delayDuration={80}>
         <Tooltip>
           <TooltipTrigger asChild>
             <button

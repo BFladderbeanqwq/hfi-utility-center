@@ -76,7 +76,7 @@ export function ErrorState({
         </AlertDescription>
       </div>
       {onRetry ? (
-        <TooltipProvider delayDuration={300}>
+        <TooltipProvider delayDuration={80}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
