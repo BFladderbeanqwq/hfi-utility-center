@@ -1,5 +1,6 @@
 "use client"
 
+import type { ComponentPropsWithoutRef } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -28,27 +29,24 @@ const PROSE = cn(
   "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-md",
 )
 
+function MarkdownLink({ href = "", children, ...props }: ComponentPropsWithoutRef<"a">) {
+  const external = /^https?:\/\//i.test(href)
+  return (
+    <a
+      {...props}
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+    >
+      {children}
+    </a>
+  )
+}
+
 export function MarkdownContent({ content, className }: { content: string; className?: string }) {
   return (
     <div className={cn(PROSE, className)}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ href = "", children, ...props }) => {
-            const external = /^https?:\/\//i.test(href)
-            return (
-              <a
-                {...props}
-                href={href}
-                target={external ? "_blank" : undefined}
-                rel={external ? "noopener noreferrer" : undefined}
-              >
-                {children}
-              </a>
-            )
-          },
-        }}
-      >
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: MarkdownLink }}>
         {content}
       </ReactMarkdown>
     </div>
