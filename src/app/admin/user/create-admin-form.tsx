@@ -1,16 +1,16 @@
 "use client"
 
-import { useState } from "react"
 import { Plus } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { SectionCard } from "@/components/layout/section-card"
-import { useErrorShake } from "@/hooks/use-error-shake"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { createAdmin } from "@/lib/api/admins"
 

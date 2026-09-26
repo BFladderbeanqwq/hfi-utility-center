@@ -1,8 +1,8 @@
 "use client"
 
-import { useMemo, type CSSProperties } from "react"
 import { Building2, CalendarCheck2, DoorOpen, Hourglass } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useMemo, type CSSProperties } from "react"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { ErrorState } from "@/components/layout/data-state"

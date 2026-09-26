@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useState } from "react"
 import { useTranslations } from "next-intl"
+import { useCallback, useState } from "react"
 
 import { ErrorState, LoadingState } from "@/components/layout/data-state"
 import { PageHeader } from "@/components/layout/page-header"

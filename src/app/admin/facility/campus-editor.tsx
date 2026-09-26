@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
 import { Pencil, Plus, School } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
+import { useMemo, useState } from "react"
 
+import { EmptyState } from "@/components/layout/data-state"
 import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import {
@@ -18,7 +19,6 @@ import { createCampus, deleteCampus, editCampus } from "@/lib/api/catalog"
 import type { Campus } from "@/lib/api/types"
 import { formatApiTimestamp } from "@/lib/date-time"
 
-import { EmptyState } from "@/components/layout/data-state"
 import {
   FacilityRowMenu,
   ResourceSection,

@@ -1,7 +1,7 @@
 "use client"
 
-import { Fragment, type ReactNode } from "react"
 import { Check } from "lucide-react"
+import { Fragment, type ReactNode } from "react"
 
 import {
   Breadcrumb,

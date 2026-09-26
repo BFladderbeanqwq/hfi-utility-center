@@ -1,7 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import { getCatalog } from "@/lib/api/catalog"
 import {

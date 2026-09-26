@@ -3,11 +3,10 @@
 import { Building2, DoorOpen, GraduationCap, RefreshCw, type LucideIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-
 import { LoadingState } from "@/components/layout/data-state"
 import { PageHeader } from "@/components/layout/page-header"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getCampuses, getClasses, getRooms } from "@/lib/api/catalog"
 import type { Campus, Room, SchoolClass } from "@/lib/api/types"

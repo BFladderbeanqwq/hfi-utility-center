@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
+import { useEffect, useState } from "react"
 
 import { getAvailability } from "@/lib/api/reservations"
 import type { AvailabilityData, Room } from "@/lib/api/types"

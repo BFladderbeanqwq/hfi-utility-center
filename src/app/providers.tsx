@@ -1,12 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { ThemeProvider } from "next-themes"
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react"
 
+import { defaultLocale, LocaleContext, type AppLocale } from "@/lib/locale"
 import enMessages from "@/messages/en-US.json"
 import zhMessages from "@/messages/zh-CN.json"
-import { defaultLocale, LocaleContext, type AppLocale } from "@/lib/locale"
 
 const subscribe = () => () => {}
 

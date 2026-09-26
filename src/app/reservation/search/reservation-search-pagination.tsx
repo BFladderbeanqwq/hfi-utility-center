@@ -1,6 +1,6 @@
-import type { ComponentProps } from "react"
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import Link from "next/link"
+import type { ComponentProps } from "react"
 
 import { buttonVariants } from "@/components/ui/button-variants"
 import {

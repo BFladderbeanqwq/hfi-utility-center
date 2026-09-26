@@ -1,9 +1,10 @@
 "use client"
 
-import { ErrorState, LoadingState } from "@/components/layout/data-state"
-import { AppShell } from "@/components/layout/app-shell"
-import { PageHeader } from "@/components/layout/page-header"
 import { useTranslations } from "next-intl"
+
+import { AppShell } from "@/components/layout/app-shell"
+import { ErrorState, LoadingState } from "@/components/layout/data-state"
+import { PageHeader } from "@/components/layout/page-header"
 
 /**
  * The two states that stand between the flow and a usable form: the catalogue

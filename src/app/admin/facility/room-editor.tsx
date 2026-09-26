@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
 import { DoorOpen, Pencil, Plus } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
+import { useMemo, useState } from "react"
 
+import { EmptyState } from "@/components/layout/data-state"
 import { Button } from "@/components/ui/button"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
@@ -19,7 +20,6 @@ import { createRoom, deleteRoom, editRoom } from "@/lib/api/catalog"
 import type { Campus, Room } from "@/lib/api/types"
 import { formatApiTimestamp } from "@/lib/date-time"
 
-import { EmptyState } from "@/components/layout/data-state"
 import { CampusNameDialog } from "./campus-name-dialog"
 import {
   FacilityRowMenu,

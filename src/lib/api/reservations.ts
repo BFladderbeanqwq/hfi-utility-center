@@ -1,6 +1,4 @@
 import { api } from "@/lib/api/client"
-import { inputValueToTimestamp } from "@/lib/date-time"
-import { buildLegacyAvailability } from "@/lib/reservations/availability"
 import type {
   ApiResponse,
   Reservation,
@@ -9,6 +7,8 @@ import type {
   Room,
   PurposeType,
 } from "@/lib/api/types"
+import { inputValueToTimestamp } from "@/lib/date-time"
+import { buildLegacyAvailability } from "@/lib/reservations/availability"
 
 export interface CreateReservationInput {
   classId: number
