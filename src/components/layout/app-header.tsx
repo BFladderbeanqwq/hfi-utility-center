@@ -155,7 +155,6 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
             href="/"
             className="flex shrink-0 items-center gap-2 rounded-md text-base font-semibold tracking-tight"
           >
-            <span aria-hidden className="size-2 shrink-0 rounded-full bg-primary" />
             <span>hfi</span>
             <span className="hidden text-sm font-normal text-muted-foreground lg:inline">
               Utility Center
