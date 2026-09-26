@@ -153,6 +153,7 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
         <div className="mx-auto flex h-14 w-full max-w-7xl min-w-0 items-center gap-2 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
+            prefetch={false}
             className="flex shrink-0 items-center gap-2 rounded-md text-base font-semibold tracking-tight"
           >
             <span>hfi</span>
@@ -167,6 +168,7 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 aria-current={item.active ? "page" : undefined}
                 className={linkClasses(item.active)}
               >
@@ -203,6 +205,7 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={false}
                       aria-current={item.active ? "page" : undefined}
                       onClick={() => setOpen(false)}
                       className={cn(linkClasses(item.active), "py-3 text-base")}

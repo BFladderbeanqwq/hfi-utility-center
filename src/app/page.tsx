@@ -98,6 +98,7 @@ export default function HomePage() {
           <Link
             key={item.href}
             href={item.href}
+            prefetch={false}
             className="flex min-w-0 flex-col items-start gap-3 rounded-lg border px-4 py-6 transition-colors outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring"
           >
             <item.icon aria-hidden className="size-5 text-muted-foreground" />
