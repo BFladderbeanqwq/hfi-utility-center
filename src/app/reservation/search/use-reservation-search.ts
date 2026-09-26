@@ -52,9 +52,10 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
         if (requestId.current === currentRequest) {
           setError(error instanceof Error ? error.message : "Request failed")
         }
-      } finally {
-        if (requestId.current === currentRequest) setLoading(false)
       }
+
+      // Stale runs must not clear the flag the newest request still owns.
+      if (requestId.current === currentRequest) setLoading(false)
     }
 
     loadReservations()
