@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useEffect, useState, type FormEvent } from "react"
+import { Fragment, useEffect, useRef, useState, type FormEvent } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -59,7 +59,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   const [isWorking, setIsWorking] = useState(false)
   const [result, setResult] = useState<ReservationResult>()
   const [catalog, setCatalog] = useState<CatalogData>()
-  const [adminSession, setAdminSession] = useState<AdminSession>()
+  const adminSessionRef = useRef<AdminSession | undefined>(undefined)
   const [catalogLoading, setCatalogLoading] = useState(true)
   const [catalogError, setCatalogError] = useState<string>()
   const [catalogReloadKey, setCatalogReloadKey] = useState(0)
@@ -110,7 +110,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
           throw new Error(adminT("forceLoadError"))
         }
         setCatalog(data)
-        setAdminSession(session)
+        adminSessionRef.current = session
         if (isForce && session && priorityClass) {
           form.reset(forceReservationDefaults(priorityClass.id, session))
         }
@@ -241,8 +241,8 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   function resetReservation() {
     const priorityClass = catalog && findPriorityClass(catalog)
     form.reset(
-      isForce && adminSession && priorityClass
-        ? forceReservationDefaults(priorityClass.id, adminSession)
+      isForce && adminSessionRef.current && priorityClass
+        ? forceReservationDefaults(priorityClass.id, adminSessionRef.current)
         : reservationDefaults,
     )
     goToStep("class")
