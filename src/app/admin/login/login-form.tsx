@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { LogIn } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useRouter } from "next/navigation"
@@ -26,12 +26,12 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
   const form = useForm<LoginFields>({
     defaultValues: { email: "", password: "" },
   })
-  const [turnstileToken, setTurnstileToken] = useState("")
+  const turnstileTokenRef = useRef("")
   const [error, setError] = useState<string>()
   const [checkingSession, setCheckingSession] = useState(true)
   const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
   const handleToken = useCallback((value: string) => {
-    setTurnstileToken(value)
+    turnstileTokenRef.current = value
     if (value) setError(undefined)
   }, [])
 
@@ -71,14 +71,14 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
   }, [redirectTo, router, token])
 
   async function submit({ email, password }: LoginFields) {
-    if (!turnstileToken) {
+    if (!turnstileTokenRef.current) {
       setError(t("verificationRequired"))
       return
     }
     setError(undefined)
     try {
       const normalizedEmail = email.trim()
-      await loginWithPassword(normalizedEmail, password, turnstileToken)
+      await loginWithPassword(normalizedEmail, password, turnstileTokenRef.current)
       rememberAdminEmail(normalizedEmail)
       router.replace(redirectTo)
       router.refresh()
@@ -86,7 +86,6 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
       setError(loginError instanceof Error ? loginError.message : t("loginFailed"))
     }
   }
-
   if (checkingSession) {
     return (
       <AppShell width="narrow">
@@ -107,7 +106,7 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
             <form
               noValidate
               ref={formRef}
-              onSubmit={form.handleSubmit(submit, shake)}
+              onSubmit={(e) => form.handleSubmit(submit, shake)(e)}
               className="flex flex-col gap-4"
             >
               <Controller
