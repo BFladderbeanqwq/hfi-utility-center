@@ -82,9 +82,9 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
 
   const localeControl = (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Tooltip>
-          <TooltipTrigger asChild>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -93,10 +93,10 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
             >
               <Languages aria-hidden />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>{nav("language")}</TooltipContent>
-        </Tooltip>
-      </DropdownMenuTrigger>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{nav("language")}</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end" className="min-w-40">
         <DropdownMenuLabel>{nav("language")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
