@@ -9,7 +9,7 @@ export type ShellWidth = "wide" | "narrow" | "full"
 function frameClass(width: ShellWidth) {
   if (width === "full") return "w-full min-w-0"
   return cn(
-    "mx-auto w-full min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-6",
+    "mx-auto w-full min-w-0 flex-1 px-[max(1rem,env(safe-area-inset-left))] py-5 pr-[max(1rem,env(safe-area-inset-right))] sm:px-6 sm:py-6 lg:px-8 lg:py-6",
     width === "narrow" ? "max-w-3xl" : "max-w-7xl",
   )
 }

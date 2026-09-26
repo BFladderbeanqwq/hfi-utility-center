@@ -8,7 +8,7 @@ export function AppFooter() {
 
   return (
     <footer className="mt-8 border-t">
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 flex-col items-start gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 flex-col items-start gap-2 px-[max(1rem,env(safe-area-inset-left))] pt-6 pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1.5rem,env(safe-area-inset-bottom))] text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <span className="font-semibold tracking-tight text-foreground">hfi {t("brand")}</span>
         <a
           href="https://hfi.one"

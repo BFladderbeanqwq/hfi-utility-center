@@ -31,9 +31,7 @@ function stableHash(value: string): number {
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH_MOBILE = "w-72"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContextProps = {
@@ -62,7 +60,6 @@ function SidebarProvider({
   open: openProp,
   onOpenChange: setOpenProp,
   className,
-  style,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
@@ -124,13 +121,6 @@ function SidebarProvider({
     <SidebarContext.Provider value={contextValue}>
       <div
         data-slot="sidebar-wrapper"
-        style={
-          {
-            "--sidebar-width": SIDEBAR_WIDTH,
-            "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-            ...style,
-          } as React.CSSProperties
-        }
         className={cn(
           "group/sidebar-wrapper flex min-h-svh w-full has-data-[variant=inset]:bg-sidebar",
           className,
@@ -181,12 +171,10 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
+          className={cn(
+            "w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden",
+            SIDEBAR_WIDTH_MOBILE,
+          )}
           side={side}
         >
           <SheetHeader className="sr-only">
@@ -565,7 +553,16 @@ function SidebarMenuSkeleton({
   showIcon?: boolean
 }) {
   const skeletonId = React.useId()
-  const width = `${50 + (stableHash(skeletonId) % 41)}%`
+  const steps = [
+    "max-w-1/2",
+    "max-w-3/5",
+    "max-w-2/3",
+    "max-w-3/4",
+    "max-w-4/5",
+    "max-w-11/12",
+    "max-w-full",
+  ] as const
+  const width = steps[stableHash(skeletonId) % steps.length]
 
   return (
     <div
@@ -575,15 +572,7 @@ function SidebarMenuSkeleton({
       {...props}
     >
       {showIcon && <Skeleton className="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />}
-      <Skeleton
-        className="h-4 max-w-(--skeleton-width) flex-1"
-        data-sidebar="menu-skeleton-text"
-        style={
-          {
-            "--skeleton-width": width,
-          } as React.CSSProperties
-        }
-      />
+      <Skeleton className={cn("h-4 flex-1", width)} data-sidebar="menu-skeleton-text" />
     </div>
   )
 }

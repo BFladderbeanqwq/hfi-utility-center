@@ -16,6 +16,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   )
 }
 
+export const viewport = {
+  viewportFit: "cover" as const,
+}
+
 export const metadata = {
   title: {
     default: "HFI Utility Center · 校园场地服务",

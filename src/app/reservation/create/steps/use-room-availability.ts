@@ -17,65 +17,48 @@ export function useRoomAvailability({
   privileged?: boolean
 }) {
   const t = useTranslations("booking")
-  const [availability, setAvailability] = useState<AvailabilityData>()
-  const [error, setError] = useState<string>()
-  const [refreshing, setRefreshing] = useState(false)
+  const [revision, setRevision] = useState(0)
+  const requestKey = `${room?.id}-${date}-${privileged}-${revision}`
+  const [result, setResult] = useState<{
+    key: string
+    availability?: AvailabilityData
+    error?: string
+  }>()
+  const [selectionError, reportError] = useState<string>()
 
   useEffect(() => {
-    if (!date || !room) return
+    if (!room || !date) return
     let active = true
     const selectedRoom = room
-
-    async function loadAvailability() {
+    async function load() {
       try {
-        const nextAvailability = privileged
+        const availability = privileged
           ? buildPriorityAvailability(selectedRoom, date)
           : await getAvailability(selectedRoom.id, date, selectedRoom)
-        if (!active) return
-        setAvailability(nextAvailability)
-        setError(undefined)
-      } catch (loadError) {
-        if (active) {
-          setAvailability(undefined)
-          setError(loadError instanceof Error ? loadError.message : t("availabilityError"))
-        }
+        if (active) setResult({ key: requestKey, availability })
+      } catch (error) {
+        if (active)
+          setResult({
+            key: requestKey,
+            error: error instanceof Error ? error.message : t("availabilityError"),
+          })
       }
     }
-
-    void loadAvailability()
+    void load()
     return () => {
       active = false
     }
-  }, [date, privileged, room, t])
+  }, [room, date, privileged, requestKey, t])
 
-  async function refresh() {
-    if (!date || !room) return
-    setRefreshing(true)
-    setError(undefined)
-    try {
-      setAvailability(
-        privileged
-          ? buildPriorityAvailability(room, date)
-          : await getAvailability(room.id, date, room),
-      )
-    } catch (refreshError) {
-      setError(refreshError instanceof Error ? refreshError.message : t("availabilityError"))
-    } finally {
-      setRefreshing(false)
-    }
-  }
-
-  const currentAvailability =
-    availability && availability.roomId === room?.id && availability.date === date
-      ? availability
-      : undefined
-
+  const current = result?.key === requestKey ? result : undefined
   return {
-    availability: currentAvailability,
-    error,
-    loading: refreshing || Boolean(room && date && !currentAvailability),
-    refresh,
-    clearError: () => setError(undefined),
-    reportError: setError,
+    availability: current?.availability,
+    error: current?.error ?? (current ? selectionError : undefined),
+    loading: Boolean(room && date && !current),
+    refresh: () => {
+      reportError(undefined)
+      setRevision((value) => value + 1)
+    },
+    reportError,
   }
 }

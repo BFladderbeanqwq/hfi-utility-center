@@ -1,16 +1,11 @@
 "use client"
 
 import { Check } from "lucide-react"
-import { Fragment, type ReactNode } from "react"
+import { useTranslations } from "next-intl"
+import type { ReactNode } from "react"
 
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 import { bookingSteps, type BookingStepId } from "./form"
 
@@ -26,54 +21,42 @@ export function BookingStepper({
   isWorking: boolean
   onGoToStep: (step: BookingStepId) => void
 }) {
+  const t = useTranslations("booking")
   return (
-    <Breadcrumb className="mb-4 min-w-0">
-      <BreadcrumbList className="min-w-0 flex-wrap gap-y-1">
-        {bookingSteps.map((step, index) => {
-          const complete = index < currentStepIndex
-          const current = index === currentStepIndex
-          return (
-            <Fragment key={step.id}>
-              <BreadcrumbItem>
-                {complete ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="xs"
-                    disabled={isWorking}
-                    onClick={() => onGoToStep(step.id)}
-                    className="min-h-8 gap-1.5 rounded-md px-1.5 text-xs"
-                  >
-                    <Check aria-hidden className="size-3.5 text-success" />
-                    <span className="hidden sm:inline">{titles[step.id]}</span>
-                    <span className="sr-only sm:hidden">
-                      {titles[step.id]} {index + 1}
-                    </span>
-                  </Button>
-                ) : current ? (
-                  <BreadcrumbPage
-                    aria-current="step"
-                    className="flex min-h-8 items-center gap-1.5 px-1.5 text-xs font-medium text-foreground"
-                  >
-                    <span className="tabular-nums">{index + 1}</span>
-                    <span className="hidden sm:inline">{titles[step.id]}</span>
-                    <span className="sr-only sm:hidden">{titles[step.id]}</span>
-                  </BreadcrumbPage>
-                ) : (
-                  <span
-                    aria-hidden
-                    className="flex min-h-8 items-center gap-1.5 px-1.5 text-xs text-muted-foreground/70"
-                  >
-                    <span className="tabular-nums">{index + 1}</span>
-                    <span className="hidden sm:inline">{titles[step.id]}</span>
-                  </span>
+    <nav aria-label={t("progress")} className="mb-6">
+      <ol className="grid grid-cols-4 gap-2 sm:gap-4">
+        {bookingSteps.map((step, index) => (
+          <li
+            key={step.id}
+            aria-current={index === currentStepIndex ? "step" : undefined}
+            className={cn(
+              "min-w-0 border-t-2 pt-2",
+              index <= currentStepIndex ? "border-primary" : "border-border",
+            )}
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={isWorking || index >= currentStepIndex}
+              onClick={() => onGoToStep(step.id)}
+              className={cn(
+                "h-auto min-h-11 w-full flex-col items-start gap-1 rounded-md px-1 py-1 text-left whitespace-normal disabled:opacity-100 sm:flex-row sm:items-center sm:gap-2",
+                index > currentStepIndex && "text-muted-foreground",
+              )}
+            >
+              <span
+                className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-full text-xs tabular-nums",
+                  index === currentStepIndex ? "bg-primary text-primary-foreground" : "bg-muted",
                 )}
-              </BreadcrumbItem>
-              {index < bookingSteps.length - 1 ? <BreadcrumbSeparator /> : null}
-            </Fragment>
-          )
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
+              >
+                {index < currentStepIndex ? <Check aria-hidden className="size-3.5" /> : index + 1}
+              </span>
+              <span className="text-xs leading-5 sm:text-sm">{titles[step.id]}</span>
+            </Button>
+          </li>
+        ))}
+      </ol>
+    </nav>
   )
 }

@@ -254,9 +254,14 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-}
 
-/* ══════════════════════════════════════════════════════════════════════════
+  --animate-page-slide: t-page-slide-in var(--duration-fast) var(--ease-smooth-out) both;
+  --animate-content-reveal: t-content-reveal var(--duration-slow) var(--ease-in-out) both;
+  --animate-success-check: t-success-check-in var(--duration-very-slow) var(--ease-smooth-out) both;
+  --animate-success-icon: t-success-icon-in var(--duration-very-slow) var(--ease-smooth-out) both;
+  --animate-shake-x: t-shake calc(var(--duration-micro) * 4) linear;
+
+  /* ══════════════════════════════════════════════════════════════════════════
    MOTION (transitions.dev snippets)
 
    One block per installed transition, adapted from the transitions-dev skill.
@@ -306,8 +311,8 @@
   @keyframes t-page-slide-in {
     from {
       opacity: 0;
-      filter: blur(var(--t-page-slide-blur));
-      transform: translateX(var(--t-page-from-x, 0px));
+      filter: blur(var(--blur-medium));
+      transform: translateX(var(--page-from-x, var(--distance-base)));
     }
     to {
       opacity: 1;
@@ -340,19 +345,57 @@
   @keyframes t-shake {
     0% {
       transform: translateX(0);
-      animation-timing-function: var(--t-shake-ease);
+      animation-timing-function: var(--ease-smooth-out);
     }
     25% {
-      transform: translateX(var(--t-shake-distance));
-      animation-timing-function: var(--t-shake-ease);
+      transform: translateX(calc(var(--t-shake-distance) * -1));
     }
     50% {
-      transform: translateX(calc(var(--t-shake-distance) * -1));
-      animation-timing-function: var(--t-shake-ease);
+      transform: translateX(var(--t-shake-distance));
     }
     75% {
-      transform: translateX(var(--t-shake-overshoot));
-      animation-timing-function: var(--t-shake-ease);
+      transform: translateX(calc(var(--t-shake-distance) * -0.5));
+    }
+    100% {
+      transform: translateX(0);
+      animation-timing-function: var(--ease-smooth-out);
+    }
+  }
+
+  @keyframes shake-x {
+    0% {
+      transform: translateX(0);
+      animation-timing-function: var(--ease-smooth-out);
+    }
+    25% {
+      transform: translateX(calc(var(--distance-base) * -1));
+    }
+    50% {
+      transform: translateX(var(--distance-base));
+    }
+    75% {
+      transform: translateX(calc(var(--distance-base) * -0.5));
+    }
+    100% {
+      transform: translateX(0);
+      animation-timing-function: var(--ease-smooth-out);
+    }
+  }
+    0% {
+      transform: translateX(0);
+      animation-timing-function: var(--ease-smooth-out);
+    }
+    25% {
+      transform: translateX(var(--distance-base));
+      animation-timing-function: var(--ease-smooth-out);
+    }
+    50% {
+      transform: translateX(calc(var(--distance-base) * -1));
+      animation-timing-function: var(--ease-smooth-out);
+    }
+    75% {
+      transform: translateX(var(--distance-small));
+      animation-timing-function: var(--ease-smooth-out);
     }
     100% {
       transform: translateX(0);
@@ -379,7 +422,27 @@
   @keyframes t-reveal-in {
     from {
       opacity: 0;
-      filter: blur(var(--t-reveal-blur));
+      filter: blur(var(--blur-small));
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  @keyframes content-reveal {
+    from {
+      opacity: 0;
+      filter: blur(var(--blur-small));
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+    from {
+      opacity: 0;
+      filter: blur(var(--blur-small));
     }
     to {
       opacity: 1;
@@ -409,6 +472,30 @@
     from {
       opacity: 0;
       filter: blur(var(--blur-large));
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1);
+    }
+  }
+
+  @keyframes success-check-in {
+    from {
+      opacity: 0;
+      filter: blur(var(--blur-large));
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1);
+    }
+  }
+    from {
+      opacity: 0;
+      filter: blur(var(--blur-large));
       transform: scale(var(--scale-large));
     }
     to {
@@ -418,7 +505,7 @@
     }
   }
 
-  @keyframes t-check-icon-in {
+  @keyframes success-icon-in {
     from {
       opacity: 0;
       transform: scale(var(--scale-tiny));
@@ -428,7 +515,6 @@
       transform: scale(1);
     }
   }
-
   @media (prefers-reduced-motion: reduce) {
     .t-success-check,
     .t-success-check > svg {
@@ -497,9 +583,8 @@
   }
 
   html {
+    @apply bg-background text-foreground;
     -webkit-text-size-adjust: 100%;
-    background-color: var(--background);
-    color: var(--foreground);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
   }
@@ -507,6 +592,8 @@
   body {
     margin: 0;
     min-width: 0;
+    /* Long user-supplied strings wrap instead of widening the viewport. */
+    @apply m-0 min-w-0 wrap-break-word;
   }
 
   button,
@@ -522,22 +609,22 @@
   }
 
   button {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
 
   button:disabled {
-    cursor: not-allowed;
+    @apply cursor-not-allowed;
   }
 
   a {
-    text-decoration: none;
+    @apply no-underline;
   }
 
   h1,
   h2,
   h3,
   p {
-    margin: 0;
+    @apply m-0;
   }
 
   h1,
@@ -547,8 +634,7 @@
   }
 
   ::selection {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
+    @apply bg-primary text-primary-foreground;
   }
 
   @media (prefers-reduced-motion: reduce) {

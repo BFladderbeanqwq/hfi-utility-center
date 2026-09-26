@@ -103,7 +103,7 @@ function SearchContent({
   if (loading) return <LoadingState rows={6} />
 
   return (
-    <div className="t-reveal">
+    <div className="motion-safe:animate-content-reveal">
       {reservations.length ? (
         <ReservationResults reservations={reservations} sort={sort} />
       ) : (

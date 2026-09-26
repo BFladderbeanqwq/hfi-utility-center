@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { CancellationPreview } from "@/lib/api/reservations"
 import type { AvailabilityData, CatalogData, Room } from "@/lib/api/types"
+import { cn } from "@/lib/utils"
 
 import type { TimeOption } from "../create/steps/time-options"
 import { CancelDetails } from "./cancel-details"
@@ -94,7 +95,7 @@ export function ActiveBookingPanel({
   const statusT = useTranslations("status")
 
   return (
-    <div className="t-reveal">
+    <div className="motion-safe:animate-content-reveal">
       <section className="flex min-w-0 flex-col gap-4">
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <h2 className="flex min-w-0 items-center gap-2 text-base font-medium break-words">
@@ -126,10 +127,14 @@ export function ActiveBookingPanel({
 
         <div
           key={slideKey}
-          data-compact=""
-          data-direction={slideDirection}
-          data-animate={hasSlid ? "" : undefined}
-          className="t-page-slide flex min-w-0 flex-col gap-4"
+          className={cn(
+            "flex min-w-0 flex-col gap-4",
+            hasSlid && "motion-safe:animate-page-slide",
+            hasSlid &&
+              (slideDirection === "back"
+                ? "[--page-from-x:calc(var(--distance-small)*-1)]"
+                : "[--page-from-x:var(--distance-small)]"),
+          )}
         >
           {mode === "details" ? (
             <CancelDetails

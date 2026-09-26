@@ -1,5 +1,5 @@
 import { CircleAlert } from "lucide-react"
-import type { ReactNode } from "react"
+import { useId, type ReactNode } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
@@ -14,10 +14,15 @@ export function StepLayout({
   error?: string
   children: ReactNode
 }) {
+  const titleId = useId()
   return (
-    <section aria-labelledby="step-title" className="flex min-w-0 flex-col gap-4">
+    <section aria-labelledby={titleId} className="flex min-w-0 flex-col gap-5">
       <div className="flex min-w-0 flex-col gap-1">
-        <h2 id="step-title" className="text-base font-medium break-words">
+        <h2
+          id={titleId}
+          tabIndex={-1}
+          className="scroll-mt-24 text-xl font-semibold tracking-tight break-words outline-none"
+        >
           {title}
         </h2>
         {description ? (

@@ -60,8 +60,7 @@ export const reservationDefaults: ReservationFormValues = {
 
 export const bookingSteps = [
   { id: "class", fields: ["classId"] },
-  { id: "location", fields: ["bookingCampusId", "room"] },
-  { id: "dateTime", fields: ["date", "startTime", "endTime"] },
+  { id: "location", fields: ["bookingCampusId", "room", "date", "startTime", "endTime"] },
   {
     id: "profile",
     fields: [

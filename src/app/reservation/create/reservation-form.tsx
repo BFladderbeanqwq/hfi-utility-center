@@ -1,15 +1,17 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useTranslations } from "next-intl"
-import { useState, type FormEvent, type ReactNode } from "react"
+import { useLocale, useTranslations } from "next-intl"
+import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { PageHeader } from "@/components/layout/page-header"
 import { useErrorShake } from "@/hooks/use-error-shake"
 import { createReservation, forceReservation, getAvailability } from "@/lib/api/reservations"
+import { dateToInputValue } from "@/lib/date-time"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
+import { cn } from "@/lib/utils"
 
 import { BookingActionBar } from "./booking-action-bar"
 import { BookingGate } from "./booking-gate"
@@ -22,7 +24,6 @@ import {
   type ReservationFormValues,
 } from "./form"
 import { ClassStep } from "./steps/class-step"
-import { DateTimeStep } from "./steps/date-time-step"
 import { LocationStep } from "./steps/location-step"
 import { ProfileStep } from "./steps/profile-step"
 import { ReviewStep } from "./steps/review-step"
@@ -40,6 +41,7 @@ type ReservationResult = {
 export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminForce" }) {
   const t = useTranslations("booking")
   const common = useTranslations("common")
+  const locale = useLocale()
   const isForce = mode === "adminForce"
   const schema = useReservationSchema()
   const form = useForm<ReservationFormValues>({
@@ -65,12 +67,23 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
     setCurrentStepId(nextStepId)
   }
 
-  const selectedClassId = useWatch({ control: form.control, name: "classId" })
+  const [selectedClassId, selectedRoomId, selectedDate, selectedStart, selectedEnd] = useWatch({
+    control: form.control,
+    name: ["classId", "room", "date", "startTime", "endTime"],
+  })
   const selectedClass = catalog?.classes.find((item) => item.id === selectedClassId)
   const isPrivilegedSelection = Boolean(
     catalog?.campuses.find((item) => item.id === selectedClass?.campus)?.isPrivileged,
   )
   const { ref: stepRef, shake: shakeStep } = useErrorShake<HTMLDivElement>()
+
+  useEffect(() => {
+    if (hasSlid) {
+      const heading = stepRef.current?.querySelector("h2")
+      heading?.focus({ preventScroll: true })
+      stepRef.current?.closest("form")?.scrollIntoView({ block: "start" })
+    }
+  }, [currentStepId, hasSlid, stepRef])
 
   async function selectedTimeIsStillAvailable(values: ReservationFormValues) {
     if (!catalog) return false
@@ -95,15 +108,36 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   }
 
   async function continueToNextStep() {
+    if (isWorking) return
     const valid = await form.trigger([...currentStep.fields], {
       shouldFocus: true,
     })
     if (!valid) {
+      setFlowError(undefined)
       shakeStep()
+      requestAnimationFrame(() => {
+        const controls = stepRef.current?.querySelectorAll<HTMLElement>(
+          '[data-invalid="true"] button, [data-invalid="true"] input, [data-invalid="true"] textarea',
+        )
+        Array.from(controls ?? [])
+          .find((control) => control.getClientRects().length)
+          ?.focus()
+      })
       return
     }
 
-    if (currentStep.id === "dateTime") {
+    if (currentStep.id === "class") {
+      if (!form.getValues("bookingCampusId")) {
+        const campus =
+          catalog?.campuses.find(
+            (item) => item.id === selectedClass?.campus && !item.isPrivileged,
+          ) ?? catalog?.campuses.find((item) => !item.isPrivileged)
+        if (campus) form.setValue("bookingCampusId", campus.id)
+      }
+      if (!form.getValues("date")) form.setValue("date", dateToInputValue(new Date()))
+    }
+
+    if (currentStep.id === "location") {
       setIsWorking(true)
       try {
         if (!(await selectedTimeIsStillAvailable(form.getValues()))) return
@@ -127,7 +161,7 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
 
     try {
       if (!(await selectedTimeIsStillAvailable(values))) {
-        goToStep("dateTime")
+        goToStep("location")
         return
       }
 
@@ -166,12 +200,17 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (isWorking) return
     if (currentStep.id !== "review") {
       void continueToNextStep()
       return
     }
 
-    void form.handleSubmit(confirmReservation)(event)
+    void form.handleSubmit(confirmReservation, (errors) => {
+      const invalidStep = bookingSteps.find((step) => step.fields.some((field) => errors[field]))
+      if (invalidStep) goToStep(invalidStep.id)
+      setFlowError(t("completeStep"))
+    })(event)
   }
 
   function returnToPreviousStep() {
@@ -218,10 +257,9 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
 
   const stepContent: Record<BookingStepId, ReactNode> = {
     class: <ClassStep catalog={catalog} privilegedOnly={isForce} />,
-    location: <LocationStep catalog={catalog} />,
-    dateTime: <DateTimeStep rooms={catalog.rooms} privileged={isPrivilegedSelection} />,
+    location: <LocationStep catalog={catalog} privileged={isPrivilegedSelection} />,
     profile: <ProfileStep adminMode={isForce} />,
-    review: <ReviewStep catalog={catalog} />,
+    review: <ReviewStep catalog={catalog} onEdit={goToStep} />,
   }
 
   const formBody = (
@@ -229,30 +267,72 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
       <form
         noValidate
         onSubmit={handleFormSubmit}
-        className={isForce ? "flex min-w-0 flex-col gap-4" : "min-w-0"}
+        className={isForce ? "flex min-w-0 scroll-mt-20 flex-col gap-4" : "min-w-0 scroll-mt-20"}
       >
         <BookingStepper
           titles={{
-            class: t("classTitle"),
-            location: t("locationTitle"),
-            dateTime: t("dateTimeTitle"),
-            profile: t("profileTitle"),
-            review: t("reviewTitle"),
+            class: t("steps.class"),
+            location: t("steps.location"),
+            profile: t("steps.profile"),
+            review: t("steps.review"),
           }}
           currentStepIndex={currentStepIndex}
           isWorking={isWorking}
           onGoToStep={goToStep}
         />
-        <div
-          key={currentStep.id}
-          ref={stepRef}
-          data-direction={stepDirection}
-          data-animate={hasSlid ? "" : undefined}
-          className="t-page-slide min-w-0"
+        {currentStepIndex > 0 ? (
+          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-muted/60 px-4 py-3 text-sm">
+            <span className="font-medium">{selectedClass?.name}</span>
+            {selectedRoomId ? (
+              <span>{catalog.rooms.find((item) => item.id === selectedRoomId)?.name}</span>
+            ) : null}
+            {selectedStart && selectedEnd ? (
+              <span className="tabular-nums">
+                {new Intl.DateTimeFormat(locale, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                }).formatRange(new Date(selectedStart * 1000), new Date(selectedEnd * 1000))}
+              </span>
+            ) : null}
+            {selectedDate ? (
+              <span className="text-muted-foreground tabular-nums">{selectedDate}</span>
+            ) : null}
+          </div>
+        ) : null}
+        <fieldset
+          disabled={isWorking}
+          className="min-w-0 border-0 p-0"
+          onFocusCapture={(event) => {
+            const target = event.target
+            if (
+              !target.matches(
+                "input:focus-visible, button:focus-visible, textarea:focus-visible, [role=combobox]:focus-visible",
+              )
+            )
+              return
+            const bounds = target.getBoundingClientRect()
+            if (bounds.bottom > window.innerHeight - 112 || bounds.top < 72) {
+              target.scrollIntoView({ block: "center" })
+            }
+          }}
         >
-          {stepContent[currentStep.id]}
-        </div>
+          <div
+            key={currentStep.id}
+            ref={stepRef}
+            className={cn(
+              "min-w-0 pb-[calc(5.5rem+env(safe-area-inset-bottom))]",
+              hasSlid && "motion-safe:animate-page-slide",
+              hasSlid &&
+                stepDirection === "back" &&
+                "[--page-from-x:calc(var(--distance-base)*-1)]",
+            )}
+          >
+            {stepContent[currentStep.id]}
+          </div>
+        </fieldset>
         <BookingActionBar
+          nextLabel={t(`continue.${currentStep.id}`)}
           flowError={flowError}
           isFirstStep={currentStepIndex === 0}
           isLastStep={currentStep.id === "review"}
@@ -269,14 +349,10 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
 
   return (
     <AppShell>
-      <PageHeader
-        title={t("createTitle")}
-        description={t("step", {
-          current: currentStepIndex + 1,
-          total: bookingSteps.length,
-        })}
-      />
-      {formBody}
+      <div className="mx-auto max-w-5xl">
+        <PageHeader title={t("createTitle")} description={t("intro")} />
+        {formBody}
+      </div>
     </AppShell>
   )
 }

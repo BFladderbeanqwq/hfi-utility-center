@@ -19,7 +19,7 @@ export function SuccessStep({
     <section className="mx-auto flex w-full max-w-xl min-w-0 flex-col items-center gap-3 py-6 text-center">
       <span
         aria-hidden
-        className="t-success-check flex size-14 items-center justify-center rounded-full bg-success-soft text-success-soft-foreground"
+        className="flex size-14 items-center justify-center rounded-full bg-success-soft text-success-soft-foreground motion-safe:animate-success-check [&_svg]:motion-safe:animate-success-icon"
       >
         <CheckCircle2 className="size-7" />
       </span>

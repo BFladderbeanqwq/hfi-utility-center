@@ -130,14 +130,14 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
 
   return (
     <TooltipProvider delayDuration={80}>
-      <header className="sticky top-0 z-50 h-14 border-b bg-background/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b bg-background/80 pt-[env(safe-area-inset-top)] backdrop-blur-md">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:z-50 focus:h-auto focus:w-auto focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:shadow-lg"
         >
           {t("skipToContent")}
         </a>
-        <div className="mx-auto flex h-14 w-full max-w-7xl min-w-0 items-center gap-2 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-14 w-full max-w-7xl min-w-0 items-center gap-2 px-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] sm:px-6 lg:px-8">
           <Link
             href="/"
             prefetch={false}

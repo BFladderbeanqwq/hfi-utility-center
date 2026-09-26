@@ -1,35 +1,18 @@
-import { enUS, zhCN } from "date-fns/locale"
-import { CalendarDays, RefreshCw } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import { useEffect, useMemo, useState } from "react"
-import { Controller, useController, useFormContext, useWatch } from "react-hook-form"
+import { useEffect, useState } from "react"
+import { Controller, useFormContext, useWatch } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Spinner } from "@/components/ui/spinner"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import type { Room } from "@/lib/api/types"
 import { dateToInputValue, inputValueToDate } from "@/lib/date-time"
 import { rangeIsAvailable } from "@/lib/reservations/availability"
 
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
-import {
-  buildTimeOptions,
-  timeCanBeSelected,
-  timeIsSelected,
-  timeShouldBeVisible,
-  type TimeOption,
-} from "./time-options"
+import { DateRail } from "./date-rail"
+import { TimeRangePicker, type ReservationRange } from "./time-range-picker"
 import { useRoomAvailability } from "./use-room-availability"
 
 export function DateTimeStep({
@@ -41,280 +24,144 @@ export function DateTimeStep({
 }) {
   const t = useTranslations("booking")
   const locale = useLocale()
-  const { clearErrors, control, getValues, setValue } = useFormContext<ReservationFormValues>()
+  const { control, setValue, getValues, clearErrors, formState } =
+    useFormContext<ReservationFormValues>()
+  const [roomId, date, startTime, endTime] = useWatch({
+    control,
+    name: ["room", "date", "startTime", "endTime"],
+  })
   const [calendarOpen, setCalendarOpen] = useState(false)
-  const [roomId, date] = useWatch({
-    control,
-    name: ["room", "date"],
-  })
-  const { field: startTimeField, fieldState: startTimeState } = useController({
-    control,
-    name: "startTime",
-  })
-  const { field: endTimeField, fieldState: endTimeState } = useController({
-    control,
-    name: "endTime",
-  })
-  const startTime = startTimeField.value
-  const endTime = endTimeField.value
-  const room = useMemo(() => rooms.find((candidate) => candidate.id === roomId), [roomId, rooms])
-  const { availability, error, loading, refresh, clearError, reportError } = useRoomAvailability({
+  const room = rooms.find((item) => item.id === roomId)
+  const { availability, error, loading, refresh, reportError } = useRoomAvailability({
     room,
     date,
     privileged,
   })
-  const today = useMemo(() => startOfToday(), [])
-  const maximumDate = useMemo(() => addDays(today, 30), [today])
-  const dateFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "short",
-      }),
-    [locale],
-  )
-  const timeFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
-    [locale],
-  )
-  const timeOptions = useMemo(() => buildTimeOptions(availability?.slots ?? []), [availability])
-  const visibleTimeOptions = useMemo(() => {
-    if (!availability) return []
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const maximumDate = addDays(today, 30)
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  })
+  const timeFormatter = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+  const formatTime = (timestamp: number) => timeFormatter.format(new Date(timestamp * 1000))
+  const hasOpenSlot = availability?.slots.some((slot) => slot.status === "available") ?? false
 
-    return timeOptions.filter((option) =>
-      timeShouldBeVisible({
-        option,
-        slots: availability.slots,
-        startTime,
-        endTime,
-      }),
-    )
-  }, [availability, endTime, startTime, timeOptions])
-
+  // A refreshed server response can invalidate an existing selection.
   useEffect(() => {
-    if (!availability) return
-    const selectedRange = getValues()
-    if (!selectedRange.startTime || !selectedRange.endTime) return
-    if (rangeIsAvailable(availability.slots, selectedRange.startTime, selectedRange.endTime)) {
-      return
+    const values = getValues()
+    if (!availability || !values.startTime) return
+    const valid = values.endTime
+      ? rangeIsAvailable(availability.slots, values.startTime, values.endTime)
+      : availability.slots.some(
+          (slot) => slot.startTime === values.startTime && slot.status === "available",
+        )
+    if (!valid) {
+      setValue("startTime", 0)
+      setValue("endTime", 0)
+      reportError(t("timeConflict"))
     }
-
-    setValue("startTime", 0)
-    setValue("endTime", 0)
-    reportError(t("timeConflict"))
   }, [availability, getValues, reportError, setValue, t])
 
-  function clearSelectedRange() {
-    startTimeField.onChange(0)
-    endTimeField.onChange(0)
+  function changeDate(nextDate: Date) {
+    reportError(undefined)
+    setValue("date", dateToInputValue(nextDate), { shouldValidate: true })
+    setValue("startTime", 0)
+    setValue("endTime", 0)
     clearErrors(["startTime", "endTime"])
-  }
-
-  function selectRangeStart(timestamp: number) {
-    startTimeField.onChange(timestamp)
-    endTimeField.onChange(0)
-    clearErrors("endTime")
-  }
-
-  function selectRangeEnd(timestamp: number) {
-    if (availability && rangeIsAvailable(availability.slots, startTime, timestamp)) {
-      endTimeField.onChange(timestamp)
-      clearErrors("endTime")
-      clearError()
-      return
-    }
-
-    reportError(t("rangeUnavailable"))
-  }
-
-  function selectTime(option: TimeOption) {
-    if (timeIsSelected(option.timestamp, startTime, endTime)) {
-      clearSelectedRange()
-      clearError()
-      return
-    }
-
-    const startsNewRange = !startTime || Boolean(endTime) || option.timestamp < startTime
-    if (startsNewRange) selectRangeStart(option.timestamp)
-    else selectRangeEnd(option.timestamp)
-  }
-
-  function selectDate(selected: Date | undefined, onChange: (date: string) => void) {
-    if (!selected) return
-    clearError()
-    clearSelectedRange()
-    onChange(dateToInputValue(selected))
     setCalendarOpen(false)
   }
 
-  function formatTime(value: number) {
-    return timeFormatter.format(new Date(value * 1000))
-  }
-
-  function selectedRangeLabel() {
-    if (startTime && endTime) {
-      return t("selectedRange", {
-        start: formatTime(startTime),
-        end: formatTime(endTime),
-      })
-    }
-    return startTime ? t("selectEndHint") : t("selectStartHint")
+  /** The picker decides which edges can move; the form only stores the pair. */
+  function applyRange(range: ReservationRange) {
+    if (!availability) return
+    reportError(undefined)
+    clearErrors(["startTime", "endTime"])
+    setValue("startTime", range.startTime, { shouldDirty: true })
+    setValue("endTime", range.endTime, { shouldDirty: true })
   }
 
   return (
-    <StepLayout title={t("dateTimeTitle")} error={error}>
-      <div className="grid min-w-0 gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+    <StepLayout title={t("dateTimeTitle")}>
+      <Controller
+        control={control}
+        name="date"
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid} className="min-w-0 gap-2">
+            <FieldLabel>{t("dateTitle")}</FieldLabel>
+            <DateRail
+              date={date}
+              today={today}
+              maximumDate={maximumDate}
+              open={calendarOpen}
+              onOpenChange={setCalendarOpen}
+              onSelect={changeDate}
+              triggerRef={field.ref}
+            />
+            <FieldDescription>
+              {date ? dateFormatter.format(inputValueToDate(date)!) : t("dateDescription")}
+            </FieldDescription>
+            <FieldError errors={[fieldState.error]} />
+          </Field>
+        )}
+      />
+      {error ? (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+      {loading ? (
+        <output className="block space-y-3">
+          <span className="sr-only">{t("checking")}</span>
+          <Skeleton className="h-11" />
+          <Skeleton className="h-24" />
+        </output>
+      ) : null}
+      {availability && !loading && !hasOpenSlot ? (
+        <div className="rounded-lg bg-muted/60 p-4 text-sm">
+          <p className="font-medium">{t("noTimes")}</p>
+          <p className="mt-1 text-muted-foreground">{t("noTimesHint")}</p>
+          {date && date < dateToInputValue(maximumDate) ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-3 min-h-11"
+              onClick={() => changeDate(addDays(inputValueToDate(date)!, 1))}
+            >
+              {t("nextDay")}
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+      {availability && !loading && hasOpenSlot ? (
         <Controller
           control={control}
-          name="date"
-          render={({ field, fieldState }) => {
-            const selectedDate = inputValueToDate(field.value)
-
-            return (
-              <FieldSet className="min-w-0 content-start gap-3" data-invalid={fieldState.invalid}>
-                <div className="min-w-0">
-                  <FieldLegend variant="label">{t("dateTitle")}</FieldLegend>
-                  <FieldDescription>{t("dateDescription")}</FieldDescription>
-                </div>
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="min-h-11 w-full justify-start font-normal sm:min-h-8"
-                      aria-invalid={fieldState.invalid}
-                      aria-label={t("dateTitle")}
-                    >
-                      <CalendarDays aria-hidden />
-                      <span className="min-w-0 truncate">
-                        {selectedDate ? dateFormatter.format(selectedDate) : t("dateTitle")}
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      showOutsideDays
-                      locale={locale === "zh-CN" ? zhCN : enUS}
-                      endMonth={maximumDate}
-                      disabled={{ before: today, after: maximumDate }}
-                      onSelect={(selected) => selectDate(selected, field.onChange)}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FieldError errors={[fieldState.error]} />
-              </FieldSet>
-            )
-          }}
+          name="startTime"
+          render={({ field }) => (
+            <TimeRangePicker
+              availability={availability}
+              startTime={startTime}
+              endTime={endTime}
+              formatTime={formatTime}
+              loading={loading}
+              invalid={Boolean(formState.errors.startTime || formState.errors.endTime)}
+              errors={[formState.errors.startTime, formState.errors.endTime]}
+              startHandleRef={field.ref}
+              onStartBlur={field.onBlur}
+              onRefresh={refresh}
+              onRangeChange={applyRange}
+            />
+          )}
         />
-
-        {date ? (
-          <FieldSet
-            className="min-w-0 gap-3"
-            data-invalid={startTimeState.invalid || endTimeState.invalid}
-          >
-            <div className="flex min-w-0 items-start justify-between gap-2">
-              <div className="min-w-0">
-                <FieldLegend variant="label">{t("timeRange")}</FieldLegend>
-                <FieldDescription>{selectedRangeLabel()}</FieldDescription>
-              </div>
-              <TooltipProvider delayDuration={80}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={refresh}
-                      aria-label={t("refresh")}
-                      disabled={loading}
-                      className="size-11 shrink-0 sm:size-8"
-                    >
-                      {loading ? <Spinner /> : <RefreshCw aria-hidden />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t("refresh")}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-
-            <FieldGroup>
-              {loading ? (
-                <div
-                  className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5"
-                  aria-live="polite"
-                >
-                  <span className="sr-only">{t("checking")}</span>
-                  {Array.from({ length: 10 }, (_, index) => (
-                    <Skeleton key={index} className="h-11 w-full sm:h-8" />
-                  ))}
-                </div>
-              ) : null}
-
-              {availability && !loading ? (
-                <>
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <span aria-hidden className="size-2 rounded-full bg-success" />
-                      {t("available")}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span aria-hidden className="size-2 rounded-full bg-muted-foreground/40" />
-                      {t("occupied")}
-                    </span>
-                  </div>
-                  <div className="grid min-w-0 grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
-                    {visibleTimeOptions.map((option) => {
-                      const selected = timeIsSelected(option.timestamp, startTime, endTime)
-                      const selectable = timeCanBeSelected({
-                        option,
-                        slots: availability.slots,
-                        startTime,
-                        endTime,
-                      })
-                      const occupied = option.status === "occupied" && !selectable
-                      return (
-                        <Button
-                          type="button"
-                          key={option.timestamp}
-                          disabled={!selectable && !selected}
-                          aria-pressed={selected}
-                          aria-label={`${formatTime(option.timestamp)}${occupied ? `, ${t("occupied")}` : ""}`}
-                          variant={selected ? "default" : occupied ? "ghost" : "outline"}
-                          className={
-                            occupied
-                              ? "min-h-11 text-muted-foreground line-through sm:min-h-8"
-                              : "min-h-11 font-mono text-xs tabular-nums sm:min-h-8"
-                          }
-                          onClick={() => selectTime(option)}
-                        >
-                          {formatTime(option.timestamp)}
-                        </Button>
-                      )
-                    })}
-                  </div>
-                </>
-              ) : null}
-            </FieldGroup>
-            <FieldError errors={[startTimeState.error, endTimeState.error]} />
-          </FieldSet>
-        ) : null}
-      </div>
+      ) : null}
     </StepLayout>
   )
-}
-
-function startOfToday() {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  return today
 }
 
 function addDays(date: Date, days: number) {

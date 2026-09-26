@@ -3,9 +3,10 @@ import { useLocale, useTranslations } from "next-intl"
 import { useMemo, type ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 
+import { Button } from "@/components/ui/button"
 import type { CatalogData } from "@/lib/api/types"
 
-import type { ReservationFormValues } from "../form"
+import type { BookingStepId, ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
 
 const DETAIL =
@@ -20,7 +21,13 @@ function ConfirmRow({ label, children }: { label: string; children: ReactNode })
   )
 }
 
-export function ReviewStep({ catalog }: { catalog: CatalogData }) {
+export function ReviewStep({
+  catalog,
+  onEdit,
+}: {
+  catalog: CatalogData
+  onEdit: (step: BookingStepId) => void
+}) {
   const t = useTranslations("booking")
   const locale = useLocale()
   const { getValues } = useFormContext<ReservationFormValues>()
@@ -50,7 +57,25 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
   const duration = Math.max(0, Math.round((values.endTime - values.startTime) / 60))
 
   return (
-    <StepLayout title={t("reviewTitle")}>
+    <StepLayout title={t("reviewTitle")} description={t("reviewDescription")}>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11"
+          onClick={() => onEdit("location")}
+        >
+          {t("editSchedule")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11"
+          onClick={() => onEdit("profile")}
+        >
+          {t("editProfile")}
+        </Button>
+      </div>
       <dl className="flex min-w-0 flex-col divide-y divide-border">
         {roomName ? (
           <ConfirmRow label={t("location")}>

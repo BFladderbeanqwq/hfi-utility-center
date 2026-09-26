@@ -6,6 +6,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { EmptyState } from "@/components/layout/data-state"
+import { PercentSpan } from "@/components/layout/percent-span"
 import { StatusBadge, type StatusTone } from "@/components/layout/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -232,21 +233,22 @@ function RoomDayCard({
             )}
           >
             {day.segments.map((segment) => (
-              <span
+              <PercentSpan
                 key={segment.id}
                 aria-hidden
-                style={{ left: `${segment.left}%`, width: `${segment.width}%` }}
+                left={`${segment.left}%`}
+                width={`${segment.width}%`}
                 className={cn(
-                  "absolute inset-y-0 rounded-full",
+                  "inset-y-0 rounded-full",
                   segment.status === "approved" ? "bg-success" : "bg-warning",
                 )}
               />
             ))}
             {showNow ? (
-              <span
+              <PercentSpan
                 aria-hidden
-                style={{ left: `${nowPct}%` }}
-                className="absolute inset-y-0 w-0.5 bg-foreground/80"
+                left={`${nowPct}%`}
+                className="inset-y-0 w-0.5 bg-foreground/80"
               />
             ) : null}
           </div>

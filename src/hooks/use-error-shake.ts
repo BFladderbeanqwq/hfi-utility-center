@@ -3,9 +3,21 @@
 import * as React from "react"
 
 const INVALID = '[data-invalid="true"]'
-const SHAKE = ["t-shake", "is-shaking"] as const
+const SHAKE = "animate-shake-x"
 
-// Replays the shake animation on invalid form fields within the ref. Call shake() on failed submit, never during render.
+/**
+ * Replays the error-state shake on every invalid `Field` / `FieldSet` inside
+ * the returned ref.
+ *
+ * The persistent error styling is already driven by `data-invalid`, so this
+ * only ever adds the shake animation — the two stay orthogonal, which is what
+ * makes a replay (remove → forced reflow → re-add) safe. Call `shake()` from
+ * a failed validation submit, never from render: on every render the shake
+ * would re-fire and the form would never sit still.
+ */
+export function useErrorShake<T extends HTMLElement>() {
+  const ref = React.useRef<T | null>(null)
+  const [replay, setReplay] = React.useState(0)
 export function useErrorShake<T extends HTMLElement>() {
   const ref = React.useRef<T | null>(null)
   const [replay, setReplay] = React.useState(0)
@@ -20,17 +32,20 @@ export function useErrorShake<T extends HTMLElement>() {
 
     let longest = 0
     fields.forEach((field) => {
-      field.classList.remove(...SHAKE)
-      void field.offsetWidth // Force reflow to restart animation keyframes
-      field.classList.add(...SHAKE)
-      // Read duration from computed style so timer aligns with CSS and reduced-motion settings.
+      field.classList.remove(SHAKE)
+      void field.offsetWidth // force reflow so the keyframes restart
+      field.classList.add(SHAKE)
+      // Read the duration back off the element so the timer can never drift
+      // from the CSS — and so a reduced-motion zero duration is honoured.
+      const ms = parseFloat(getComputedStyle(field).animationDuration)
+      if (Number.isFinite(ms)) longest = Math.max(longest, ms * 1000)
       const ms = parseFloat(getComputedStyle(field).animationDuration)
       if (Number.isFinite(ms)) longest = Math.max(longest, ms * 1000)
     })
 
     const timer = setTimeout(() => {
-      root.querySelectorAll(".is-shaking").forEach((field) => {
-        field.classList.remove(...SHAKE)
+      root.querySelectorAll(`.${SHAKE}`).forEach((field) => {
+        field.classList.remove(SHAKE)
       })
     }, longest + 20)
 

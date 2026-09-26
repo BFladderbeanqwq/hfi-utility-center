@@ -180,7 +180,7 @@ export function FacilityDashboard({ portrait = false }: { portrait?: boolean }) 
               </CardContent>
             </Card>
 
-            <div className="t-reveal">
+            <div className="motion-safe:animate-content-reveal">
               <FacilityRoomBoard
                 days={visibleDays}
                 totalRooms={rooms.length}
