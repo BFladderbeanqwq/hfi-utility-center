@@ -61,33 +61,33 @@ export default function HomePage() {
   return (
     <AppShell>
       {announcement ? (
-        <Alert className="border-0 bg-transparent px-0 py-0">
-          <Megaphone aria-hidden className="mt-0.5 size-4" />
-          <AlertTitle className="flex w-full items-start justify-between gap-2 font-medium break-words">
-            <span className="min-w-0 flex-1">
+        <Alert className="grid-cols-1 items-start gap-3 px-4 py-4 sm:grid-cols-[auto_1fr_auto] sm:gap-x-3">
+          <Megaphone aria-hidden />
+          <div className="flex min-w-0 flex-col gap-1">
+            <AlertTitle className="break-words">
               {announcement.title || t("announcementFallbackTitle")}
-            </span>
-            <TooltipProvider delayDuration={80}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    aria-label={t("announcementReadMore")}
-                    onClick={() => setAnnouncementOpen(true)}
-                    className="-mt-1.5 -mr-2 size-8 shrink-0"
-                  >
-                    <Maximize2 aria-hidden className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>{t("announcementReadMore")}</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </AlertTitle>
-          <AlertDescription className="min-w-0 [&>div]:line-clamp-2">
-            <MarkdownContent content={announcement.content} />
-          </AlertDescription>
+            </AlertTitle>
+            <AlertDescription className="min-w-0 break-words [&>div]:line-clamp-2">
+              <MarkdownContent content={announcement.content} />
+            </AlertDescription>
+          </div>
+          <TooltipProvider delayDuration={80}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("announcementReadMore")}
+                  onClick={() => setAnnouncementOpen(true)}
+                  className="size-9 justify-self-start sm:justify-self-end"
+                >
+                  <Maximize2 aria-hidden />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("announcementReadMore")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </Alert>
       ) : null}
 
