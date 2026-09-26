@@ -54,6 +54,8 @@ type PolicyDraft = {
   end: string
 }
 
+const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const
+
 const defaultDraft: PolicyDraft = {
   days: [1, 2, 3, 4, 5],
   start: "08:00",
@@ -154,10 +156,10 @@ export function PolicyEditor({
               onValueChange={toggleDays}
               className="grid w-full grid-cols-4 gap-1.5 sm:grid-cols-7"
             >
-              {weekdays.map((weekday, index) => (
+              {weekdays.map((weekday, day) => (
                 <ToggleGroupItem
-                  key={`${weekday}-${index}`}
-                  value={String(index)}
+                  key={WEEKDAY_KEYS[day] ?? weekday}
+                  value={String(day)}
                   aria-label={weekday}
                   className="min-h-11"
                 >
