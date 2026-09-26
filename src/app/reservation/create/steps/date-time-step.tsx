@@ -174,43 +174,45 @@ export function DateTimeStep({
         <Controller
           control={control}
           name="date"
-          render={({ field, fieldState }) => (
-            <FieldSet className="min-w-0 content-start gap-3" data-invalid={fieldState.invalid}>
-              <div className="min-w-0">
-                <FieldLegend variant="label">{t("dateTitle")}</FieldLegend>
-                <FieldDescription>{t("dateDescription")}</FieldDescription>
-              </div>
-              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="min-h-11 w-full justify-start font-normal sm:min-h-8"
-                    aria-invalid={fieldState.invalid}
-                    aria-label={t("dateTitle")}
-                  >
-                    <CalendarDays aria-hidden />
-                    <span className="min-w-0 truncate">
-                      {field.value
-                        ? dateFormatter.format(inputValueToDate(field.value) ?? new Date())
-                        : t("dateTitle")}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    showOutsideDays
-                    locale={locale === "zh-CN" ? zhCN : enUS}
-                    endMonth={maximumDate}
-                    disabled={{ before: today, after: maximumDate }}
-                    onSelect={(selected) => selectDate(selected, field.onChange)}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FieldError errors={[fieldState.error]} />
-            </FieldSet>
-          )}
+          render={({ field, fieldState }) => {
+            const selectedDate = inputValueToDate(field.value)
+
+            return (
+              <FieldSet className="min-w-0 content-start gap-3" data-invalid={fieldState.invalid}>
+                <div className="min-w-0">
+                  <FieldLegend variant="label">{t("dateTitle")}</FieldLegend>
+                  <FieldDescription>{t("dateDescription")}</FieldDescription>
+                </div>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="min-h-11 w-full justify-start font-normal sm:min-h-8"
+                      aria-invalid={fieldState.invalid}
+                      aria-label={t("dateTitle")}
+                    >
+                      <CalendarDays aria-hidden />
+                      <span className="min-w-0 truncate">
+                        {selectedDate ? dateFormatter.format(selectedDate) : t("dateTitle")}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      showOutsideDays
+                      locale={locale === "zh-CN" ? zhCN : enUS}
+                      endMonth={maximumDate}
+                      disabled={{ before: today, after: maximumDate }}
+                      onSelect={(selected) => selectDate(selected, field.onChange)}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FieldError errors={[fieldState.error]} />
+              </FieldSet>
+            )
+          }}
         />
 
         {date ? (
