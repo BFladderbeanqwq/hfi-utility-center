@@ -1,6 +1,6 @@
-import { useMemo, type ReactNode } from "react"
 import { Clock3, Mail, MapPin, Monitor, ShieldCheck, UserRound } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
+import { useMemo, type ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 
 import type { CatalogData } from "@/lib/api/types"

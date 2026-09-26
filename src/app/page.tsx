@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { LayoutDashboard, ListChecks, Maximize2, Megaphone, Plus } from "lucide-react"
-import Link from "next/link"
 import { useTranslations } from "next-intl"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 
 import { AppShell } from "@/components/layout/app-shell"
 import { MarkdownContent } from "@/components/markdown-content"

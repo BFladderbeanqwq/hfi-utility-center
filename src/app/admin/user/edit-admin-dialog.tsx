@@ -1,12 +1,11 @@
 "use client"
 
-import { useState } from "react"
 import { Check, Pencil, X } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useErrorShake } from "@/hooks/use-error-shake"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -19,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useErrorShake } from "@/hooks/use-error-shake"
 import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { editAdmin } from "@/lib/api/admins"
 import type { Admin } from "@/lib/api/types"

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
   CalendarClock,
   Ellipsis,
@@ -12,7 +11,9 @@ import {
   Trash2,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
+import { useState } from "react"
 
+import { EmptyState } from "@/components/layout/data-state"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -45,7 +46,6 @@ import type { AdminMutation } from "@/lib/api/admin-hooks"
 import { createPolicy, deletePolicy, editPolicy, togglePolicy } from "@/lib/api/catalog"
 import type { Room, RoomPolicy } from "@/lib/api/types"
 
-import { EmptyState } from "@/components/layout/data-state"
 import { IconHint, StateDot, iconTouchTarget, touchTarget } from "./facility-editor-actions"
 
 type PolicyDraft = {

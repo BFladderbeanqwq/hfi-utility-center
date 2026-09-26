@@ -1,4 +1,5 @@
 import { geist, geistMono, notoSansSC } from "@/app/fonts"
+
 import "./globals.css"
 
 import { Providers } from "@/app/providers"

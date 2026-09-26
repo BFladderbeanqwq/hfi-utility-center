@@ -1,9 +1,9 @@
 "use client"
 
-import type { ReactNode } from "react"
 import { CheckCircle2, Clock3, FileText, Monitor, Pencil, UserRound, XCircle } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
+import type { ReactNode } from "react"
 
 import { EmptyState } from "@/components/layout/data-state"
 import {

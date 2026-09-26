@@ -1,8 +1,8 @@
 import type { LucideIcon } from "lucide-react"
 import Link from "next/link"
 
-import { cn } from "@/lib/utils"
 import type { StatusTone } from "@/components/layout/status-badge"
+import { cn } from "@/lib/utils"
 
 // A metric is data, not a card. The only chrome allowed is a 2px left rail in
 // the tone colour — no box, no fill, no shadow, no rounded container.

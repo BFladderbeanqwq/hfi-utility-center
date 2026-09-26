@@ -9,12 +9,12 @@ import {
   Megaphone,
   Users,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import Link from "next/link"
 import { redirect, usePathname, useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
 
-import { AppFrame, AppShell } from "@/components/layout/app-shell"
 import { AppHeader } from "@/components/layout/app-header"
+import { AppFrame, AppShell } from "@/components/layout/app-shell"
 import { LoadingState } from "@/components/layout/data-state"
 import {
   Sidebar,
