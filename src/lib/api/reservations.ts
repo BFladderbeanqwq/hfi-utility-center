@@ -29,6 +29,8 @@ export async function getAvailability(
   knownRoom?: Room,
   excludedReservationId?: number,
 ) {
+  if (!knownRoom) throw new Error("Room availability is incomplete")
+
   const { data } = await api.get<
     ApiResponse<{
       roomId: number
@@ -47,8 +49,6 @@ export async function getAvailability(
     },
   })
   const availability = data.data!
-  if (!knownRoom) throw new Error("Room availability is incomplete")
-
   // Rust returns occupied intervals. For self-service edits we additionally
   // fetch the day's reservations because that endpoint currently has no
   // exclude-reservation parameter.
