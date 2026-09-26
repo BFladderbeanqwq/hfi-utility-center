@@ -3,7 +3,7 @@
 import { RefreshCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 /**
@@ -23,20 +23,22 @@ export function RefreshButton({
   className?: string
 }) {
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className={cn("size-9", className)}
-          aria-label={label}
-          onClick={onRefresh}
-          disabled={loading}
-        >
-          <RefreshCw />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
+    <TooltipProvider delayDuration={80}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className={cn("size-9", className)}
+            aria-label={label}
+            onClick={onRefresh}
+            disabled={loading}
+          >
+            <RefreshCw />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
