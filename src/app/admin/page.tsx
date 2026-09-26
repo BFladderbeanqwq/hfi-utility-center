@@ -157,7 +157,7 @@ export default function AdminPage() {
                   className="size-8"
                   aria-label={t("viewAll")}
                 >
-                  <Link href="/admin/reservation">
+                  <Link href="/admin/reservation" prefetch={false}>
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -212,6 +212,7 @@ function Stat({ label, value, to }: { label: string; value: number; to: string }
   return (
     <Link
       href={to}
+      prefetch={false}
       className="min-w-0 border-l-2 border-primary/40 pl-3 transition-colors hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
     >
       <span className="block text-xs tracking-wide text-muted-foreground uppercase">{label}</span>
@@ -232,6 +233,7 @@ function PendingReservation({
   return (
     <Link
       href="/admin/reservation"
+      prefetch={false}
       className="flex min-w-0 items-center gap-3 py-3 transition-colors hover:bg-accent/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
       aria-label={reservation.roomName || `#${reservation.id}`}
     >

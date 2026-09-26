@@ -95,6 +95,7 @@ function PaginationRouteLink({
     <Link
       aria-current={active ? "page" : undefined}
       className={cn(buttonVariants({ variant: active ? "outline" : "ghost", size }), className)}
+      prefetch={false}
       {...props}
     />
   )

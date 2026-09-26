@@ -136,7 +136,11 @@ function AuthenticatedAdminShell({
                         tooltip={item.label}
                         className="h-9 data-[collapsible=icon]:h-8!"
                       >
-                        <Link href={item.href} aria-current={item.active ? "page" : undefined}>
+                        <Link
+                          href={item.href}
+                          aria-current={item.active ? "page" : undefined}
+                          prefetch={false}
+                        >
                           <item.icon />
                           <span>{item.label}</span>
                         </Link>

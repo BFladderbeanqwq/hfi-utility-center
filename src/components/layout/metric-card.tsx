@@ -66,6 +66,7 @@ export function MetricCard({
   return (
     <Link
       href={to}
+      prefetch={false}
       className="group/metric block min-w-0 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       {body}

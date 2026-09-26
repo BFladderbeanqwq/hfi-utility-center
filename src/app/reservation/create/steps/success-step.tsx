@@ -44,7 +44,7 @@ export function SuccessStep({
       ) : null}
       <div className="mt-2 flex w-full flex-wrap items-center justify-center gap-2">
         <Button asChild className="min-h-11 sm:min-h-8">
-          <Link href={adminForce ? "/admin/reservation" : "/reservation/search"}>
+          <Link href={adminForce ? "/admin/reservation" : "/reservation/search"} prefetch={false}>
             <ListChecks aria-hidden />
             {t("viewReservations")}
           </Link>
@@ -55,7 +55,7 @@ export function SuccessStep({
         </Button>
         {!adminForce ? (
           <Button asChild variant="ghost" className="min-h-11 sm:min-h-8">
-            <Link href="/">
+            <Link href="/" prefetch={false}>
               <ArrowLeft aria-hidden />
               {t("home")}
             </Link>

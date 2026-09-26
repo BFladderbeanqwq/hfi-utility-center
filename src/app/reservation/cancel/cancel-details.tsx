@@ -132,7 +132,9 @@ export function CancelDetails({
           </AlertDialogContent>
         </AlertDialog>
         <Button asChild variant="ghost" className="min-h-11 sm:min-h-8">
-          <Link href="/">{t("home")}</Link>
+          <Link href="/" prefetch={false}>
+            {t("home")}
+          </Link>
         </Button>
       </div>
     </div>
@@ -155,10 +157,14 @@ export function CancelledNotice() {
       action={
         <>
           <Button asChild className="min-h-11 sm:min-h-8">
-            <Link href="/reservation/create">{t("bookAgain")}</Link>
+            <Link href="/reservation/create" prefetch={false}>
+              {t("bookAgain")}
+            </Link>
           </Button>
           <Button asChild variant="outline" className="min-h-11 sm:min-h-8">
-            <Link href="/">{t("home")}</Link>
+            <Link href="/" prefetch={false}>
+              {t("home")}
+            </Link>
           </Button>
         </>
       }
@@ -177,7 +183,9 @@ export function LinkUnavailable({ description }: { description: string }) {
       description={description}
       action={
         <Button asChild variant="outline" className="min-h-11 sm:min-h-8">
-          <Link href="/">{t("home")}</Link>
+          <Link href="/" prefetch={false}>
+            {t("home")}
+          </Link>
         </Button>
       }
     />
