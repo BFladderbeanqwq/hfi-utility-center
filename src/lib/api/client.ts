@@ -25,6 +25,7 @@ export const api = axios.create({
 })
 
 class RequestError extends Error {
+  name = "RequestError"
   notified = false
 }
 
