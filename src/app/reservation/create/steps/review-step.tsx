@@ -25,10 +25,9 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
   const locale = useLocale()
   const { getValues } = useFormContext<ReservationFormValues>()
   const values = getValues()
-  const className = catalog.classes.find((item) => item.id === values.classId)?.name ?? "-"
-  const campusName =
-    catalog.campuses.find((item) => item.id === values.bookingCampusId)?.name ?? "-"
-  const roomName = catalog.rooms.find((item) => item.id === values.room)?.name ?? "-"
+  const className = catalog.classes.find((item) => item.id === values.classId)?.name
+  const campusName = catalog.campuses.find((item) => item.id === values.bookingCampusId)?.name
+  const roomName = catalog.rooms.find((item) => item.id === values.room)?.name
   const dateFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
@@ -53,15 +52,19 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
   return (
     <StepLayout title={t("reviewTitle")}>
       <dl className="flex min-w-0 flex-col divide-y divide-border">
-        <ConfirmRow label={t("location")}>
-          <span className="flex min-w-0 flex-wrap items-center gap-2">
-            <MapPin aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="font-medium break-words">{roomName}</span>
-            <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-              {campusName}
+        {roomName ? (
+          <ConfirmRow label={t("location")}>
+            <span className="flex min-w-0 flex-wrap items-center gap-2">
+              <MapPin aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+              <span className="font-medium break-words">{roomName}</span>
+              {campusName ? (
+                <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                  {campusName}
+                </span>
+              ) : null}
             </span>
-          </span>
-        </ConfirmRow>
+          </ConfirmRow>
+        ) : null}
         <ConfirmRow label={t("dateTimeTitle")}>
           <span className="flex min-w-0 flex-wrap items-center gap-2">
             <Clock3 aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
@@ -83,7 +86,9 @@ export function ReviewStep({ catalog }: { catalog: CatalogData }) {
               <UserRound aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
               <span className="break-words">{values.studentName}</span>
             </span>
-            <span className="break-words text-muted-foreground">{className}</span>
+            {className ? (
+              <span className="break-words text-muted-foreground">{className}</span>
+            ) : null}
             {!values.isPrivileged ? (
               <span className="font-mono text-xs break-words text-muted-foreground">
                 {values.studentId}

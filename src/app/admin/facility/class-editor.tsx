@@ -97,7 +97,7 @@ export function ClassEditor({
                 </TableCell>
                 <TableCell>
                   <span className="block max-w-[12rem] truncate">
-                    {campusNames.get(schoolClass.campus) ?? "—"}
+                    {campusNames.get(schoolClass.campus)}
                   </span>
                 </TableCell>
                 <TableCell className="hidden text-xs text-muted-foreground md:table-cell">

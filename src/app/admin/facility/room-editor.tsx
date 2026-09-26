@@ -124,7 +124,7 @@ export function RoomEditor({
                 </TableCell>
                 <TableCell>
                   <span className="block max-w-[10rem] truncate">
-                    {campusNames.get(room.campus) ?? "—"}
+                    {campusNames.get(room.campus)}
                   </span>
                 </TableCell>
                 <TableCell>

@@ -40,7 +40,7 @@ export function weekdayFromInputValue(value: string) {
 export function formatApiTimestamp(
   formatter: Intl.DateTimeFormat,
   value: string | number | Date | null | undefined,
-  fallback = "—",
+  fallback = "",
 ) {
   if (!value) return fallback
 

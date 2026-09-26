@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Search, X } from "lucide-react"
+import { Check, MapPin, Search, X } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { StatusBadge } from "@/components/layout/status-badge"
@@ -125,11 +125,7 @@ export function ReservationTable({
               <TableCell>
                 <div className="flex min-w-0 flex-col">
                   <span className="truncate font-medium">{item.studentName}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {[item.studentId, item.className, item.campusName]
-                      .filter(Boolean)
-                      .join(" · ") || "—"}
-                  </span>
+                  <ReservationMeta item={item} />
                   <a
                     href={`mailto:${item.email}`}
                     className="truncate text-xs text-muted-foreground underline underline-offset-4"
@@ -138,7 +134,14 @@ export function ReservationTable({
                   </a>
                 </div>
               </TableCell>
-              <TableCell className="max-w-40 truncate">{item.roomName || "—"}</TableCell>
+              <TableCell className="max-w-40">
+                {item.roomName ? (
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <MapPin aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{item.roomName}</span>
+                  </span>
+                ) : null}
+              </TableCell>
               <TableCell className="tabular-nums">
                 <div className="flex flex-col">
                   <span>{formatDateTime(item.startTime)}</span>
@@ -193,6 +196,14 @@ export function ReservationTable({
   )
 }
 
+function ReservationMeta({ item }: { item: Reservation }) {
+  const meta = [item.studentId, item.className, item.campusName].filter(Boolean).join(" · ")
+
+  if (!meta) return null
+
+  return <span className="truncate text-xs text-muted-foreground">{meta}</span>
+}
+
 export function ReservationList({
   reservations,
   working,
@@ -226,17 +237,17 @@ export function ReservationList({
             onReject={() => onReject(item.id)}
             fields={[
               { label: t("name"), value: item.studentName },
-              { label: t("studentId"), value: item.studentId || "—" },
+              { label: t("studentId"), value: item.studentId ?? "" },
               { label: t("email"), value: item.email, href: `mailto:${item.email}` },
-              { label: t("class"), value: item.className || "—" },
-              { label: t("campus"), value: item.campusName || "—" },
-            ]}
+              { label: t("class"), value: item.className ?? "" },
+              { label: t("campus"), value: item.campusName ?? "" },
+            ].filter((field) => field.value)}
             details={[
-              { label: t("room"), value: item.roomName || "—" },
+              { label: t("room"), value: item.roomName ?? "" },
               { label: t("startTime"), value: formatDateTime(item.startTime) },
               { label: t("endTime"), value: formatDateTime(item.endTime) },
               { label: t("reason"), value: item.reason },
-            ]}
+            ].filter((field) => field.value)}
           />
         </li>
       ))}
@@ -287,8 +298,14 @@ function ReservationCard({
           <span className="text-sm font-medium break-words">
             {formatDateTime(reservation.startTime)}
           </span>
-          <span className="truncate text-xs text-muted-foreground">
-            {reservation.roomName || "—"} · #{reservation.id}
+          <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="shrink-0 tabular-nums">#{reservation.id}</span>
+            {reservation.roomName ? (
+              <>
+                <MapPin aria-hidden className="size-3 shrink-0" />
+                <span className="truncate">{reservation.roomName}</span>
+              </>
+            ) : null}
           </span>
         </div>
         {reservation.status === "pending" ? (

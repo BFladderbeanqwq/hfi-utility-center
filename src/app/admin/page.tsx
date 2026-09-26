@@ -234,17 +234,18 @@ function PendingReservation({
       href="/admin/reservation"
       prefetch={false}
       className="flex min-w-0 items-center gap-3 py-3 transition-colors hover:bg-accent/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-      aria-label={reservation.roomName || `#${reservation.id}`}
     >
       <span className="w-12 shrink-0 text-sm font-semibold text-primary tabular-nums">
         #{reservation.id}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-medium break-words">
-          {reservation.roomName || "—"}
+          {reservation.roomName || reservation.reason}
         </span>
         <span className="truncate text-xs text-muted-foreground">
-          {reservation.studentName} · {reservation.reason}
+          {reservation.roomName
+            ? `${reservation.studentName} · ${reservation.reason}`
+            : reservation.studentName}
         </span>
       </span>
       <span className="flex shrink-0 flex-col items-end gap-1">
