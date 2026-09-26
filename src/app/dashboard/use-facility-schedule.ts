@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react"
 
-import { getRooms } from "@/lib/api/catalog"
+import { getCampuses, getRooms } from "@/lib/api/catalog"
 import { getReservations } from "@/lib/api/reservations"
-import type { Reservation, Room } from "@/lib/api/types"
+import type { Campus, Reservation, Room } from "@/lib/api/types"
 
 const POLL_MS = 30000
 const TICK_MS = 5000
@@ -19,12 +19,12 @@ const PAGE_SIZE = 20
  */
 export function useFacilitySchedule() {
   const [rooms, setRooms] = useState<Room[]>([])
+  const [campuses, setCampuses] = useState<Campus[]>([])
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [now, setNow] = useState(() => new Date())
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
   const [updated, setUpdated] = useState<Date | null>(null)
-
   const refresh = useCallback(async () => {
     setLoading(true)
     try {
@@ -36,8 +36,9 @@ export function useFacilitySchedule() {
         startTime: Math.floor(start.getTime() / 1000),
         endTime: Math.floor(end.getTime() / 1000),
       }
-      const [catalog, first] = await Promise.all([
+      const [catalog, campusList, first] = await Promise.all([
         getRooms(),
+        getCampuses(),
         getReservations({ ...params, page: 0 }),
       ])
       const rest = await Promise.all(
@@ -46,6 +47,7 @@ export function useFacilitySchedule() {
         ),
       )
       setRooms(catalog.filter((room) => room.enabled))
+      setCampuses(campusList.filter((campus) => !campus.isPrivileged))
       setReservations(
         [...first.reservations, ...rest.flatMap((page) => page.reservations)].sort(
           (a, b) => Date.parse(a.startTime) - Date.parse(b.startTime),
@@ -73,5 +75,5 @@ export function useFacilitySchedule() {
     }
   }, [refresh])
 
-  return { rooms, reservations, now, error, loading, updated, refresh }
+  return { rooms, campuses, reservations, now, error, loading, updated, refresh }
 }
