@@ -10,12 +10,7 @@ import type { CatalogData } from "@/lib/api/types"
 
 import { reservationDefaults, type ReservationFormValues } from "./form"
 
-/**
- * The class/room catalogue the whole flow is built on, plus the admin session
- * in force-mode. A failed privileged load is fatal for that mode: without a
- * session and a privileged class there is nothing to prefill, so the page shows
- * the error instead of an unusable form.
- */
+// Loads the booking catalog, prefilling admin credentials when in force mode.
 export function useBookingCatalog(isForce: boolean, form: UseFormReturn<ReservationFormValues>) {
   const t = useTranslations("booking")
   const adminT = useTranslations("admin")

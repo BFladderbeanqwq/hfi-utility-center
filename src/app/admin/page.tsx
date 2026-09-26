@@ -72,7 +72,6 @@ const emptyDashboard: DashboardData = {
   reservations: [],
 }
 
-// One shared template keeps every label/value pair on the same grid tracks.
 const SNAPSHOT_GRID =
   "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2.5 [&>dd]:justify-self-end"
 

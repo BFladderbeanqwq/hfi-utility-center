@@ -5,22 +5,11 @@ import * as React from "react"
 const INVALID = '[data-invalid="true"]'
 const SHAKE = ["t-shake", "is-shaking"] as const
 
-/**
- * Replays the error-state shake (transitions-dev 12) on every invalid
- * `Field` / `FieldSet` inside the returned ref.
- *
- * The persistent error styling is already driven by `data-invalid`, so this
- * only ever adds `.is-shaking` — the two stay orthogonal, which is what makes
- * a replay (remove → forced reflow → re-add) safe. Call `shake()` from a
- * failed validation submit, never from render: on every render the shake
- * would re-fire and the form would never sit still.
- */
+// Replays the shake animation on invalid form fields within the ref. Call shake() on failed submit, never during render.
 export function useErrorShake<T extends HTMLElement>() {
   const ref = React.useRef<T | null>(null)
   const [replay, setReplay] = React.useState(0)
 
-  // Runs after the commit that published `data-invalid`, so the query below
-  // sees the fields react-hook-form just marked.
   React.useEffect(() => {
     if (replay === 0) return
     const root = ref.current
@@ -32,10 +21,9 @@ export function useErrorShake<T extends HTMLElement>() {
     let longest = 0
     fields.forEach((field) => {
       field.classList.remove(...SHAKE)
-      void field.offsetWidth // force reflow so the keyframes restart
+      void field.offsetWidth // Force reflow to restart animation keyframes
       field.classList.add(...SHAKE)
-      // Read the duration back off the element so the timer can never drift
-      // from the CSS — and so a reduced-motion zero duration is honoured.
+      // Read duration from computed style so timer aligns with CSS and reduced-motion settings.
       const ms = parseFloat(getComputedStyle(field).animationDuration)
       if (Number.isFinite(ms)) longest = Math.max(longest, ms * 1000)
     })

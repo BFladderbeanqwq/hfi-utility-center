@@ -17,10 +17,7 @@ const SEARCH_FIELDS = [
   "reason",
 ] as const
 
-/**
- * Keyword + status narrowing for the queue table. Keeping it here means the
- * page composes views instead of owning the matching rules.
- */
+// Filters reservations by matching a keyword across searchable fields and status.
 export function useReservationFilter(
   reservations: Reservation[],
   query: string,

@@ -33,12 +33,6 @@ const TONE_BY_STATUS: Record<RoomDayStatus, StatusTone> = {
   closed: "neutral",
 }
 
-/**
- * One card per room-day: status badge, a headline describing the live state,
- * a day timeline with the bookings plotted on it, the next few bookings, and
- * actions to book or to inspect today in search. Pure rendering over the
- * view model — all grouping and filtering decisions live in the dashboard.
- */
 export function FacilityRoomBoard({
   days,
   totalRooms,

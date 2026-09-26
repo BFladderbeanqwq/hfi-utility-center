@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 
-/** Sticky footer: the flow error, then back / next-or-submit. */
 export function BookingActionBar({
   flowError,
   isFirstStep,

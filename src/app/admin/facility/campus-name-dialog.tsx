@@ -23,7 +23,6 @@ import type { Campus } from "@/lib/api/types"
 
 import { DialogFormActions } from "./facility-editor-actions"
 
-/** Create-or-rename form for a facility record that has a name and belongs to a campus. */
 export function CampusNameDialog({
   open,
   onOpenChange,

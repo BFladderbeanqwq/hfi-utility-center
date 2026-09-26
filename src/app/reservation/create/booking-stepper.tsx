@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 
 import { bookingSteps, type BookingStepId } from "./form"
 
-/** Clickable progress breadcrumb. Only completed steps are navigable. */
+// Progress breadcrumb where only completed steps are navigable.
 export function BookingStepper({
   titles,
   currentStepIndex,

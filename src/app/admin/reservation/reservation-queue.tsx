@@ -41,7 +41,6 @@ interface ReservationFieldData {
   href?: string
 }
 
-/** Keyword box plus the status pills. Purely controlled by the page. */
 export function ReservationFilters({
   query,
   status,
@@ -89,7 +88,6 @@ export function ReservationFilters({
   )
 }
 
-/** The wide-screen queue. Each row owns its approve/reject affordances. */
 export function ReservationTable({
   reservations,
   working,
@@ -195,7 +193,6 @@ export function ReservationTable({
   )
 }
 
-/** The stacked cards used below `sm`, where the table would scroll sideways. */
 export function ReservationList({
   reservations,
   working,

@@ -17,7 +17,6 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Textarea } from "@/components/ui/textarea"
 
-/** The rejection prompt. Reason text and the inline validation error are owned here. */
 export function RejectReservationDialog({
   open,
   reason,

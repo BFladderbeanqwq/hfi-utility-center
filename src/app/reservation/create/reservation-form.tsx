@@ -58,9 +58,6 @@ export function ReservationForm({ mode = "public" }: { mode?: "public" | "adminF
   const { catalog, catalogLoading, catalogError, reloadCatalog, adminSessionRef } =
     useBookingCatalog(isForce, form)
 
-  // The step body is keyed on the step id, so navigating remounts it and the
-  // slide plays on that mount. `hasSlid` is the first-paint guard: the step a
-  // user lands on has no previous screen to slide from.
   function goToStep(nextStepId: BookingStepId) {
     const nextIndex = bookingSteps.findIndex((step) => step.id === nextStepId)
     setStepDirection(nextIndex >= currentStepIndex ? "forward" : "back")

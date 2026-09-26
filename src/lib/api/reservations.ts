@@ -49,9 +49,8 @@ export async function getAvailability(
     },
   })
   const availability = data.data!
-  // Rust returns occupied intervals. For self-service edits we additionally
-  // fetch the day's reservations because that endpoint currently has no
-  // exclude-reservation parameter.
+  // The availability endpoint returns anonymized intervals; edits require full
+  // day reservations to filter out the excluded booking ID.
   if (excludedReservationId) {
     const startTime = inputValueToTimestamp(date)
     const endTime = inputValueToTimestamp(date, true)
@@ -111,8 +110,8 @@ export async function createReservation(input: CreateReservationInput) {
 export type ForceReservationInput = CreateReservationInput
 
 export async function forceReservation(input: ForceReservationInput) {
-  // Rust activates its priority path through the regular create endpoint when
-  // the payload uses an administrator identity and a privileged class.
+  // Priority creation is handled by the standard endpoint when called with an
+  // administrator identity and privileged class.
   const { data } = await api.post<ApiResponse<{ reservationId: number }>>(
     "/reservation/create",
     input,

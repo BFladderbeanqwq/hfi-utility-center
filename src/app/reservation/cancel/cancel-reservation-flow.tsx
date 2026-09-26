@@ -9,14 +9,7 @@ import { ActiveBookingPanel } from "./active-booking-panel"
 import { CancellationGate } from "./cancellation-gate"
 import { initialDraft, useCancellation } from "./use-cancellation"
 
-/**
- * Everything the cancel link needs once the `?token=` value is known.
- *
- * The token is read by the page on the server and handed down, so this
- * component never calls `useSearchParams`. That hook cannot be resolved while
- * the route is being generated, which makes Next.js skip the server-rendered
- * HTML for the whole page and build it in the browser instead.
- */
+// Token is passed via server searchParams to preserve SSR without de-opting to client render.
 export function CancelReservationFlow({ token }: { token: string }) {
   const t = useTranslations("neo.management")
   const flow = useCancellation(token)

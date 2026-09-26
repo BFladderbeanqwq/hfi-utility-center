@@ -60,8 +60,6 @@ export function ReservationResults({
     [locale],
   )
 
-  // Day grouping is preserved: each group renders its own table with the very
-  // same header row, so the five column tracks line up across every group.
   const groups = useMemo(() => {
     const grouped = new Map<string, Reservation[]>()
     for (const reservation of reservations) {

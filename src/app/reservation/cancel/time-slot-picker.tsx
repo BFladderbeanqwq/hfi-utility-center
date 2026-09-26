@@ -7,7 +7,6 @@ import type { AvailabilityData } from "@/lib/api/types"
 
 import { timeCanBeSelected, timeIsSelected, type TimeOption } from "../create/steps/time-options"
 
-/** The slot grid: one button per candidate time, with free/occupied state. */
 export function TimeSlotPicker({
   availability,
   options,

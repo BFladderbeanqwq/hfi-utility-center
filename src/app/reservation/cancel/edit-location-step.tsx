@@ -13,7 +13,6 @@ import type { EditDraft } from "./use-cancellation"
 const TILE_GROUP =
   "[&>[data-state=on]]:border-primary [&>[data-state=on]]:bg-primary/10 [&>[data-state=on]]:text-primary"
 
-/** Step 1 of the modify flow: pick a campus, then a room inside it. */
 export function EditLocationStep({
   catalog,
   draft,

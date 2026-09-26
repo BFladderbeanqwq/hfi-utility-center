@@ -84,7 +84,7 @@
   --font-mono-stack:
     var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  /* motion scale — see the transitions-dev skill; keep ad-hoc durations out of components */
+  /* Motion scale; keep ad-hoc durations out of components. */
   --duration-stagger: 40ms;
   --duration-micro: 80ms;
   --duration-quick: 150ms;
@@ -257,7 +257,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   MOTION — transitions.dev snippets
+   MOTION (transitions.dev snippets)
 
    One block per installed transition, adapted from the transitions-dev skill.
    Every block reads its values from the motion scale in :root above via a
@@ -265,23 +265,16 @@
    duration, easing, distance, scale or blur is hardcoded here.
 
    House rules for this section:
-     • only opacity, transform and filter are animated — never width, height,
-       inset, margin or padding (layout animation risks the 0-horizontal-
-       overflow guarantee);
+     • only opacity, transform and filter are animated (never width, height,
+       inset, margin or padding to avoid horizontal overflow);
      • exact properties are enumerated, never `transition: all`;
      • every block ships its own prefers-reduced-motion guard.
    ══════════════════════════════════════════════════════════════════════════ */
 
 @layer components {
-  /* ── Page slide ──────────────────────────────────────────────────────────
-     Source: transitions-dev 08-page-side-by-side.
-     Wizard steps are swapped by key, so only one page is ever mounted and the
-     skill's two-layer cross-fade collapses to a single keyed element running
-     the slide on mount. Direction rides on `data-direction` and flips the
-     sign of the translate — that flip is the whole signal. `data-animate` is
-     the first-paint guard: the step a user lands on has no previous screen to
-     slide from, so it mounts already at rest. `data-compact` shrinks travel
-     for the cancel page's two-step sub-flow. */
+  /* Page slide
+     Direction rides on data-direction and flips the sign of the translate.
+     data-animate guards against animating on initial mount. */
   .t-page-slide {
     --t-page-slide-distance: var(--distance-base);
     --t-page-slide-blur: var(--blur-medium);
@@ -329,13 +322,7 @@
     }
   }
 
-  /* ── Error state shake ───────────────────────────────────────────────────
-     Source: transitions-dev 12-error-state-shake.
-     The persistent error treatment is already carried by `data-invalid` on
-     Field / FieldSet, so the tween is all that is needed. `.is-shaking` stays
-     orthogonal to the error state on purpose: a replay (remove → reflow →
-     re-add) must not flicker the error styling. Per-leg easing, and the
-     %-stops below are the cumulative leg durations over the total. */
+  /* Error state shake */
   .t-shake {
     --t-shake-distance: var(--distance-base);
     --t-shake-overshoot: var(--distance-small);
@@ -379,13 +366,8 @@
     }
   }
 
-  /* ── Skeleton reveal ─────────────────────────────────────────────────────
-     Source: transitions-dev 14-skeleton-reveal.
-     The consuming pages unmount the skeleton the instant data lands, so the
-     skill's two-layer stack collapses to the content side of the cross-fade:
-     the wrapper that replaces the skeleton fades in from the same 2px blur,
-     over the same duration and easing, on the mount that follows the fetch.
-     Opacity and filter only — no box moves, so no overflow risk. */
+  /* Skeleton reveal
+     Opacity and filter only without layout shifts. */
   .t-reveal {
     --t-reveal-dur: var(--duration-slow);
     --t-reveal-blur: var(--blur-small);
@@ -411,14 +393,7 @@
     }
   }
 
-  /* ── Success check ───────────────────────────────────────────────────────
-     Source: transitions-dev 10-success-check, reduced subset. The signature
-     effect is an SVG stroke-dasharray draw, which needs a <path> we own —
-     this project takes its icons from lucide-react, so the draw is dropped
-     rather than faked with a hardcoded dash length. What remains is the
-     wrapper's fade + scale + blur, with the icon riding in behind it. The
-     element only mounts after the reservation round-trip, so it never plays
-     on a cold first paint. */
+  /* Success check */
   .t-success-check {
     --t-check-dur: var(--duration-very-slow);
     --t-check-ease: var(--ease-smooth-out);
@@ -462,10 +437,7 @@
     }
   }
 
-  /* ── Number pop-in ───────────────────────────────────────────────────────
-     Source: transitions-dev 02-number-pop-in. Each digit re-enters from
-     below with a blur, the last two riding in one and two stagger steps
-     behind so a number reads as a number and not a pile of glyphs. */
+  /* Number pop-in */
   .t-digit-group {
     --t-digit-dur: var(--duration-very-slow);
     --t-digit-distance: var(--distance-base);
@@ -535,9 +507,6 @@
   body {
     margin: 0;
     min-width: 0;
-    /* Long user-supplied strings (room names, student names) wrap instead of
-       forcing the page wider than the viewport. */
-    overflow-wrap: break-word;
   }
 
   button,

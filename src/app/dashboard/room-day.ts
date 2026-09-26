@@ -10,7 +10,6 @@ export interface DaySegment {
   width: number
 }
 
-/** The only reservation statuses the day timeline renders. */
 type BoardStatus = DaySegment["status"]
 
 type BoardBooking = Reservation & { status: BoardStatus }
@@ -26,13 +25,13 @@ export interface RoomDay {
   current: Reservation | null
   next: Reservation | null
   status: RoomDayStatus
-  /** Start of the next booking when free, otherwise null. */
+  // Start of the next booking when free, otherwise null.
   freeUntil: number | null
   segments: DaySegment[]
   openToday: boolean
 }
 
-/** Local day window the board visualises, as millisecond timestamps. */
+// Local day window as millisecond timestamps.
 export function dayWindow(now: Date) {
   const start = new Date(now)
   start.setHours(Math.floor(DAY_START_HOUR), (DAY_START_HOUR % 1) * 60, 0, 0)
@@ -41,14 +40,13 @@ export function dayWindow(now: Date) {
   return { start: start.getTime(), end: end.getTime() }
 }
 
-/** "08:00" style axis label for a fractional hour like 21.5. */
+// Formats a fractional hour (e.g. 21.5) as "21:30".
 export function formatDayHour(hour: number) {
   const whole = Math.floor(hour)
   const minutes = Math.round((hour - whole) * 60)
   return `${String(whole).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`
 }
 
-/** A room is bookable today when at least one enabled policy covers the weekday. */
 export function isRoomOpenToday(room: Room, weekday: number) {
   return room.policies.some((policy) => policy.enabled && policy.days.includes(weekday))
 }
@@ -63,11 +61,7 @@ function coveringBooking(bookings: Reservation[], nowMs: number) {
   return null
 }
 
-/**
- * One card's worth of state per room: sorted bookings, the live and next
- * booking, a single status, and timeline segments clamped to the day window.
- * Pure over inputs so the board renders derived state, not raw API rows.
- */
+// Builds daily room schedule models clamped to the active day window.
 export function buildRoomDays(
   rooms: Room[],
   reservations: Reservation[],

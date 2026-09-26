@@ -11,7 +11,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { Room } from "@/lib/api/types"
 import { dateToInputValue, inputValueToDate } from "@/lib/date-time"
 
-/** The date half of the time step: a calendar popover, bounded to a 30-day window. */
 export function EditDateField({
   date,
   today,

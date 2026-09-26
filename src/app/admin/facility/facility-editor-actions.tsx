@@ -32,13 +32,10 @@ export type FacilityEditorActions = {
   working: boolean
 }
 
-/** Keeps shadcn's compact desktop sizing while staying a 44px touch target on phones. */
 export const touchTarget = "min-h-11 sm:min-h-0"
 
-/** Same idea for icon-only buttons, which need the width as well as the height. */
 export const iconTouchTarget = "size-11 sm:size-8"
 
-/** Icon-only control with a real `aria-label`; the tooltip is never the only label. */
 export function IconHint({ label, children }: { label: string; children: ReactElement }) {
   return (
     <TooltipProvider>
@@ -50,7 +47,6 @@ export function IconHint({ label, children }: { label: string; children: ReactEl
   )
 }
 
-/** Borderless resource block: quiet heading, right-aligned action, body scrolls sideways. */
 export function ResourceSection({
   title,
   count,
@@ -76,7 +72,6 @@ export function ResourceSection({
   )
 }
 
-/** Quiet on/off state: a dot plus plain text, no filled pill. */
 export function StateDot({ enabled, label }: { enabled: boolean; label: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-sm whitespace-nowrap text-muted-foreground">
@@ -92,7 +87,6 @@ export function StateDot({ enabled, label }: { enabled: boolean; label: string }
   )
 }
 
-/** Shared `⋯` row menu: callers pass their own leading items, Delete is appended last. */
 export function FacilityRowMenu({
   label,
   action,
@@ -201,7 +195,6 @@ export function ConfirmFacilityDelete({
   )
 }
 
-/** Dialog footer shared by the facility forms: Cancel plus a mode-aware submit. */
 export function DialogFormActions({
   mode,
   disabled,

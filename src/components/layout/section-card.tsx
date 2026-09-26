@@ -11,14 +11,6 @@ import {
 } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-/**
- * A titled region of the page. Deliberately quieter than the vanilla `Card`:
- * tight padding and a `text-sm` title, because most of these are grouped by the
- * page's own whitespace rather than by a box.
- *
- * `bordered={false}` drops the border and fill entirely for read-only regions
- * that should not read as an interactive or isolated container.
- */
 export function SectionCard({
   title,
   description,

@@ -27,9 +27,7 @@ const LOCALE_LABELS: { locale: AppLocale; label: string }[] = [
   { locale: "en-US", label: "English" },
 ]
 
-// Stable no-op subscription: the mounted flag only needs to be sampled once,
-// never observed. Inlined below because `useSyncExternalStore` requires a
-// referentially stable function across renders.
+// Stable no-op subscription for useSyncExternalStore.
 const subscribe = () => () => undefined
 
 const NAV = [
@@ -40,8 +38,6 @@ const NAV = [
   { href: "/admin/reservation", labelKey: "admin", match: "/admin" },
 ] as const
 
-// One active signal only: the `after:` underline. The previous `bg-accent` chip
-// doubled it up and made every nav row read as a toggle.
 const linkClasses = (active: boolean) =>
   cn(
     "relative rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors",
@@ -63,9 +59,7 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
   )
   const [open, setOpen] = useState(false)
 
-  // `NAV` is ordered most-specific-first, so the first match wins and a deeper
-  // route (`/reservation/create`) never lights up its ancestor (`/reservation`)
-  // as well.
+  // Match the first route prefix in order of specificity.
   const activeHref = NAV.find((item) =>
     item.match === "/"
       ? pathname === "/"
@@ -115,14 +109,7 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
     </DropdownMenu>
   )
 
-  // Both header utilities are momentary actions, so both are borderless ghost
-  // controls of the same size. The installed `toggle.tsx` ships only `default`
-  // (borderless) and `outline` (`border border-input`) — there is no `ghost`
-  // variant — so `default` is the borderless one. `default` and `outline` also
-  // differ in hover, so the className below mirrors the locale Button's ghost
-  // treatment. The pressed fill is neutralised because a theme switch is a
-  // momentary action, not a two-state toggle: left alone, Radix flips
-  // `aria-pressed` on click and the button keeps a filled background.
+  // Neutralize pressed styling since theme toggle is momentary rather than a persistent state.
   const themeControl = (
     <Tooltip>
       <TooltipTrigger asChild>

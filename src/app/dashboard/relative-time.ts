@@ -4,10 +4,7 @@ export const RELATIVE_UNITS = [
   { limit: Number.POSITIVE_INFINITY, key: "hoursAgo", divisor: 3_600_000 },
 ] as const
 
-/**
- * How long ago the last poll landed, as a translation key plus count. Empty
- * before the first successful poll — there is nothing to report yet.
- */
+// Formats elapsed time since the last update, returning empty before the first update.
 export function relativeSince(
   updated: Date | null,
   now: Date,

@@ -10,7 +10,6 @@ import { EditLocationStep } from "./edit-location-step"
 import { EditTimeStep } from "./edit-time-step"
 import type { EditDraft, EditStep } from "./use-cancellation"
 
-/** The two numbered steps of the modify flow, with the current one marked. */
 function EditStepper({ step }: { step: EditStep }) {
   const t = useTranslations("neo.management")
 
@@ -41,7 +40,6 @@ function EditStepper({ step }: { step: EditStep }) {
   )
 }
 
-/** Stepper plus whichever step is active. */
 export function EditFlow({
   step,
   catalog,

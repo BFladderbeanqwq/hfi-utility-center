@@ -10,10 +10,6 @@ export type Formatters = {
   headerDate: (value: Date) => string
 }
 
-/**
- * The two `Intl` formatters the board needs, built once per locale. Row
- * timestamps go through `time`; the page header gets the long date.
- */
 export function useFacilityFormatters(): Formatters {
   const { locale } = useAppLocale()
 

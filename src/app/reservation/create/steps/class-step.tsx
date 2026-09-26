@@ -11,8 +11,6 @@ import type { CatalogData } from "@/lib/api/types"
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
 
-// Selected tiles get their emphasis from the primitive's own `data-state=on`,
-// applied once on the group so every tile stays consistent.
 const TILE_GROUP =
   "[&>[data-state=on]]:border-primary [&>[data-state=on]]:bg-primary/10 [&>[data-state=on]]:text-primary"
 

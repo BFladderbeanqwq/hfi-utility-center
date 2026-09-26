@@ -13,7 +13,6 @@ import { EditDateField } from "./edit-date-field"
 import { EditTimeRangeField } from "./edit-time-range-field"
 import type { EditDraft } from "./use-cancellation"
 
-/** Step 2 of the modify flow: a date, then a start/end pair of free slots. */
 export function EditTimeStep({
   draft,
   availability,

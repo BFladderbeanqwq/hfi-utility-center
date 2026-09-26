@@ -54,13 +54,7 @@ export function addDays(date: Date, days: number) {
   return result
 }
 
-/**
- * Everything the cancel page does with the `?token=` link: load the booking,
- * keep an editable draft of it, load slot availability for the draft's room and
- * time, and write back the two possible outcomes (modified / cancelled).
- *
- * The page itself only decides which view to show.
- */
+// Manages reservation state, draft editing, slot availability, and outcomes for the cancel page.
 export function useCancellation(token: string) {
   const locale = useLocale()
   const t = useTranslations("neo.management")
@@ -77,9 +71,7 @@ export function useCancellation(token: string) {
   const [working, setWorking] = useState(false)
   const [mode, setMode] = useState<"details" | "edit">("details")
   const [editStep, setEditStep] = useState<EditStep>("location")
-  // The details ⇄ edit block is keyed on mode + editStep, so each move
-  // remounts it and the slide plays on that mount. `hasSlid` is the first-paint
-  // guard: the block a user lands on has no previous screen to slide from.
+  // Guard to prevent sliding animation on initial mount.
   const [slideDirection, setSlideDirection] = useState<"forward" | "back">("forward")
   const [hasSlid, setHasSlid] = useState(false)
   const slideKey = mode === "edit" ? `edit-${editStep}` : "details"

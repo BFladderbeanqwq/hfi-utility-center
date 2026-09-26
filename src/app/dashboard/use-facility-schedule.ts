@@ -10,13 +10,7 @@ const POLL_MS = 30000
 const TICK_MS = 5000
 const PAGE_SIZE = 20
 
-/**
- * Today's schedule for the board, polled in the background.
- *
- * The API paginates reservations, so the first page reveals `total` and the
- * rest are fetched together. `now` ticks on its own interval: a scheduled item
- * has to change from "upcoming" to "in use" without waiting for a poll.
- */
+// Background-polled schedule and reservation data for the active day.
 export function useFacilitySchedule() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [campuses, setCampuses] = useState<Campus[]>([])
@@ -65,8 +59,7 @@ export function useFacilitySchedule() {
   useEffect(() => {
     const initial = window.setTimeout(() => void refresh(), 0)
     const poll = window.setInterval(() => void refresh(), POLL_MS)
-    // A cheap tick keeps the "in use" state and the relative timestamp honest
-    // without re-fetching.
+    // Update local clock between polls to keep time-dependent statuses current without refetching.
     const tick = window.setInterval(() => setNow(new Date()), TICK_MS)
     return () => {
       window.clearTimeout(initial)

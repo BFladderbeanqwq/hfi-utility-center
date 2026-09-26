@@ -19,11 +19,6 @@ const STATUS_DOT = {
   cancelled: "bg-muted-foreground/40",
 } as const
 
-/**
- * The booking screen: which room it is, how many edits are left, and either the
- * read-only details or the modify flow. The two modes and the two steps inside
- * the flow are separate components, so this stays a header plus a switch.
- */
 export function ActiveBookingPanel({
   preview,
   catalog,

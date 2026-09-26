@@ -36,8 +36,6 @@ export default function AdminAnnouncementPage() {
     loadResource: getAdminAnnouncement,
     initialData: emptyAnnouncement as Announcement | null,
   })
-  // A `null` payload means "nothing published yet" — the same state the empty
-  // editor starts from — so both render the one form.
   const announcement = resource.data ?? emptyAnnouncement
   return (
     <div className="flex min-w-0 flex-col gap-6">
@@ -68,8 +66,6 @@ function AnnouncementForm({
   const layout = useTranslations("layout")
   const locale = useLocale()
   const { mutate, working } = useAdminMutation({ reload })
-  // Keyed on `announcement.updatedAt` at the call site so updates remount with
-  // fresh state; these initializers only run on initial mount.
   const [title, setTitle] = useState(() => announcement.title)
   const [content, setContent] = useState(() => announcement.content)
   const [enabled, setEnabled] = useState(() => announcement.enabled)

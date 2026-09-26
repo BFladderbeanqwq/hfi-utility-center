@@ -8,8 +8,6 @@ import type { CatalogData } from "@/lib/api/types"
 import type { ReservationFormValues } from "../form"
 import { StepLayout } from "../step-layout"
 
-// One shared template for every label/value pair, so the label column keeps the
-// same width down the whole summary.
 const DETAIL =
   "grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-3 py-2.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]"
 

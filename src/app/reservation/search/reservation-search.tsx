@@ -34,7 +34,6 @@ export function ReservationSearch({ filters }: { filters: ReservationSearchFilte
 
       <div className="grid min-w-0 gap-6 lg:grid-cols-[17.5rem_minmax(0,1fr)] lg:items-start">
         <div className="min-w-0 lg:sticky lg:top-20">
-          {/* The only boxed surface on the page: the panel the user acts on. */}
           <SectionCard title={t("filtersTitle")} contentClassName="min-w-0">
             {catalogError ? (
               <div className="mb-4">

@@ -6,11 +6,6 @@ import { LoadingState } from "@/components/layout/data-state"
 
 import { CancelledNotice, LinkUnavailable } from "./cancel-details"
 
-/**
- * Every state the link can be in before there is a booking to show: no token,
- * still loading, a link that never resolved, or a booking already cancelled.
- * The flow itself is only rendered once one of these is out of the way.
- */
 export function CancellationGate({
   hasToken,
   loading,

@@ -22,7 +22,6 @@ import { Spinner } from "@/components/ui/spinner"
 import type { CancellationPreview } from "@/lib/api/reservations"
 import type { PurposeType } from "@/lib/api/types"
 
-// Label/value pairs share one template so the label column never drifts.
 const DETAIL =
   "grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-3 py-2.5 sm:grid-cols-[8.5rem_minmax(0,1fr)]"
 
@@ -35,7 +34,6 @@ function DetailRow({ label, children }: { label: string; children: ReactNode }) 
   )
 }
 
-/** The read-only view of the booking plus the two actions that can follow. */
 export function CancelDetails({
   preview,
   dateFormatter,
@@ -141,7 +139,6 @@ export function CancelDetails({
   )
 }
 
-/** The terminal state after the booking was actually cancelled. */
 export function CancelledNotice() {
   const t = useTranslations("neo.management")
 
@@ -172,7 +169,6 @@ export function CancelledNotice() {
   )
 }
 
-/** The page-level dead end: a link that never resolved to a live booking. */
 export function LinkUnavailable({ description }: { description: string }) {
   const t = useTranslations("neo.management")
 

@@ -23,17 +23,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { getCurrentAnnouncement } from "@/lib/api/announcements"
 import type { Announcement } from "@/lib/api/types"
 
-// A closed set of three: the destinations reachable without leaving the
-// utility center. The tiles carry no description on purpose — the icon and the
-// label are the whole affordance, and the search page owns keyword search.
 const LAUNCHER = [
   { href: "/reservation/create", labelKey: "bookAction", icon: Plus },
   { href: "/reservation/search", labelKey: "searchTitle", icon: ListChecks },
   { href: "/dashboard", labelKey: "dashboardTitle", icon: LayoutDashboard },
 ] as const
 
-// Facts about the system that the booking form cannot show. Each pair is a
-// label naming the rule and a value stating it.
 const FACTS = [
   { labelKey: "slot", valueKey: "slotDescription" },
   { labelKey: "days", valueKey: "daysDescription" },

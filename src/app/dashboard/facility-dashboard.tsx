@@ -31,12 +31,6 @@ type StatusFilter = "all" | RoomDayStatus
 const STATUS_FILTERS: readonly StatusFilter[] = ["all", "free", "in-use", "pending", "closed"]
 const ALL_CAMPUSES = "all"
 
-/**
- * The board answers one question: where can I go right now? Each room is one
- * card with its live status, a day timeline, the next bookings, and a booking
- * action. A search box plus campus and status filters trim the grid; the
- * shadcn summary cards above carry the four numbers the old metric row did.
- */
 export function FacilityDashboard({ portrait = false }: { portrait?: boolean }) {
   const t = useTranslations("dashboard")
   const { rooms, campuses, reservations, now, error, loading, updated, refresh } =

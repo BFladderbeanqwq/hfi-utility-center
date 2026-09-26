@@ -6,11 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
-/**
- * The reload action every data page shows in its header. The icon alone is not a
- * label, so the button always carries an `aria-label` and the tooltip only ever
- * repeats it.
- */
 export function RefreshButton({
   label,
   loading,

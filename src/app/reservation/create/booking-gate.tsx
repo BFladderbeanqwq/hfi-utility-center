@@ -6,12 +6,6 @@ import { AppShell } from "@/components/layout/app-shell"
 import { ErrorState, LoadingState } from "@/components/layout/data-state"
 import { PageHeader } from "@/components/layout/page-header"
 
-/**
- * The two states that stand between the flow and a usable form: the catalogue
- * still loading, and the catalogue that never arrived. Force-mode renders both
- * without a shell, because it is embedded in the admin page rather than being
- * a page of its own.
- */
 export function BookingGate({
   isForce,
   loading,

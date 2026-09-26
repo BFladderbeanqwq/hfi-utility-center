@@ -126,8 +126,6 @@ export function EmptyState({
           : createElement(icon as LucideIcon, { className: "size-5", "aria-hidden": true })}
       </span>
       <p className="text-sm font-medium break-words text-foreground">{title ?? t("emptyTitle")}</p>
-      {/* A generic "there is no data to show" line only restates the title, so
-          it is rendered only when a caller supplies something specific. */}
       {description ? (
         <p className="max-w-sm text-sm break-words text-muted-foreground">{description}</p>
       ) : null}

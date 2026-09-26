@@ -81,10 +81,9 @@ export default defineConfig({
       "typescript/restrict-plus-operands": "warn",
       "typescript/unbound-method": "warn",
       "typescript/use-unknown-in-catch-callback-variable": "warn",
-      // Unicorn: correctness and modernization that is safe to enforce without
-      // a review pass. Deliberately excluded: no-null, no-useless-undefined,
-      // no-nested-ternary, prefer-global-this, explicit-length-check — each one
-      // fires broadly on legitimate code here.
+      // Unicorn: correctness and modernization safe to enforce without review.
+      // Excluded rules (no-null, no-useless-undefined, no-nested-ternary,
+      // prefer-global-this, explicit-length-check) fire broadly on legitimate code.
       "unicorn/custom-error-definition": "error",
       "unicorn/error-message": "error",
       "unicorn/no-await-expression-member": "error",
@@ -1398,9 +1397,8 @@ export default defineConfig({
       {
         // shadcn/ui primitives are vendored upstream. Their `role` usage is
         // canonical (a labelled `div` group, a `status` live region) and the
-        // suggested replacements — `fieldset`, `output` — would change layout
-        // and form semantics. The same applies to upstream's render-scoped
-        // subcomponents and its one loose `==`. Suppress rather than fork.
+        // suggested replacements (fieldset, output) would change layout
+        // and form semantics. Suppress rather than fork.
         files: ["src/components/ui/**"],
         plugins: ["react", "import", "jsx-a11y"],
         rules: {
@@ -1432,9 +1430,8 @@ export default defineConfig({
       internalPattern: ["@/"],
       sortSideEffects: false,
     },
-    // Normalize JSDoc (tag aliases, block indentation, capitalisation) while
-    // leaving the author's own line breaks alone — `balance` keeps wrapped
-    // prose as written, `greedy` would re-flow every doc comment in `src`.
+    // Normalize JSDoc (tag aliases, block indentation, capitalization) while
+    // leaving line breaks alone; `balance` keeps wrapped prose as written.
     jsdoc: {
       lineWrappingStyle: "balance",
       commentLineStrategy: "keep",

@@ -14,8 +14,6 @@ export type StatusTone =
   | "rejected"
   | "cancelled"
 
-// Outline treatment: the tone colour drives TEXT and a faint border only. The
-// heavy `*-soft` fill is what made these read as noise.
 const TONE_CLASS: Record<StatusTone, string> = {
   success: "border-success/30 text-success",
   warning: "border-warning/30 text-warning",
@@ -48,7 +46,6 @@ export function StatusBadge({
 }: {
   tone: StatusTone
   children: ReactNode
-  /** Show the tone as a leading dot instead of relying on the text colour alone. */
   dot?: boolean
   className?: string
 }) {

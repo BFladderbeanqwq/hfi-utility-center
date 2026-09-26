@@ -37,7 +37,6 @@ const STATUSES = [
   "rejected",
 ] as const satisfies ReadonlyArray<ReservationStatus>
 
-// Finger-sized controls on phones, compact rows on desktop.
 const CONTROL = "w-full min-h-11 sm:min-h-8"
 
 type SearchFormValues = {

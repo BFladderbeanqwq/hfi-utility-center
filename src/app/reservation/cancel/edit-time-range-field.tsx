@@ -11,10 +11,6 @@ import type { AvailabilityData } from "@/lib/api/types"
 import type { TimeOption } from "../create/steps/time-options"
 import { TimeSlotPicker } from "./time-slot-picker"
 
-/**
- * The time half of the step: the current range as a caption, a reload control,
- * and either a "checking" readout or the slot grid.
- */
 export function EditTimeRangeField({
   startTime,
   endTime,
