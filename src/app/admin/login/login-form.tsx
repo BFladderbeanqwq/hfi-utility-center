@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { LogIn } from "lucide-react"
 import { useTranslations } from "next-intl"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 
 import { AppShell } from "@/components/layout/app-shell"
@@ -28,7 +28,9 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
   })
   const turnstileTokenRef = useRef("")
   const [error, setError] = useState<string>()
-  const [checkingSession, setCheckingSession] = useState(true)
+  const [sessionStatus, setSessionStatus] = useState<
+    "checking" | "authenticated" | "unauthenticated"
+  >("checking")
   const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
   const handleToken = useCallback((value: string) => {
     turnstileTokenRef.current = value
@@ -40,35 +42,31 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
 
     async function restoreSession() {
       if (!token) {
-        setCheckingSession(false)
         try {
-          if ((await checkLogin()) && !ignore) {
-            router.replace(redirectTo)
-            router.refresh()
+          if (await checkLogin()) {
+            if (!ignore) setSessionStatus("authenticated")
+            return
           }
         } catch {
           // The login form stays usable when the session probe is unavailable.
         }
+        if (!ignore) setSessionStatus("unauthenticated")
         return
       }
 
       try {
         await loginWithToken(token)
-
-        if (!ignore) {
-          router.replace(redirectTo)
-          router.refresh()
-        }
+        if (!ignore) setSessionStatus("authenticated")
       } catch {
-        if (!ignore) setCheckingSession(false)
+        if (!ignore) setSessionStatus("unauthenticated")
       }
     }
 
-    restoreSession()
+    void restoreSession()
     return () => {
       ignore = true
     }
-  }, [redirectTo, router, token])
+  }, [token])
 
   async function submit({ email, password }: LoginFields) {
     if (!turnstileTokenRef.current) {
@@ -86,7 +84,11 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
       setError(loginError instanceof Error ? loginError.message : t("loginFailed"))
     }
   }
-  if (checkingSession) {
+  if (sessionStatus === "authenticated") {
+    redirect(redirectTo)
+  }
+
+  if (sessionStatus === "checking") {
     return (
       <AppShell width="narrow">
         <div className="flex min-h-[80svh] items-center justify-center">
