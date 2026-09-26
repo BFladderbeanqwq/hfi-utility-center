@@ -13,7 +13,7 @@ import Link from "next/link"
 import { redirect, usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
-import { AppFrame } from "@/components/layout/app-shell"
+import { AppFrame, AppShell } from "@/components/layout/app-shell"
 import { AppHeader } from "@/components/layout/app-header"
 import { LoadingState } from "@/components/layout/data-state"
 import {
@@ -28,7 +28,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
@@ -85,18 +84,20 @@ function AuthenticatedAdminShell({
     }
   }
 
-  if (session.checking) {
-    return (
-      <div className="flex min-h-[80svh] items-center justify-center">
-        <LoadingState label={t("loginLoading")} />
-      </div>
-    )
-  }
+  if (session.checking || !session.authenticated) {
+    if (!session.checking && !session.authenticated) {
+      const search = typeof window !== "undefined" ? window.location.search : ""
+      const redirectTo = `${pathname}${search}`
+      redirect(`/admin/login?redirect=${encodeURIComponent(redirectTo)}`)
+    }
 
-  if (!session.authenticated) {
-    const search = typeof window !== "undefined" ? window.location.search : ""
-    const redirectTo = `${pathname}${search}`
-    redirect(`/admin/login?redirect=${encodeURIComponent(redirectTo)}`)
+    return (
+      <AppShell width="narrow">
+        <div className="flex min-h-[80svh] items-center justify-center">
+          <LoadingState label={t("loginLoading")} />
+        </div>
+      </AppShell>
+    )
   }
   return (
     <SidebarProvider className="flex-col">
@@ -126,33 +127,23 @@ function AuthenticatedAdminShell({
             <SidebarGroup>
               <SidebarGroupLabel>{t("navGroupManagement")}</SidebarGroupLabel>
               <SidebarGroupContent>
-                {session.checking ? (
-                  <SidebarMenu>
-                    {navigationItems.map((item) => (
-                      <SidebarMenuItem key={item.href}>
-                        <SidebarMenuSkeleton showIcon />
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                ) : (
-                  <SidebarMenu>
-                    {navigationItems.map((item) => (
-                      <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={item.active}
-                          tooltip={item.label}
-                          className="h-9 data-[collapsible=icon]:h-8!"
-                        >
-                          <Link href={item.href} aria-current={item.active ? "page" : undefined}>
-                            <item.icon />
-                            <span>{item.label}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                )}
+                <SidebarMenu>
+                  {navigationItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={item.active}
+                        tooltip={item.label}
+                        className="h-9 data-[collapsible=icon]:h-8!"
+                      >
+                        <Link href={item.href} aria-current={item.active ? "page" : undefined}>
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
@@ -174,9 +165,7 @@ function AuthenticatedAdminShell({
         </Sidebar>
 
         <SidebarInset className="min-w-0">
-          <AppFrame width="wide">
-            {session.checking ? <LoadingState label={t("checking")} rows={4} /> : children}
-          </AppFrame>
+          <AppFrame width="wide">{children}</AppFrame>
         </SidebarInset>
       </div>
     </SidebarProvider>
