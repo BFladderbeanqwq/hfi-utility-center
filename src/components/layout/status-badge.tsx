@@ -1,6 +1,5 @@
 import type { ReactNode } from "react"
 
-import type { ReservationStatus } from "@/lib/api/types"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -14,13 +13,6 @@ export type StatusTone =
   | "approved"
   | "rejected"
   | "cancelled"
-
-export const RESERVATION_STATUS_TONE: Record<ReservationStatus, StatusTone> = {
-  pending: "pending",
-  approved: "approved",
-  rejected: "rejected",
-  cancelled: "cancelled",
-}
 
 // Outline treatment: the tone colour drives TEXT and a faint border only. The
 // heavy `*-soft` fill is what made these read as noise.
