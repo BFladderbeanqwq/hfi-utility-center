@@ -41,9 +41,14 @@ pnpm dev          # Next dev server on :3000  (NOT `vp dev`)
 pnpm typecheck    # tsc --noEmit
 pnpm lint         # vp lint (oxlint)
 pnpm format       # vp fmt
+pnpm format:check # vp fmt --check
 pnpm build        # next build
+pnpm doctor       # react-doctor scan
 pnpm build:cf     # opennextjs-cloudflare build (Cloudflare worker bundle)
+pnpm preview      # build:cf + opennextjs-cloudflare preview
+pnpm upload       # build:cf + opennextjs-cloudflare upload
 pnpm deploy       # build:cf + opennextjs-cloudflare deploy
+pnpm cf-typegen   # regenerate cloudflare-env.d.ts from wrangler.jsonc
 ```
 
 ## Conventions
@@ -51,6 +56,10 @@ pnpm deploy       # build:cf + opennextjs-cloudflare deploy
 - `pnpm <script>` for app scripts, `vp <cmd>` for Vite+ built-ins. They differ.
 - `preview`, `deploy`, and `upload` all chain `build:cf` first. Change that
   shared build step, never re-inline `opennextjs-cloudflare build`.
+- A `vp staged` pre-commit hook (`.vite-hooks/pre-commit`) checks staged files.
+  CI (`.github/workflows/ci.yml`) runs `vp check`, `vp test run
+--passWithNoTests`, and `pnpm build` on every push and pull request;
+  `react-doctor.yml` posts an advisory React Doctor report on PRs.
 - Imports use `@/*` → `./src/*`.
 - Pages orchestrate data; interactive views live in a named feature component
   next to the route.
@@ -65,12 +74,14 @@ pnpm deploy       # build:cf + opennextjs-cloudflare deploy
   rather than hand-rolling; do not edit those files to fit one call site.
 - Style with Tailwind tokens (`bg-background`, `text-muted-foreground`,
   `border-border`, `bg-primary`…). No raw hex or new color literals.
-- `src/app/globals.css` is theme tokens + state selectors only. Do not add
-  feature layout CSS to it, and do not add colocated CSS modules.
+- `src/app/globals.css` holds theme tokens, base styles, and the `t-*` motion
+  blocks only. Do not add feature layout CSS to it, and do not add colocated
+  CSS modules.
 - Icons from `lucide-react`, sized 16 by default.
 
 ## Layout
 
-`src/app` routes · `src/components` shared UI · `src/lib/api` transport,
+`src/app` routes · `src/components` shared UI (`ui/` shadcn primitives,
+`layout/` shell pieces) · `src/hooks` shared hooks · `src/lib/api` transport,
 types, admin hooks · `src/lib/reservations` pure availability rules ·
 `src/messages` translations.

@@ -13,6 +13,8 @@ pnpm dev
 ```
 
 The development server uses `http://localhost:3000` by default.
+pnpm 12.6+ is expected (`devEngines` in `package.json`; CI resolves the exact
+version from it).
 
 Environment variables:
 
@@ -29,11 +31,10 @@ backend or Turnstile widget is required.
 
 - `src/app/` contains routes and feature-specific UI. Route pages coordinate
   data; large interactive views are split into named feature components.
-- `src/app/globals.css` holds all global CSS: theme tokens, base element styles,
-  and the feature sections inlined in the order they used to be imported. Prefer
-  Tailwind utilities at the usage site; keep a rule here for state selectors,
-  pseudo-elements, and media queries. Colocated CSS modules remain for
-  route-specific styles.
+- `src/app/globals.css` holds all global CSS: theme tokens, base element
+  styles, and the `t-*` motion/transition blocks. Prefer Tailwind utilities at
+  the usage site; keep a rule here for state selectors, pseudo-elements, media
+  queries, and animation blocks. There are no colocated CSS modules.
 - `src/lib/api/` contains the backend transport, endpoint functions, API types,
   and focused administrator resource/mutation hooks.
 - `src/lib/locale.tsx` holds the shared locale context, imported by both routes
@@ -41,6 +42,9 @@ backend or Turnstile widget is required.
 - `src/lib/reservations/` contains pure reservation availability rules.
 - `src/components/ui/` contains the shadcn/ui components used by
   public and administrator views.
+- `src/components/layout/` contains the shared shell pieces: app header/footer,
+  page header, section cards, status badges, and data-state views.
+- `src/hooks/` contains shared React hooks (mobile detection, error shake).
 - `src/messages/` contains the English and Simplified Chinese translation
   catalogs.
 
@@ -61,6 +65,11 @@ pnpm build
 ```
 
 Use `pnpm format` to format TypeScript and JavaScript configuration files.
+
+CI (`.github/workflows/ci.yml`) runs `pnpm exec vp check`, `pnpm exec vp test
+run --passWithNoTests`, and `pnpm build` on every push and pull request.
+`.github/workflows/react-doctor.yml` posts an advisory React Doctor report on
+pull requests.
 
 ## Deployment
 
