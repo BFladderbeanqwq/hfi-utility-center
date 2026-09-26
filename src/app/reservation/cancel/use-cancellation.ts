@@ -105,9 +105,9 @@ export function useCancellation(token: string) {
         setCatalog(enabledCatalog)
         setDraft(initialDraft(reservation, enabledCatalog.rooms))
       })
-      .catch((reason) => {
+      .catch((failure: unknown) => {
         if (!active) return
-        setError(reason instanceof Error ? reason.message : t("invalidLink"))
+        setError(failure instanceof Error ? failure.message : t("invalidLink"))
       })
       .finally(() => {
         if (active) setLoading(false)
