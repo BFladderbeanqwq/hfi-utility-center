@@ -80,16 +80,16 @@ export function useAdminMutation({ reload }: { reload: () => Promise<void> }) {
 
       mutationInProgress.current = true
       setWorking(true)
+      void successMessage
 
-      try {
-        await action()
-        void successMessage
-        await reload()
-        return true
-      } finally {
-        mutationInProgress.current = false
-        setWorking(false)
-      }
+      return await Promise.resolve()
+        .then(action)
+        .then(() => reload())
+        .then(() => true)
+        .finally(() => {
+          mutationInProgress.current = false
+          setWorking(false)
+        })
     },
     [reload],
   )
