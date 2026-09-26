@@ -1,10 +1,10 @@
-import { AppFrame } from "@/components/layout/app-shell"
+import { AppShell } from "@/components/layout/app-shell"
 import { LoadingState } from "@/components/layout/data-state"
 
 export default function Loading() {
   return (
-    <AppFrame>
+    <AppShell>
       <LoadingState rows={4} />
-    </AppFrame>
+    </AppShell>
   )
 }
