@@ -50,7 +50,7 @@ function loadTurnstileScript() {
       script.async = true
       script.defer = true
       script.dataset.hfiucTurnstile = "true"
-      document.head.appendChild(script)
+      document.head.append(script)
     }
   })
   return turnstileScriptRequest
