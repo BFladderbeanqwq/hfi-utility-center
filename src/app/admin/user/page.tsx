@@ -1,13 +1,11 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { RefreshCw } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 import { ErrorState, LoadingState } from "@/components/layout/data-state"
 import { PageHeader } from "@/components/layout/page-header"
-import { Button } from "@/components/ui/button"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { RefreshButton } from "@/components/layout/refresh-button"
 import { useAdminMutation, useAdminResource } from "@/lib/api/admin-hooks"
 import { getAdmins } from "@/lib/api/admins"
 import type { Admin } from "@/lib/api/types"
@@ -43,21 +41,11 @@ export default function AdminUsersPage() {
       <PageHeader
         title={t("usersTitle")}
         actions={
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-9"
-                aria-label={common("refresh")}
-                onClick={refresh}
-                disabled={adminResource.loading}
-              >
-                <RefreshCw />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{common("refresh")}</TooltipContent>
-          </Tooltip>
+          <RefreshButton
+            label={common("refresh")}
+            loading={adminResource.loading}
+            onRefresh={refresh}
+          />
         }
       />
 
