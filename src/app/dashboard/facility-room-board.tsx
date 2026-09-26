@@ -108,13 +108,8 @@ function RoomSection({
         >
           {room.name}
         </h2>
-        <span
-          title={occupancy}
-          className={cn("size-2 shrink-0 rounded-full", inUse ? DOT.live : DOT.idle)}
-        >
-          <span className="sr-only">{occupancy}</span>
-        </span>
-        {/* Distance reading: the kiosk variant keeps the word. */}
+        {/* Distance reading: the kiosk variant shows the word, the board only for screen readers. */}
+        <span className="sr-only">{occupancy}</span>
         {portrait ? (
           <span className="min-w-0 text-sm text-muted-foreground">{occupancy}</span>
         ) : null}

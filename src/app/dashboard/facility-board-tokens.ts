@@ -13,6 +13,4 @@ export const COLUMNS = {
 export const DOT = {
   approved: "bg-success",
   pending: "bg-warning",
-  live: "animate-pulse bg-success motion-reduce:animate-none",
-  idle: "bg-muted-foreground/40",
 } as const
