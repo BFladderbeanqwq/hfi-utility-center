@@ -73,20 +73,20 @@ export function Turnstile({ onToken }: { onToken: (token: string) => void }) {
       setLoadFailed(false)
       try {
         await loadTurnstileScript()
+        if (!active || !window.turnstile || !ref.current) return
+
+        widgetId = window.turnstile.render(ref.current, {
+          sitekey: widgetSiteKey,
+          callback: onToken,
+          "expired-callback": () => onToken(""),
+        })
       } catch {
         if (active) setLoadFailed(true)
-        return
       }
-      if (!active || !window.turnstile || !ref.current) return
-
-      widgetId = window.turnstile.render(ref.current, {
-        sitekey: widgetSiteKey,
-        callback: onToken,
-        "expired-callback": () => onToken(""),
-      })
     }
 
-    renderWidget()
+    void renderWidget()
+
     return () => {
       active = false
       if (widgetId && window.turnstile) window.turnstile.remove(widgetId)
