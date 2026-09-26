@@ -32,9 +32,11 @@ export function LoadingState({
       <span className="sr-only">{label ?? t("loading")}</span>
       <Skeleton className="h-6 w-40 max-w-full" />
       <div className="flex flex-col gap-2.5">
-        {Array.from({ length: Math.max(1, rows) }, (_, index) => (
-          <Skeleton key={index} className={cn("h-4", index % 3 === 2 ? "w-2/3" : "w-full")} />
-        ))}
+        {Array.from({ length: Math.max(1, rows) }, (_, slot) => `loading-row-${slot + 1}`).map(
+          (rowKey, slot) => (
+            <Skeleton key={rowKey} className={cn("h-4", slot % 3 === 2 ? "w-2/3" : "w-full")} />
+          ),
+        )}
       </div>
     </div>
   )
