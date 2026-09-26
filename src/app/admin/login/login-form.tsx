@@ -30,7 +30,7 @@ export function AdminLoginForm({ token, redirectTo }: { token?: string; redirect
   const [error, setError] = useState<string>()
   const [sessionStatus, setSessionStatus] = useState<
     "checking" | "authenticated" | "unauthenticated"
-  >("checking")
+  >(() => (token ? "checking" : "unauthenticated"))
   const { ref: formRef, shake } = useErrorShake<HTMLFormElement>()
   const handleToken = useCallback((value: string) => {
     turnstileTokenRef.current = value
