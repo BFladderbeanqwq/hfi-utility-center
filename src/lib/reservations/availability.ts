@@ -6,8 +6,8 @@ import {
 } from "@/lib/date-time"
 
 const SLOT_MINUTES = 15
-const DAY_START_HOUR = 8
-const DAY_END_HOUR = 21.5
+export const DAY_START_HOUR = 8
+export const DAY_END_HOUR = 21.5
 
 function isWithinRoomAvailability(room: Room, date: string, slotStart: number, slotEnd: number) {
   const weekday = weekdayFromInputValue(date)
