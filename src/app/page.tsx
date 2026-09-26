@@ -62,15 +62,12 @@ export default function HomePage() {
     <AppShell>
       {announcement ? (
         <Alert className="border-0 bg-transparent px-0 py-0">
-          <Megaphone aria-hidden className="mt-0.5" />
-          <div className="flex min-w-0 flex-col items-start gap-1.5">
-            <AlertTitle className="font-medium break-words">
+          <Megaphone aria-hidden className="mt-0.5 size-4" />
+          <AlertTitle className="flex w-full items-start justify-between gap-2 font-medium break-words">
+            <span className="min-w-0 flex-1">
               {announcement.title || t("announcementFallbackTitle")}
-            </AlertTitle>
-            <AlertDescription className="min-w-0 [&>div]:line-clamp-2">
-              <MarkdownContent content={announcement.content} />
-            </AlertDescription>
-            <TooltipProvider delayDuration={300}>
+            </span>
+            <TooltipProvider delayDuration={80}>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -79,15 +76,18 @@ export default function HomePage() {
                     variant="ghost"
                     aria-label={t("announcementReadMore")}
                     onClick={() => setAnnouncementOpen(true)}
-                    className="-ml-2 size-9"
+                    className="-mt-1.5 -mr-2 size-8 shrink-0"
                   >
-                    <Maximize2 aria-hidden />
+                    <Maximize2 aria-hidden className="size-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{t("announcementReadMore")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </div>
+          </AlertTitle>
+          <AlertDescription className="min-w-0 [&>div]:line-clamp-2">
+            <MarkdownContent content={announcement.content} />
+          </AlertDescription>
         </Alert>
       ) : null}
 

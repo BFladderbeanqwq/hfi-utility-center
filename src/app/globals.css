@@ -337,8 +337,8 @@
      re-add) must not flicker the error styling. Per-leg easing, and the
      %-stops below are the cumulative leg durations over the total. */
   .t-shake {
-    --t-shake-distance: var(--distance-small);
-    --t-shake-overshoot: var(--distance-micro);
+    --t-shake-distance: var(--distance-base);
+    --t-shake-overshoot: var(--distance-small);
     --t-shake-dur-a: var(--duration-micro);
     --t-shake-dur-b: var(--duration-micro);
     --t-shake-ease: var(--ease-smooth-out);

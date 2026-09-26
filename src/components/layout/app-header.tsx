@@ -142,7 +142,7 @@ export function AppHeader({ actions }: { actions?: ReactNode }) {
   )
 
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delayDuration={80}>
       <header className="sticky top-0 z-50 h-14 border-b bg-background/80 backdrop-blur-md">
         <a
           href="#main-content"

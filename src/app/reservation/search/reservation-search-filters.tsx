@@ -294,7 +294,7 @@ export function ReservationSearchFilterForm({
             <Search aria-hidden />
             {common("search")}
           </Button>
-          <TooltipProvider delayDuration={300}>
+          <TooltipProvider delayDuration={80}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
