@@ -1236,6 +1236,20 @@ export default defineConfig({
           "prefer-spread": "error",
         },
       },
+      {
+        // shadcn/ui primitives are vendored upstream. Their `role` usage is
+        // canonical (a labelled `div` group, a `status` live region) and the
+        // suggested replacements — `fieldset`, `output` — would change layout
+        // and form semantics. Suppress rather than fork the components.
+        files: ["src/components/ui/**"],
+        plugins: ["react", "import", "jsx-a11y"],
+        rules: {
+          "jsx-a11y/prefer-tag-over-role": "off",
+          "jsx-a11y/click-events-have-key-events": "off",
+          "jsx-a11y/no-noninteractive-element-interactions": "off",
+          "jsx-a11y/anchor-has-content": "off",
+        },
+      },
     ],
     options: {
       typeAware: true,
