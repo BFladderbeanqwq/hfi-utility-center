@@ -24,6 +24,9 @@ export function LoadingState({
 
   return (
     <div
+      // A polite live region for async status; `output` is a form-result
+      // element and would be the wrong semantic here.
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="status"
       aria-live="polite"
       aria-busy="true"

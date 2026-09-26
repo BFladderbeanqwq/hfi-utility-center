@@ -95,6 +95,8 @@ export function TextActionDialog({
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor={inputId}>{label}</FieldLabel>
+                {/* Dialogs should focus their first field; the rule cannot see it from JSX. */}
+                {/* oxlint-disable jsx-a11y/no-autofocus */}
                 <Input
                   {...field}
                   id={inputId}
@@ -102,6 +104,7 @@ export function TextActionDialog({
                   autoFocus
                   aria-invalid={fieldState.invalid}
                 />
+                {/* oxlint-enable jsx-a11y/no-autofocus */}
                 <FieldError errors={[fieldState.error]} />
               </Field>
             )}
