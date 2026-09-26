@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useRouter } from "next/navigation"
 
 import { checkLogin } from "@/lib/api/auth"
 
@@ -86,35 +85,34 @@ export function useAdminMutation({ reload }: { reload: () => Promise<void> }) {
   return { mutate, working }
 }
 
-export function useAdminSession(initialPath: string) {
-  const router = useRouter()
+export function useAdminSession(_initialPath?: string) {
   const [status, setStatus] = useState<AdminSessionStatus>("checking")
 
   useEffect(() => {
     let active = true
 
     async function loadSession() {
-      const authenticated = await checkLogin()
-      if (!active) return
+      try {
+        const authenticated = await checkLogin()
+        if (!active) return
 
-      if (authenticated) {
-        setStatus("authenticated")
-        return
+        setStatus(authenticated ? "authenticated" : "unauthenticated")
+      } catch {
+        if (active) {
+          setStatus("unauthenticated")
+        }
       }
-
-      setStatus("unauthenticated")
-      const redirectTo = `${initialPath}${window.location.search}`
-      router.replace(`/admin/login?redirect=${encodeURIComponent(redirectTo)}`)
     }
 
-    loadSession()
+    void loadSession()
 
     return () => {
       active = false
     }
-  }, [initialPath, router])
+  }, [])
 
   return {
+    status,
     checking: status === "checking",
     authenticated: status === "authenticated",
   }

@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { redirect, usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import { AppFrame } from "@/components/layout/app-shell"
@@ -85,8 +85,19 @@ function AuthenticatedAdminShell({
     }
   }
 
-  if (!session.checking && !session.authenticated) return null
+  if (session.checking) {
+    return (
+      <div className="flex min-h-[80svh] items-center justify-center">
+        <LoadingState label={t("loginLoading")} />
+      </div>
+    )
+  }
 
+  if (!session.authenticated) {
+    const search = typeof window !== "undefined" ? window.location.search : ""
+    const redirectTo = `${pathname}${search}`
+    redirect(`/admin/login?redirect=${encodeURIComponent(redirectTo)}`)
+  }
   return (
     <SidebarProvider className="flex-col">
       <AppHeader
