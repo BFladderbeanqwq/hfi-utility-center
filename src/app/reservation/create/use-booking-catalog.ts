@@ -56,7 +56,7 @@ export function useBookingCatalog(isForce: boolean, form: UseFormReturn<Reservat
       }
     }
 
-    loadCatalog()
+    void loadCatalog()
     return () => {
       active = false
     }
