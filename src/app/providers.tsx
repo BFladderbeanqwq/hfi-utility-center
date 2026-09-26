@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useSyncExternalStore } from "react"
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react"
 import { NextIntlClientProvider } from "next-intl"
 import { ThemeProvider } from "next-themes"
 
@@ -32,14 +32,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = locale
   }, [locale])
 
-  function setLocale(nextLocale: AppLocale) {
+  const setLocale = useCallback((nextLocale: AppLocale) => {
     localStorage.setItem("locale", nextLocale)
     document.cookie = `locale=${nextLocale}; Path=/; Max-Age=31536000; SameSite=Lax`
     setSelectedLocale(nextLocale)
-  }
+  }, [])
+  const localeContext = useMemo(() => ({ locale, setLocale }), [locale, setLocale])
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale }}>
+    <LocaleContext.Provider value={localeContext}>
       <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone="Asia/Hong_Kong">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
