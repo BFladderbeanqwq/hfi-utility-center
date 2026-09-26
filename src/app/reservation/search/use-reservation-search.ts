@@ -30,7 +30,7 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
       }
     }
 
-    loadCatalog()
+    void loadCatalog()
     return () => {
       active = false
     }
@@ -58,7 +58,7 @@ export function useReservationSearch(filters: ReservationSearchFilters) {
       if (requestId.current === currentRequest) setLoading(false)
     }
 
-    loadReservations()
+    void loadReservations()
 
     return () => {
       requestId.current += 1
