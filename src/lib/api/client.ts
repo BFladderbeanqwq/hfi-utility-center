@@ -1,5 +1,4 @@
 import axios from "axios"
-import type { AxiosRequestConfig } from "axios"
 
 import type { ApiResponse } from "@/lib/api/types"
 import enMessages from "@/messages/en-US.json"
@@ -26,7 +25,6 @@ export const api = axios.create({
 
 class RequestError extends Error {
   name = "RequestError"
-  notified = false
 }
 
 function requestFailedMessage() {
@@ -47,17 +45,6 @@ function normalizeRequestError(error: unknown) {
   return new RequestError(requestFailedMessage(), { cause: error })
 }
 
-function rejectRequest(error: unknown, config?: AxiosRequestConfig) {
-  const requestError = normalizeRequestError(error)
-
-  if (typeof window !== "undefined" && !config?.suppressErrorToast && !requestError.notified) {
-    console.error("HFI Utility Center request failed:", requestError.message)
-    requestError.notified = true
-  }
-
-  return Promise.reject(requestError)
-}
-
 api.interceptors.request.use(async (config) => {
   const method = config.method?.toUpperCase()
   if (method && ["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
@@ -75,17 +62,11 @@ api.interceptors.response.use(
     const payload = response.data as ApiResponse | undefined
     if (response.status < 200 || response.status >= 300 || !payload?.success) {
       if (response.config.suppressErrorToast) return response
-      return rejectRequest(
-        new RequestError(payload?.message || requestFailedMessage()),
-        response.config,
-      )
+      return Promise.reject(new RequestError(payload?.message || requestFailedMessage()))
     }
     return response
   },
-  (error: unknown) => {
-    const config = axios.isAxiosError(error) ? error.config : undefined
-    return rejectRequest(error, config)
-  },
+  (error: unknown) => Promise.reject(normalizeRequestError(error)),
 )
 
 export function backendHref(path: string) {
