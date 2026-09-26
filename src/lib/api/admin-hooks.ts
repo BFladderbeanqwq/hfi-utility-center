@@ -37,17 +37,29 @@ export function useAdminResource<T>({
   }, [loadResource])
 
   useEffect(() => {
+    let active = true
+
     async function loadInitialData() {
       try {
-        setData(await loadResource())
+        const result = await loadResource()
+        if (active) {
+          setData(result)
+        }
       } catch (loadError) {
-        setError(loadError)
+        if (active) {
+          setError(loadError)
+        }
       } finally {
-        setLoading(false)
+        if (active) {
+          setLoading(false)
+        }
       }
     }
 
-    loadInitialData()
+    void loadInitialData()
+    return () => {
+      active = false
+    }
   }, [loadResource])
 
   return {
