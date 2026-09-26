@@ -1263,6 +1263,30 @@ export default defineConfig({
     ],
   },
   fmt: {
+    // Import order is formatter-owned: node builtins, packages, `@/` internals,
+    // then relative. Side-effect imports keep their position so CSS and
+    // polyfill imports are never reordered.
+    sortImports: {
+      internalPattern: ["@/"],
+      sortSideEffects: false,
+    },
+    // Normalize JSDoc (tag aliases, block indentation, capitalisation) while
+    // leaving the author's own line breaks alone — `balance` keeps wrapped
+    // prose as written, `greedy` would re-flow every doc comment in `src`.
+    jsdoc: {
+      lineWrappingStyle: "balance",
+      commentLineStrategy: "keep",
+    },
+    overrides: [
+      {
+        // shadcn/ui primitives are vendored upstream. Sorting their imports
+        // would only add churn to every `shadcn add` refresh.
+        files: ["src/components/ui/**"],
+        options: {
+          sortImports: false,
+        },
+      },
+    ],
     semi: false,
     singleQuote: false,
     sortTailwindcss: {
@@ -1278,6 +1302,9 @@ export default defineConfig({
       "pnpm-lock.yaml",
       ".pnpm-store/",
       "output/",
+      ".open-next/",
+      ".wrangler/",
+      ".vite-hooks/",
       ".agents/",
       ".omo/",
       ".playwright-cli/",
