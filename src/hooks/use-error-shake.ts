@@ -18,9 +18,6 @@ const SHAKE = "animate-shake-x"
 export function useErrorShake<T extends HTMLElement>() {
   const ref = React.useRef<T | null>(null)
   const [replay, setReplay] = React.useState(0)
-export function useErrorShake<T extends HTMLElement>() {
-  const ref = React.useRef<T | null>(null)
-  const [replay, setReplay] = React.useState(0)
 
   React.useEffect(() => {
     if (replay === 0) return
@@ -37,8 +34,6 @@ export function useErrorShake<T extends HTMLElement>() {
       field.classList.add(SHAKE)
       // Read the duration back off the element so the timer can never drift
       // from the CSS — and so a reduced-motion zero duration is honoured.
-      const ms = parseFloat(getComputedStyle(field).animationDuration)
-      if (Number.isFinite(ms)) longest = Math.max(longest, ms * 1000)
       const ms = parseFloat(getComputedStyle(field).animationDuration)
       if (Number.isFinite(ms)) longest = Math.max(longest, ms * 1000)
     })

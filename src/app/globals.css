@@ -260,8 +260,9 @@
   --animate-success-check: t-success-check-in var(--duration-very-slow) var(--ease-smooth-out) both;
   --animate-success-icon: t-success-icon-in var(--duration-very-slow) var(--ease-smooth-out) both;
   --animate-shake-x: t-shake calc(var(--duration-micro) * 4) linear;
+}
 
-  /* ══════════════════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════════════
    MOTION (transitions.dev snippets)
 
    One block per installed transition, adapted from the transitions-dev skill.
@@ -362,46 +363,6 @@
     }
   }
 
-  @keyframes shake-x {
-    0% {
-      transform: translateX(0);
-      animation-timing-function: var(--ease-smooth-out);
-    }
-    25% {
-      transform: translateX(calc(var(--distance-base) * -1));
-    }
-    50% {
-      transform: translateX(var(--distance-base));
-    }
-    75% {
-      transform: translateX(calc(var(--distance-base) * -0.5));
-    }
-    100% {
-      transform: translateX(0);
-      animation-timing-function: var(--ease-smooth-out);
-    }
-  }
-    0% {
-      transform: translateX(0);
-      animation-timing-function: var(--ease-smooth-out);
-    }
-    25% {
-      transform: translateX(var(--distance-base));
-      animation-timing-function: var(--ease-smooth-out);
-    }
-    50% {
-      transform: translateX(calc(var(--distance-base) * -1));
-      animation-timing-function: var(--ease-smooth-out);
-    }
-    75% {
-      transform: translateX(var(--distance-small));
-      animation-timing-function: var(--ease-smooth-out);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .t-shake {
       animation: none !important;
@@ -430,16 +391,7 @@
     }
   }
 
-  @keyframes content-reveal {
-    from {
-      opacity: 0;
-      filter: blur(var(--blur-small));
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-    }
-  }
+  @keyframes t-content-reveal {
     from {
       opacity: 0;
       filter: blur(var(--blur-small));
@@ -481,18 +433,7 @@
     }
   }
 
-  @keyframes success-check-in {
-    from {
-      opacity: 0;
-      filter: blur(var(--blur-large));
-      transform: scale(0.96);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: scale(1);
-    }
-  }
+  @keyframes t-success-check-in {
     from {
       opacity: 0;
       filter: blur(var(--blur-large));
@@ -505,7 +446,7 @@
     }
   }
 
-  @keyframes success-icon-in {
+  @keyframes t-success-icon-in {
     from {
       opacity: 0;
       transform: scale(var(--scale-tiny));
