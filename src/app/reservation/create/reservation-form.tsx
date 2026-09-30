@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocale, useTranslations } from "next-intl"
-import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode, type Ref } from "react"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 
 import { AppShell } from "@/components/layout/app-shell"
@@ -46,7 +46,6 @@ type ReservationResult = {
 export function ReservationForm() {
   const t = useTranslations("booking")
   const common = useTranslations("common")
-  const locale = useLocale()
   const schema = useReservationSchema()
   const form = useForm<ReservationFormValues>({
     resolver: zodResolver(schema),
@@ -86,18 +85,6 @@ export function ReservationForm() {
     control: form.control,
     name: ["room", "date", "startTime", "endTime"],
   })
-  // Slot times are Asia/Shanghai wall times, so the clock is pinned there too:
-  // the prerendered HTML and the browser must print one range.
-  const timeRangeFormatter = useMemo(
-    () =>
-      new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: "Asia/Shanghai",
-      }),
-    [locale],
-  )
   const { ref: stepRef, shake: shakeStep } = useErrorShake<HTMLDivElement>()
 
   useEffect(() => {
@@ -289,60 +276,28 @@ export function ReservationForm() {
           onGoToStep={goToStep}
         />
         {currentStepIndex > 0 ? (
-          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-muted/60 px-4 py-3 text-sm">
-            {preflight?.student.className ? (
-              <span className="font-medium">{preflight.student.className}</span>
-            ) : null}
-            {selectedRoomId ? (
-              <span>{catalog.rooms.find((item) => item.id === selectedRoomId)?.name}</span>
-            ) : null}
-            {selectedStart && selectedEnd ? (
-              <span className="tabular-nums">
-                {timeRangeFormatter.formatRange(
-                  new Date(selectedStart * 1000),
-                  new Date(selectedEnd * 1000),
-                )}
-              </span>
-            ) : null}
-            {selectedDate ? (
-              <span className="text-muted-foreground tabular-nums">{selectedDate}</span>
-            ) : null}
-          </div>
+          <BookingSummary
+            studentClass={preflight?.student.className}
+            roomName={catalog.rooms.find((item) => item.id === selectedRoomId)?.name}
+            date={selectedDate}
+            startTime={selectedStart}
+            endTime={selectedEnd}
+          />
         ) : null}
         <fieldset
           disabled={isWorking}
           className="min-w-0 border-0 p-0"
-          onFocusCapture={(event) => {
-            const target = event.target
-            if (
-              !target.matches(
-                "input:focus-visible, button:focus-visible, textarea:focus-visible, [role=combobox]:focus-visible",
-              )
-            )
-              return
-            const bounds = target.getBoundingClientRect()
-            if (bounds.bottom > window.innerHeight - 112 || bounds.top < 72) {
-              target.scrollIntoView({ block: "center" })
-            }
-          }}
+          onFocusCapture={scrollFocusedFieldIntoView}
         >
-          {currentStep.id === "review" && priorityPreview ? (
-            <PriorityPreview preview={priorityPreview.preview} />
-          ) : (
-            <div
-              key={currentStep.id}
-              ref={stepRef}
-              className={cn(
-                "min-w-0",
-                hasSlid && "motion-safe:animate-page-slide",
-                hasSlid &&
-                  stepDirection === "back" &&
-                  "[--page-from-x:calc(var(--distance-base)*-1)]",
-              )}
-            >
-              {stepContent[currentStep.id]}
-            </div>
-          )}
+          <BookingStepPane
+            stepId={currentStep.id}
+            preview={currentStep.id === "review" ? priorityPreview?.preview : undefined}
+            hasSlid={hasSlid}
+            stepDirection={stepDirection}
+            stepRef={stepRef}
+          >
+            {stepContent[currentStep.id]}
+          </BookingStepPane>
         </fieldset>
         <BookingActionBar
           nextLabel={t(`continue.${currentStep.id}`)}
@@ -374,6 +329,101 @@ export function ReservationForm() {
         {formBody}
       </div>
     </AppShell>
+  )
+}
+
+/** Keeps a focused control clear of the sticky header and the action bar. */
+function scrollFocusedFieldIntoView(event: { target: EventTarget }) {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  if (
+    !target.matches(
+      "input:focus-visible, button:focus-visible, textarea:focus-visible, [role=combobox]:focus-visible",
+    )
+  ) {
+    return
+  }
+  const bounds = target.getBoundingClientRect()
+  if (bounds.bottom > window.innerHeight - 112 || bounds.top < 72) {
+    target.scrollIntoView({ block: "center" })
+  }
+}
+
+/** The class, room and time the student has committed to so far. */
+function BookingSummary({
+  studentClass,
+  roomName,
+  date,
+  startTime,
+  endTime,
+}: {
+  studentClass?: string | null
+  roomName?: string | null
+  date?: string | null
+  startTime?: number
+  endTime?: number
+}) {
+  const locale = useLocale()
+  // Slot times are Asia/Shanghai wall times, so the clock is pinned there too
+  // and hoisted: the prerendered HTML and the browser must print one range.
+  const timeRangeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "Asia/Shanghai",
+      }),
+    [locale],
+  )
+
+  return (
+    <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-muted/60 px-4 py-3 text-sm">
+      {studentClass ? <span className="font-medium">{studentClass}</span> : null}
+      {roomName ? <span>{roomName}</span> : null}
+      {startTime && endTime ? (
+        <span className="tabular-nums">
+          {timeRangeFormatter.formatRange(new Date(startTime * 1000), new Date(endTime * 1000))}
+        </span>
+      ) : null}
+      {date ? <span className="text-muted-foreground tabular-nums">{date}</span> : null}
+    </div>
+  )
+}
+
+/**
+ * The active step, or the conflict preview that replaces it on review. The
+ * `key` is what makes a step change re-run the slide animation.
+ */
+function BookingStepPane({
+  stepId,
+  preview,
+  hasSlid,
+  stepDirection,
+  stepRef,
+  children,
+}: {
+  stepId: BookingStepId
+  preview?: CreateReservationPreview
+  hasSlid: boolean
+  stepDirection: "forward" | "back"
+  stepRef: Ref<HTMLDivElement>
+  children: ReactNode
+}) {
+  if (preview) return <PriorityPreview preview={preview} />
+
+  return (
+    <div
+      key={stepId}
+      ref={stepRef}
+      className={cn(
+        "min-w-0",
+        hasSlid && "motion-safe:animate-page-slide",
+        hasSlid && stepDirection === "back" && "[--page-from-x:calc(var(--distance-base)*-1)]",
+      )}
+    >
+      {children}
+    </div>
   )
 }
 
