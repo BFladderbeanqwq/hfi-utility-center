@@ -62,6 +62,10 @@ export async function getAvailability(
   excludedReservationId?: number,
   options?: { priority?: boolean },
 ) {
+  // A missing room is a caller bug, so bail out before paying for the
+  // availability round trip that this path would only throw away.
+  if (!knownRoom) throw new Error("Room availability is incomplete")
+
   const { data } = await api.get<
     ApiResponse<{
       roomId: number
@@ -80,7 +84,6 @@ export async function getAvailability(
     },
   })
   const availability = data.data!
-  if (!knownRoom) throw new Error("Room availability is incomplete")
 
   // Rust returns occupied intervals. For self-service edits we additionally
   // fetch the day's reservations because that endpoint currently has no
