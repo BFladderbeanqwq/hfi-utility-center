@@ -86,12 +86,15 @@ export function ReservationForm() {
     control: form.control,
     name: ["room", "date", "startTime", "endTime"],
   })
+  // Slot times are Asia/Shanghai wall times, so the clock is pinned there too:
+  // the prerendered HTML and the browser must print one range.
   const timeRangeFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "Asia/Shanghai",
       }),
     [locale],
   )

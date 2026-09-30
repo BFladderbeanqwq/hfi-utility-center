@@ -43,11 +43,18 @@ export function DateRail({
 
   const selected = inputValueToDate(date)
   const selectedOffset = selected ? Math.round((selected.getTime() - today.getTime()) / DAY_MS) : -1
+  // These labels name the tile's calendar day, so the formatters are pinned to
+  // UTC and fed that day rather than its instant: the prerendered HTML and the
+  // browser have to print the same text whatever timezone the viewer sits in.
   const { weekday, dayNumber, shortDate } = useMemo(
     () => ({
-      weekday: new Intl.DateTimeFormat(locale, { weekday: "short" }),
-      dayNumber: new Intl.DateTimeFormat(locale, { day: "numeric" }),
-      shortDate: new Intl.DateTimeFormat(locale, { month: "numeric", day: "numeric" }),
+      weekday: new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }),
+      dayNumber: new Intl.DateTimeFormat(locale, { day: "numeric", timeZone: "UTC" }),
+      shortDate: new Intl.DateTimeFormat(locale, {
+        month: "numeric",
+        day: "numeric",
+        timeZone: "UTC",
+      }),
     }),
     [locale],
   )
@@ -91,8 +98,12 @@ export function DateRail({
           const value = dateToInputValue(day)
           const current = value === date
           const offset = pageStart + index
+          // `day` is local midnight of the tile's calendar day; `labelDay` is
+          // that same day as a UTC instant, which the pinned-UTC formatters
+          // print as the day the tile stands for in every viewer timezone.
+          const labelDay = new Date(`${value}T00:00:00Z`)
           const label =
-            offset === 0 ? t("today") : offset === 1 ? t("tomorrow") : weekday.format(day)
+            offset === 0 ? t("today") : offset === 1 ? t("tomorrow") : weekday.format(labelDay)
           // A week strip hides the month, so the first tile of a new month
           // carries it: 9/28, then plain day numbers until the month turns.
           const newMonth = index === 0 || day.getMonth() !== days[index - 1].getMonth()
@@ -108,7 +119,7 @@ export function DateRail({
             >
               <span className="text-[11px] leading-none opacity-75">{label}</span>
               <span className="text-sm leading-none font-medium tabular-nums">
-                {newMonth ? shortDate.format(day) : dayNumber.format(day)}
+                {newMonth ? shortDate.format(labelDay) : dayNumber.format(labelDay)}
               </span>
             </Button>
           )
