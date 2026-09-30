@@ -37,6 +37,16 @@ export function PermissionDialog({
   const [roomIds, setRoomIds] = useState<number[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
 
+  const selectedRoomIds = new Set(roomIds)
+
+  // Called once per click, not once per row: the membership check used to run
+  // inside the room list's map callback.
+  function toggleRoom(id: number) {
+    setRoomIds((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    )
+  }
+
   async function openDialog() {
     setOpen(true)
     setLoading(true)
@@ -139,14 +149,8 @@ export function PermissionDialog({
                     <label key={room.id} className="flex items-center gap-2">
                       <input
                         type="checkbox"
-                        checked={roomIds.includes(room.id)}
-                        onChange={() =>
-                          setRoomIds((current) =>
-                            current.includes(room.id)
-                              ? current.filter((id) => id !== room.id)
-                              : [...current, room.id],
-                          )
-                        }
+                        checked={selectedRoomIds.has(room.id)}
+                        onChange={() => toggleRoom(room.id)}
                       />
                       {room.name}
                     </label>
