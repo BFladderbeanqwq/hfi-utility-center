@@ -116,13 +116,19 @@ export function PermissionDialog({
                 <label className="flex items-center gap-2">
                   <input
                     type="radio"
+                    name="adminRole"
                     checked={role === "global"}
                     onChange={() => setRole("global")}
                   />
                   {t("globalAdmin")}
                 </label>
                 <label className="flex items-center gap-2">
-                  <input type="radio" checked={role === "room"} onChange={() => setRole("room")} />
+                  <input
+                    type="radio"
+                    name="adminRole"
+                    checked={role === "room"}
+                    onChange={() => setRole("room")}
+                  />
                   {t("roomAdmin")}
                 </label>
               </fieldset>
