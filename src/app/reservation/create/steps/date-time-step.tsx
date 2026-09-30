@@ -1,5 +1,5 @@
 import { useLocale, useTranslations } from "next-intl"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Controller, useFormContext, useWatch } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
@@ -34,17 +34,22 @@ export function DateTimeStep({ rooms, priority = false }: { rooms: Room[]; prior
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const maximumDate = addDays(today, 30)
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  })
-  const timeFormatter = new Intl.DateTimeFormat(locale, {
-    timeZone: "Asia/Shanghai",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
+  const [dateFormatter, timeFormatter] = useMemo(
+    () => [
+      new Intl.DateTimeFormat(locale, {
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      }),
+      new Intl.DateTimeFormat(locale, {
+        timeZone: "Asia/Shanghai",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    ],
+    [locale],
+  )
   const formatTime = (timestamp: number) => timeFormatter.format(new Date(timestamp * 1000))
   const hasOpenSlot = availability?.slots.some((slot) => slot.status === "available") ?? false
 

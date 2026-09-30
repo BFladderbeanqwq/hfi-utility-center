@@ -3,7 +3,7 @@
 import { enUS, zhCN } from "date-fns/locale"
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react"
 import { useLocale, useTranslations } from "next-intl"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -43,9 +43,14 @@ export function DateRail({
 
   const selected = inputValueToDate(date)
   const selectedOffset = selected ? Math.round((selected.getTime() - today.getTime()) / DAY_MS) : -1
-  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" })
-  const dayNumber = new Intl.DateTimeFormat(locale, { day: "numeric" })
-  const shortDate = new Intl.DateTimeFormat(locale, { month: "numeric", day: "numeric" })
+  const { weekday, dayNumber, shortDate } = useMemo(
+    () => ({
+      weekday: new Intl.DateTimeFormat(locale, { weekday: "short" }),
+      dayNumber: new Intl.DateTimeFormat(locale, { day: "numeric" }),
+      shortDate: new Intl.DateTimeFormat(locale, { month: "numeric", day: "numeric" }),
+    }),
+    [locale],
+  )
 
   const totalDays = Math.round((maximumDate.getTime() - today.getTime()) / DAY_MS) + 1
   const lastPage = Math.max(0, totalDays - PAGE)

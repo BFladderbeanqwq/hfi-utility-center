@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLocale, useTranslations } from "next-intl"
-import { useEffect, useState, type FormEvent, type ReactNode } from "react"
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 
 import { AppShell } from "@/components/layout/app-shell"
@@ -86,6 +86,15 @@ export function ReservationForm() {
     control: form.control,
     name: ["room", "date", "startTime", "endTime"],
   })
+  const timeRangeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    [locale],
+  )
   const { ref: stepRef, shake: shakeStep } = useErrorShake<HTMLDivElement>()
 
   useEffect(() => {
@@ -286,11 +295,10 @@ export function ReservationForm() {
             ) : null}
             {selectedStart && selectedEnd ? (
               <span className="tabular-nums">
-                {new Intl.DateTimeFormat(locale, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                }).formatRange(new Date(selectedStart * 1000), new Date(selectedEnd * 1000))}
+                {timeRangeFormatter.formatRange(
+                  new Date(selectedStart * 1000),
+                  new Date(selectedEnd * 1000),
+                )}
               </span>
             ) : null}
             {selectedDate ? (
@@ -369,11 +377,15 @@ export function ReservationForm() {
 function PriorityPreview({ preview }: { preview: CreateReservationPreview }) {
   const t = useTranslations("booking")
   const locale = useLocale()
-  const clock = new Intl.DateTimeFormat(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
+  const clock = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+    [locale],
+  )
 
   return (
     <section className="flex min-w-0 flex-col items-start gap-4 text-left">
